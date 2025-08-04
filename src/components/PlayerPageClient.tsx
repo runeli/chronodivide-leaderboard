@@ -202,7 +202,7 @@ export default function PlayerPageClient({
                         {player.mmr} MMR
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {player.points} LP
+                        {player.points} Ladder Points
                       </Typography>
                     </Box>
 
