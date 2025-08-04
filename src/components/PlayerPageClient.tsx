@@ -1,27 +1,35 @@
 'use client';
 
-import PlayerNameLink from '@/components/PlayerNameLink';
-import PlayerPerformanceGraph from '@/components/PlayerPerformanceGraph';
-import RankIcon from '@/components/RankIcon';
-import { formatRankType, LadderType, PlayerMatchHistoryEntry, usePlayerMatchHistory, usePlayerSearch } from '@/lib/api';
-import { ArrowBack, Download } from '@mui/icons-material';
 import {
-  Alert,
+  Typography,
   Box,
-  Button,
   Card,
   CardContent,
-  Chip,
-  CircularProgress,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
+  Chip,
+  Button,
+  CircularProgress,
+  Alert,
+  Tooltip,
 } from '@mui/material';
+import { ArrowBack, Download } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import {
+  usePlayerMatchHistory,
+  usePlayerSearch,
+  formatRankType,
+  LadderType,
+  PlayerMatchHistoryEntry,
+} from '@/lib/api';
+import PlayerNameLink from '@/components/PlayerNameLink';
+import PlayerPerformanceGraph from '@/components/PlayerPerformanceGraph';
+import RankIcon from '@/components/RankIcon';
 
 interface PlayerPageClientProps {
   playerName: string;
@@ -31,30 +39,19 @@ const removeUnsafeFilenameCharacters = (input: string): string => {
   return input.replace(/[^0-9a-zA-Z_\-]+/g, '_').replace(/__+/g, '_');
 };
 
-const formatReplayFilename = (playerName: string, game: PlayerMatchHistoryEntry): string => {
-  return `${playerName}_${[...(game.teamMates || []), ...(game.opponents || [])].join(
-    '_'
-  )}_${removeUnsafeFilenameCharacters(game.map)}_${removeUnsafeFilenameCharacters(new Date(game.timestamp).toISOString())}.rpl`.replace(
-    /__+/g,
-    '_'
-  );
-};
-
 const isReplayAvailable = (game: PlayerMatchHistoryEntry): boolean => {
   return game.timestamp > 1754199900000;
 };
 
-const formatDuration = (mins: number | null | undefined) => {
-  if (mins == null) {
-    return '';
-  }
-  return `${mins} m`;
-};
-
-export default function PlayerPageClient({ playerName }: PlayerPageClientProps) {
+export default function PlayerPageClient({
+  playerName,
+}: PlayerPageClientProps) {
   const router = useRouter();
   const decodedPlayerName = decodeURIComponent(playerName);
   const ladderType: LadderType = '1v1';
+  const [downloadingReplays, setDownloadingReplays] = useState<Set<string>>(
+    new Set()
+  );
 
   const {
     data: players,
@@ -67,6 +64,77 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
     error: matchHistoryError,
     isLoading: matchHistoryLoading,
   } = usePlayerMatchHistory(ladderType, decodedPlayerName);
+
+  const formatDuration = (seconds: number) => {
+    if (isNaN(seconds) || seconds == null || seconds < 0) {
+      return '-';
+    }
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const generateReplayFilename = (
+    match: PlayerMatchHistoryEntry,
+    playerName: string
+  ) => {
+    const date = new Date(match.timestamp).toISOString().split('T')[0];
+    const allPlayers = [
+      ...(match.teamMates || []),
+      ...(match.opponents || []),
+    ].join('_');
+    const cleanPlayerName = removeUnsafeFilenameCharacters(playerName);
+    const cleanMap = removeUnsafeFilenameCharacters(match.map);
+    const result = match.result.toUpperCase();
+
+    return `${date}_${cleanPlayerName}_vs_${allPlayers}_${result}_${cleanMap}.rpl`.replace(
+      /__+/g,
+      '_'
+    );
+  };
+
+  const handleDownload = async (match: PlayerMatchHistoryEntry) => {
+    const gameId = match.gameId;
+
+    if (downloadingReplays.has(gameId)) {
+      return;
+    }
+
+    setDownloadingReplays((prev) => new Set(prev).add(gameId));
+
+    try {
+      const response = await fetch(match.replayUrl, {
+        method: 'GET',
+        mode: 'cors',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = generateReplayFilename(match, decodedPlayerName);
+      a.style.display = 'none';
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      window.open(match.replayUrl, '_blank');
+    } finally {
+      setDownloadingReplays((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(gameId);
+        return newSet;
+      });
+    }
+  };
 
   const getResultColor = (result: string) => {
     switch (result.toLowerCase()) {
@@ -90,7 +158,11 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
   }
 
   if (playerError || matchHistoryError || !players || players.length === 0) {
-    return <Alert severity="error">Failed to load player data. Please check the player name and try again.</Alert>;
+    return (
+      <Alert severity="error">
+        Failed to load player data. Please check the player name and try again.
+      </Alert>
+    );
   }
 
   const player = players[0];
@@ -105,13 +177,16 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
           alignItems: 'center',
         }}
       >
-        <Button startIcon={<ArrowBack />} onClick={() => router.push('/')} variant="outlined">
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => router.push('/')}
+          variant="outlined"
+        >
           Back to Leaderboard
         </Button>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-        {/* Player Statistics */}
         <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
           <Box sx={{ mb: 3 }}>
             <Card>
@@ -176,7 +251,12 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                     </Box>
 
                     <Typography variant="body2" color="text.secondary">
-                      Win Rate: {((player.wins / (player.wins + player.losses)) * 100).toFixed(1)}%
+                      Win Rate:{' '}
+                      {(
+                        (player.wins / (player.wins + player.losses)) *
+                        100
+                      ).toFixed(1)}
+                      %
                     </Typography>
                   </>
                 )}
@@ -190,13 +270,14 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
             </Card>
           </Box>
 
-          {/* Performance Graph */}
           {matchHistory && matchHistory.length > 0 && (
-            <PlayerPerformanceGraph matchHistory={matchHistory} currentMMR={player.mmr} />
+            <PlayerPerformanceGraph
+              matchHistory={matchHistory}
+              currentMMR={player.mmr}
+            />
           )}
         </Box>
 
-        {/* Match History */}
         <Box sx={{ flex: '2 1 600px' }}>
           <Box
             sx={{
@@ -226,7 +307,9 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                 <TableBody>
                   {matchHistory.slice(0, 25).map((match) => (
                     <TableRow key={match.gameId}>
-                      <TableCell>{new Date(match.timestamp).toLocaleString()}</TableCell>
+                      <TableCell>
+                        {new Date(match.timestamp).toLocaleString()}
+                      </TableCell>
                       <TableCell>
                         <Chip
                           label={match.result.toUpperCase()}
@@ -236,7 +319,12 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" color={match.mmrGain > 0 ? 'success.main' : 'error.main'}>
+                        <Typography
+                          variant="body2"
+                          color={
+                            match.mmrGain > 0 ? 'success.main' : 'error.main'
+                          }
+                        >
                           {match.mmrGain > 0 ? '+' : ''}
                           {match.mmrGain}
                         </Typography>
@@ -245,16 +333,60 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                       <TableCell>
                         {match.opponents.map((opponent, index) => (
                           <Box key={index}>
-                            <PlayerNameLink playerName={opponent} variant="body2" />
+                            <PlayerNameLink
+                              playerName={opponent}
+                              variant="body2"
+                            />
                           </Box>
                         ))}
                       </TableCell>
                       <TableCell>{formatDuration(match.duration)}</TableCell>
                       <TableCell>
-                        {isReplayAvailable(match) && (
-                          <a download={formatReplayFilename(player.name, match)} href={match.replayUrl}>
+                        {isReplayAvailable(match) ? (
+                          <Tooltip
+                            title={`Download as: ${generateReplayFilename(
+                              match,
+                              decodedPlayerName
+                            )}`}
+                            placement="top"
+                          >
+                            <Box
+                              component="button"
+                              onClick={() => handleDownload(match)}
+                              disabled={downloadingReplays.has(match.gameId)}
+                              sx={{
+                                background: 'none',
+                                border: 'none',
+                                cursor: downloadingReplays.has(match.gameId)
+                                  ? 'default'
+                                  : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '4px',
+                                color: 'inherit',
+                                borderRadius: 0,
+                                opacity: downloadingReplays.has(match.gameId)
+                                  ? 0.5
+                                  : 1,
+                                '&:hover': {
+                                  color: downloadingReplays.has(match.gameId)
+                                    ? 'inherit'
+                                    : 'primary.main',
+                                },
+                              }}
+                              aria-label="Download replay"
+                            >
+                              {downloadingReplays.has(match.gameId) ? (
+                                <CircularProgress size={16} />
+                              ) : (
+                                <Download fontSize="small" />
+                              )}
+                            </Box>
+                          </Tooltip>
+                        ) : (
+                          <Box sx={{ opacity: 0.3 }}>
                             <Download fontSize="small" />
-                          </a>
+                          </Box>
                         )}
                       </TableCell>
                     </TableRow>
@@ -263,7 +395,9 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
               </Table>
             </TableContainer>
           ) : (
-            <Alert severity="info">No match history available for this player.</Alert>
+            <Alert severity="info">
+              No match history available for this player.
+            </Alert>
           )}
         </Box>
       </Box>
