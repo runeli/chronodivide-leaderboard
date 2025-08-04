@@ -1,26 +1,105 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffff00;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: 'Fira Sans Condensed';
+  --font-mono: 'Fira Sans Condensed';
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Fira Sans Condensed';
+  font-size: 13px;
+  color: yellow;
+  font-weight: 500;
+  background: rgba(0, 0, 0, .75);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+* {
+  border-radius: 0 !important;
+}
+
+/* Red Alert 2 styling for links */
+a:link,
+a:visited {
+  color: red;
+}
+
+a:hover {
+  color: #ff4500;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 19px;
+  height: 18px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border: 1px solid red;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ff0000;
+  border: 1px solid #a20000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff4500;
+}
+
+/* Red Alert 2 form input styling */
+input[type="text"],
+input[type="url"],
+input[type="password"],
+select {
+  background: transparent;
+  border: 1px red solid;
+  color: yellow;
+  font-family: 'Fira Sans Condensed';
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 0;
+  padding-left: 4px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: red;
+}
+
+input:disabled,
+select:disabled {
+  color: #9c0000;
+  border-color: #9c0000;
+}
+
+/* Custom button styling that matches Red Alert 2 */
+button {
+  font-family: 'Fira Sans Condensed';
+  font-size: 13px;
+  color: yellow;
+  font-weight: 500;
+  border-radius: 0;
+  border: 1px solid red;
+  background: rgba(0, 0, 0, .75);
+}
+
+button:hover:not(:disabled) {
+  background: #ff4500;
+  color: yellow;
+}
+
+button:disabled {
+  color: #9c0000;
+  border-color: #9c0000;
 }
