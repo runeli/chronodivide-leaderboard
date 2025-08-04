@@ -1,42 +1,57 @@
 'use client';
 
+import PlayerNameLink from '@/components/PlayerNameLink';
+import PlayerPerformanceGraph from '@/components/PlayerPerformanceGraph';
+import RankIcon from '@/components/RankIcon';
+import { formatRankType, LadderType, PlayerMatchHistoryEntry, usePlayerMatchHistory, usePlayerSearch } from '@/lib/api';
+import { ArrowBack, Download } from '@mui/icons-material';
 import {
-  Typography,
+  Alert,
   Box,
+  Button,
   Card,
   CardContent,
+  Chip,
+  CircularProgress,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
-  Button,
-  CircularProgress,
-  Alert,
-  Link,
+  Typography,
 } from '@mui/material';
-import { ArrowBack, Download } from '@mui/icons-material';
-import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  usePlayerMatchHistory,
-  usePlayerSearch,
-  formatRankType,
-  LadderType,
-} from '@/lib/api';
-import PlayerNameLink from '@/components/PlayerNameLink';
-import PlayerPerformanceGraph from '@/components/PlayerPerformanceGraph';
-import RankIcon from '@/components/RankIcon';
 
 interface PlayerPageClientProps {
   playerName: string;
 }
 
-export default function PlayerPageClient({
-  playerName,
-}: PlayerPageClientProps) {
+const removeUnsafeFilenameCharacters = (input: string): string => {
+  return input.replace(/[^0-9a-zA-Z_\-]+/g, '_').replace(/__+/g, '_');
+};
+
+const formatReplayFilename = (playerName: string, game: PlayerMatchHistoryEntry): string => {
+  return `${playerName}_${[...(game.teamMates || []), ...(game.opponents || [])].join(
+    '_'
+  )}_${removeUnsafeFilenameCharacters(game.map)}_${removeUnsafeFilenameCharacters(new Date(game.timestamp).toISOString())}.rpl`.replace(
+    /__+/g,
+    '_'
+  );
+};
+
+const isReplayAvailable = (game: PlayerMatchHistoryEntry): boolean => {
+  return game.timestamp > 1754199900000;
+};
+
+const formatDuration = (mins: number | null | undefined) => {
+  if (mins == null) {
+    return '';
+  }
+  return `${mins} m`;
+};
+
+export default function PlayerPageClient({ playerName }: PlayerPageClientProps) {
   const router = useRouter();
   const decodedPlayerName = decodeURIComponent(playerName);
   const ladderType: LadderType = '1v1';
@@ -52,15 +67,6 @@ export default function PlayerPageClient({
     error: matchHistoryError,
     isLoading: matchHistoryLoading,
   } = usePlayerMatchHistory(ladderType, decodedPlayerName);
-
-  const formatDuration = (seconds: number) => {
-    if (isNaN(seconds) || seconds == null || seconds < 0) {
-      return '-';
-    }
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   const getResultColor = (result: string) => {
     switch (result.toLowerCase()) {
@@ -84,11 +90,7 @@ export default function PlayerPageClient({
   }
 
   if (playerError || matchHistoryError || !players || players.length === 0) {
-    return (
-      <Alert severity="error">
-        Failed to load player data. Please check the player name and try again.
-      </Alert>
-    );
+    return <Alert severity="error">Failed to load player data. Please check the player name and try again.</Alert>;
   }
 
   const player = players[0];
@@ -103,11 +105,7 @@ export default function PlayerPageClient({
           alignItems: 'center',
         }}
       >
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => router.push('/')}
-          variant="outlined"
-        >
+        <Button startIcon={<ArrowBack />} onClick={() => router.push('/')} variant="outlined">
           Back to Leaderboard
         </Button>
       </Box>
@@ -178,12 +176,7 @@ export default function PlayerPageClient({
                     </Box>
 
                     <Typography variant="body2" color="text.secondary">
-                      Win Rate:{' '}
-                      {(
-                        (player.wins / (player.wins + player.losses)) *
-                        100
-                      ).toFixed(1)}
-                      %
+                      Win Rate: {((player.wins / (player.wins + player.losses)) * 100).toFixed(1)}%
                     </Typography>
                   </>
                 )}
@@ -199,10 +192,7 @@ export default function PlayerPageClient({
 
           {/* Performance Graph */}
           {matchHistory && matchHistory.length > 0 && (
-            <PlayerPerformanceGraph
-              matchHistory={matchHistory}
-              currentMMR={player.mmr}
-            />
+            <PlayerPerformanceGraph matchHistory={matchHistory} currentMMR={player.mmr} />
           )}
         </Box>
 
@@ -236,9 +226,7 @@ export default function PlayerPageClient({
                 <TableBody>
                   {matchHistory.slice(0, 25).map((match) => (
                     <TableRow key={match.gameId}>
-                      <TableCell>
-                        {new Date(match.timestamp).toLocaleString()}
-                      </TableCell>
+                      <TableCell>{new Date(match.timestamp).toLocaleString()}</TableCell>
                       <TableCell>
                         <Chip
                           label={match.result.toUpperCase()}
@@ -248,12 +236,7 @@ export default function PlayerPageClient({
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography
-                          variant="body2"
-                          color={
-                            match.mmrGain > 0 ? 'success.main' : 'error.main'
-                          }
-                        >
+                        <Typography variant="body2" color={match.mmrGain > 0 ? 'success.main' : 'error.main'}>
                           {match.mmrGain > 0 ? '+' : ''}
                           {match.mmrGain}
                         </Typography>
@@ -262,23 +245,17 @@ export default function PlayerPageClient({
                       <TableCell>
                         {match.opponents.map((opponent, index) => (
                           <Box key={index}>
-                            <PlayerNameLink
-                              playerName={opponent}
-                              variant="body2"
-                            />
+                            <PlayerNameLink playerName={opponent} variant="body2" />
                           </Box>
                         ))}
                       </TableCell>
                       <TableCell>{formatDuration(match.duration)}</TableCell>
                       <TableCell>
-                        <Link
-                          component={NextLink}
-                          href={match.replayUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Download fontSize="small" />
-                        </Link>
+                        {isReplayAvailable(match) && (
+                          <a download={formatReplayFilename(player.name, match)} href={match.replayUrl}>
+                            <Download fontSize="small" />
+                          </a>
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -286,9 +263,7 @@ export default function PlayerPageClient({
               </Table>
             </TableContainer>
           ) : (
-            <Alert severity="info">
-              No match history available for this player.
-            </Alert>
+            <Alert severity="info">No match history available for this player.</Alert>
           )}
         </Box>
       </Box>
