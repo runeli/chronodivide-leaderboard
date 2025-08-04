@@ -14,14 +14,11 @@ import {
   Box,
   Select,
   MenuItem,
-  FormControl,
-  InputLabel,
   Pagination,
   SelectChangeEvent,
   Chip,
   TextField,
   Button,
-  Autocomplete,
 } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,7 +29,6 @@ import {
   useLadder,
   useSeasons,
   useSeason,
-  usePlayerSearch,
   LadderType,
   SeasonId,
   LadderHead,
@@ -51,7 +47,6 @@ export default function Leaderboard() {
 
   // Search functionality
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<string[]>([]);
 
   // Fetch available seasons
   const {
@@ -74,13 +69,6 @@ export default function Leaderboard() {
     selectedLadderId,
     (page - 1) * LADDER_PAGE_SIZE + 1,
     LADDER_PAGE_SIZE
-  );
-
-  // Search for player (only search when query has 2+ characters)
-  const { data: searchPlayerData, error: searchError } = usePlayerSearch(
-    ladderType,
-    selectedSeason,
-    searchQuery.length >= 2 ? [searchQuery] : []
   );
 
   // Reset to first available ladder when season or ladder type changes
@@ -140,30 +128,11 @@ export default function Leaderboard() {
     }
   };
 
-  const handleSearchSelect = (
-    event: React.SyntheticEvent,
-    value: string | null
-  ) => {
-    if (value) {
-      // Navigate to player profile
-      router.push(`/player/${encodeURIComponent(value)}`);
-    }
-  };
-
   const handleDirectSearch = () => {
     if (searchQuery.trim()) {
       router.push(`/player/${encodeURIComponent(searchQuery.trim())}`);
     }
   };
-
-  // Update search results when search data changes
-  useEffect(() => {
-    if (searchPlayerData && searchPlayerData.length > 0) {
-      setSearchResults(searchPlayerData.map((player) => player.name));
-    } else {
-      setSearchResults([]);
-    }
-  }, [searchPlayerData]);
 
   // Get available ladders for the current season and ladder type
   const availableLadders = season ? getTopLadders(season, ladderType) : [];
@@ -197,31 +166,14 @@ export default function Leaderboard() {
           Search Player
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <Autocomplete
-            freeSolo
-            options={searchResults}
-            inputValue={searchQuery}
-            onInputChange={(event, newInputValue) => {
-              setSearchQuery(newInputValue);
-            }}
-            onChange={handleSearchSelect}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                placeholder="Enter player name..."
-                variant="outlined"
-                size="small"
-                sx={{ minWidth: 300 }}
-                onChange={handleSearchChange}
-                onKeyPress={handleSearchKeyPress}
-              />
-            )}
+          <TextField
+            placeholder="Enter player name..."
+            variant="outlined"
+            size="small"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            onKeyPress={handleSearchKeyPress}
             sx={{ flex: 1, maxWidth: 400 }}
-            noOptionsText={
-              searchQuery.length < 2
-                ? 'Type at least 2 characters'
-                : 'No players found'
-            }
           />
           <Button
             variant="contained"
@@ -232,23 +184,21 @@ export default function Leaderboard() {
             Search
           </Button>
         </Box>
-        {searchError && (
-          <Alert severity="warning" sx={{ mt: 1 }}>
-            Failed to search for player. Please try again.
-          </Alert>
-        )}
       </Box>
 
       <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
-        <FormControl sx={{ minWidth: 120 }}>
-          <InputLabel id="season-select-label">Season</InputLabel>
+        <Box sx={{ minWidth: 120 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            Season
+          </Typography>
           <Select
-            labelId="season-select-label"
             id="season-select"
             value={selectedSeason}
-            label="Season"
             onChange={handleSeasonChange}
             disabled={seasonsLoading}
+            variant="outlined"
+            size="small"
+            sx={{ minWidth: 120 }}
           >
             {seasons?.map((season) => (
               <MenuItem key={season} value={season}>
@@ -256,31 +206,37 @@ export default function Leaderboard() {
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </Box>
 
-        <FormControl sx={{ minWidth: 120 }}>
-          <InputLabel id="ladder-type-select-label">Game Mode</InputLabel>
+        <Box sx={{ minWidth: 120 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            Game Mode
+          </Typography>
           <Select
-            labelId="ladder-type-select-label"
             id="ladder-type-select"
             value={ladderType}
-            label="Game Mode"
             onChange={handleLadderTypeChange}
+            variant="outlined"
+            size="small"
+            sx={{ minWidth: 120 }}
           >
             <MenuItem value="1v1">1v1</MenuItem>
             <MenuItem value="2v2-random">2v2 Random</MenuItem>
           </Select>
-        </FormControl>
+        </Box>
 
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel id="ladder-select-label">Division</InputLabel>
+        <Box sx={{ minWidth: 200 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            Division
+          </Typography>
           <Select
-            labelId="ladder-select-label"
             id="ladder-select"
             value={selectedLadderId}
-            label="Division"
             onChange={handleLadderChange}
             disabled={seasonLoading || !availableLadders.length}
+            variant="outlined"
+            size="small"
+            sx={{ minWidth: 200 }}
           >
             {availableLadders.map((ladder) => (
               <MenuItem key={ladder.id} value={ladder.id}>
@@ -288,15 +244,12 @@ export default function Leaderboard() {
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </Box>
       </Box>
 
       {/* Show current selection info */}
       {season && selectedLadder && (
         <Box sx={{ mb: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            Showing:
-          </Typography>
           <Chip
             label={getLadderDisplayName(selectedLadder)}
             size="small"
@@ -355,7 +308,7 @@ export default function Leaderboard() {
                         <Chip
                           label={player.rank}
                           size="small"
-                          color={player.rank <= 10 ? 'warning' : 'default'}
+                          color={'default'}
                         />
                       </TableCell>
                       <TableCell>

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import ThemeRegistry from '@/components/ThemeRegistry';
-import { AppBar, Box, Container, Toolbar, Typography } from '@mui/material';
+import { Container } from '@mui/material';
 
 export const metadata: Metadata = {
   title: 'Chrono Divide Replays',
@@ -28,13 +28,6 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeRegistry>
-          <AppBar position="static">
-            <Toolbar>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                Chrono Divide Replays
-              </Typography>
-            </Toolbar>
-          </AppBar>
           <Container component="main" sx={{ mt: 4 }}>
             {children}
           </Container>

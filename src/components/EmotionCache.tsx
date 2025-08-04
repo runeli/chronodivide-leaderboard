@@ -4,12 +4,20 @@ import { useServerInsertedHTML } from 'next/navigation';
 import createCache from '@emotion/cache';
 import { CacheProvider as EmotionCacheProvider } from '@emotion/react';
 
-export default function NextAppDirEmotionCacheProvider({ options, children }) {
+interface EmotionCacheProviderProps {
+  options: Parameters<typeof createCache>[0];
+  children: React.ReactNode;
+}
+
+export default function NextAppDirEmotionCacheProvider({
+  options,
+  children,
+}: EmotionCacheProviderProps) {
   const [{ cache, flush }] = React.useState(() => {
     const cache = createCache(options);
     cache.compat = true;
     const prevInsert = cache.insert;
-    let inserted = [];
+    let inserted: string[] = [];
     cache.insert = (...args) => {
       const serialized = args[1];
       if (cache.inserted[serialized.name] === undefined) {

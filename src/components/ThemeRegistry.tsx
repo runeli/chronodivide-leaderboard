@@ -84,7 +84,39 @@ const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          background: 'rgba(0, 0, 0, 0.75)',
+          background: `
+            radial-gradient(circle at 25% 25%, rgba(255, 0, 0, 0.08) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(255, 255, 0, 0.03) 0%, transparent 50%),
+            linear-gradient(45deg, 
+              rgba(40, 40, 40, 0.6) 25%, 
+              transparent 25%, 
+              transparent 75%, 
+              rgba(40, 40, 40, 0.6) 75%, 
+              rgba(40, 40, 40, 0.6)
+            ),
+            linear-gradient(-45deg, 
+              rgba(40, 40, 40, 0.6) 25%, 
+              transparent 25%, 
+              transparent 75%, 
+              rgba(40, 40, 40, 0.6) 75%, 
+              rgba(40, 40, 40, 0.6)
+            ),
+            #1a1a1a
+          `,
+          backgroundSize: `
+            800px 800px,
+            600px 600px,
+            60px 60px,
+            60px 60px,
+            auto
+          `,
+          backgroundPosition: `
+            0 0,
+            400px 400px,
+            0 0,
+            30px 30px,
+            0 0
+          `,
           fontFamily: '"Fira Sans Condensed"',
           fontSize: '13px',
           color: '#ffff00',
