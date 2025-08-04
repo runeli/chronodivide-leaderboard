@@ -273,7 +273,7 @@ export default function PlayerPageClient({
                       <TableCell>
                         <Link
                           component={NextLink}
-                          href={`https://chronodivide.com/replays/${match.gameId}.rpl`}
+                          href={match.replayUrl}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
