@@ -237,7 +237,7 @@ export default function PlayerPageClient({
                   {matchHistory.slice(0, 25).map((match) => (
                     <TableRow key={match.gameId}>
                       <TableCell>
-                        {new Date(match.timestamp * 1000).toLocaleDateString()}
+                        {new Date(match.timestamp).toLocaleString()}
                       </TableCell>
                       <TableCell>
                         <Chip
@@ -273,7 +273,7 @@ export default function PlayerPageClient({
                       <TableCell>
                         <Link
                           component={NextLink}
-                          href={`https://chronodivide.com/replays/${match.gameId}.cdp`}
+                          href={`https://chronodivide.com/replays/${match.gameId}.rpl`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
