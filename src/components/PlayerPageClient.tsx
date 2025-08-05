@@ -227,7 +227,7 @@ export default function PlayerPageClient({
               alignItems: 'center',
             }}
           >
-            <Typography variant="h6">Recent Matches (Last 25)</Typography>
+            <Typography variant="h6">Recent Matches (Last 50)</Typography>
           </Box>
 
           {matchHistory && matchHistory.length > 0 ? (
@@ -245,7 +245,7 @@ export default function PlayerPageClient({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {matchHistory.slice(0, 25).map((match) => (
+                  {matchHistory.slice(0, 50).map((match) => (
                     <TableRow key={match.gameId}>
                       <TableCell>
                         {new Date(match.timestamp).toLocaleString()}
