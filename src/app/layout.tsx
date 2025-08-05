@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import ThemeRegistry from '@/components/ThemeRegistry';
-import { Container } from '@mui/material';
+import { Container, Box } from '@mui/material';
+import { RegionProvider } from '@/contexts/RegionContext';
+import RegionPicker from '@/components/RegionPicker';
 
 export const metadata: Metadata = {
   title: 'Chrono Divide Replays',
@@ -28,9 +30,14 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeRegistry>
-          <Container component="main" sx={{ mt: 4 }}>
-            {children}
-          </Container>
+          <RegionProvider>
+            <Container component="main" sx={{ mt: 2 }}>
+              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <RegionPicker />
+              </Box>
+              {children}
+            </Container>
+          </RegionProvider>
         </ThemeRegistry>
       </body>
     </html>

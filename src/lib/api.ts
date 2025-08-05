@@ -1,27 +1,43 @@
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 
-const API_BASE_URLS = [
-  'https://wol-eu1.chronodivide.com',
-  'https://wol-sea1.chronodivide.com',
-];
+// Global variable to store the current base URL for API calls
+let currentApiBaseUrl = 'https://wol-eu1.chronodivide.com'; // Default to EU
 
-// A simple fetcher function that works with SWR.
-// It tries the EU server first, then falls back to the SEA server.
+// Function to set the API base URL (called by the region context)
+export function setApiBaseUrl(baseUrl: string) {
+  currentApiBaseUrl = baseUrl;
+}
+
+// Function to get the current API base URL
+export function getApiBaseUrl() {
+  return currentApiBaseUrl;
+}
+
+// Function to clear all cached data (useful when switching regions)
+export function clearApiCache() {
+  // Clear all SWR cache entries that start with our API paths
+  mutate(
+    (key) =>
+      Array.isArray(key) &&
+      typeof key[0] === 'string' &&
+      key[0].startsWith('/ladder/'),
+    undefined,
+    { revalidate: false }
+  );
+}
+
+// Updated fetcher function that uses the selected region
 const fetcher = async (path: string, options?: RequestInit) => {
-  let error: unknown = null;
-  for (const baseUrl of API_BASE_URLS) {
-    try {
-      const res = await fetch(`${baseUrl}${path}`, options);
-      if (!res.ok) {
-        throw new Error(`Request failed with status ${res.status}`);
-      }
-      return res.json();
-    } catch (e) {
-      error = e;
-      console.warn(`Failed to fetch from ${baseUrl}, trying next server...`);
+  try {
+    const res = await fetch(`${currentApiBaseUrl}${path}`, options);
+    if (!res.ok) {
+      throw new Error(`Request failed with status ${res.status}`);
     }
+    return res.json();
+  } catch (error) {
+    console.error(`Failed to fetch from ${currentApiBaseUrl}:`, error);
+    throw error;
   }
-  throw error ?? new Error('All API servers are unreachable.');
 };
 
 // --- API Types (based on documentation) ---
@@ -111,8 +127,11 @@ export interface PlayerMatchHistoryEntry {
 // Hook: Fetch available seasons
 export function useSeasons(ladderType?: LadderType) {
   const path = ladderType ? `/ladder/16640/${ladderType}` : `/ladder/16640/1v1`;
+  const apiBaseUrl = getApiBaseUrl();
 
-  const { data, error, isLoading } = useSWR<string[]>(path, fetcher);
+  const { data, error, isLoading } = useSWR<string[]>([path, apiBaseUrl], () =>
+    fetcher(path)
+  );
 
   return {
     data,
@@ -124,10 +143,11 @@ export function useSeasons(ladderType?: LadderType) {
 // Hook: Fetch season details with all ladders
 export function useSeason(seasonId: SeasonId) {
   const path = `/ladder/16640/${seasonId}`;
+  const apiBaseUrl = getApiBaseUrl();
 
   const { data, error, isLoading } = useSWR<LadderSeason>(
-    seasonId ? path : null,
-    fetcher
+    seasonId ? [path, apiBaseUrl] : null,
+    () => fetcher(path)
   );
 
   return {
@@ -146,10 +166,11 @@ export function useLadder(
   count: number
 ) {
   const path = `/ladder/16640/${ladderType}/${seasonId}/rungsearch`;
+  const apiBaseUrl = getApiBaseUrl();
 
   const { data, error, isLoading } = useSWR<PagedResponse<PlayerLadderRung>>(
     seasonId && ladderId !== undefined
-      ? [path, ladderType, seasonId, ladderId, start, count]
+      ? [path, ladderType, seasonId, ladderId, start, count, apiBaseUrl]
       : null,
     () =>
       fetcher(path, {
@@ -173,12 +194,13 @@ export function usePlayerSearch(
   playerNames: string[]
 ) {
   const path = `/ladder/16640/${ladderType}/${seasonId}/listsearch`;
+  const apiBaseUrl = getApiBaseUrl();
 
   const { data, error, isLoading } = useSWR<
     (PlayerRankedProfile | PlayerUnrankedProfile)[]
   >(
     seasonId && playerNames.length > 0
-      ? [path, ladderType, seasonId, playerNames]
+      ? [path, ladderType, seasonId, playerNames, apiBaseUrl]
       : null,
     () =>
       fetcher(path, {
@@ -201,9 +223,10 @@ export function usePlayerMatchHistory(
   playerName: string
 ) {
   const path = `/ladder/16640/${ladderType}/match-history`;
+  const apiBaseUrl = getApiBaseUrl();
 
   const { data, error, isLoading } = useSWR<PlayerMatchHistoryEntry[]>(
-    playerName ? [path, ladderType, playerName] : null,
+    playerName ? [path, ladderType, playerName, apiBaseUrl] : null,
     () =>
       fetcher(path, {
         method: 'POST',

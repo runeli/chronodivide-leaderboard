@@ -20,8 +20,8 @@ import {
   TextField,
   Button,
 } from '@mui/material';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search } from '@mui/icons-material';
 import PlayerNameLink from '@/components/PlayerNameLink';
 import RankIcon from '@/components/RankIcon';
@@ -40,13 +40,85 @@ const LADDER_PAGE_SIZE = 25;
 
 export default function Leaderboard() {
   const router = useRouter();
-  const [selectedSeason, setSelectedSeason] = useState<SeasonId>('current');
+  const searchParams = useSearchParams();
+
+  const [selectedSeason, setSelectedSeason] = useState<SeasonId>('');
   const [ladderType, setLadderType] = useState<LadderType>('1v1');
   const [selectedLadderId, setSelectedLadderId] = useState<number>(0); // Default to Generals
   const [page, setPage] = useState(1);
 
   // Search functionality
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Helper function to update URL with current selections
+  const updateURL = useCallback(
+    (updates: {
+      season?: SeasonId;
+      gameMode?: LadderType;
+      division?: number;
+      page?: number;
+    }) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (updates.season !== undefined) {
+        if (updates.season) {
+          params.set('season', updates.season);
+        } else {
+          params.delete('season');
+        }
+      }
+
+      if (updates.gameMode !== undefined) {
+        params.set('gameMode', updates.gameMode);
+      }
+
+      if (updates.division !== undefined) {
+        params.set('division', updates.division.toString());
+      }
+
+      if (updates.page !== undefined) {
+        if (updates.page > 1) {
+          params.set('page', updates.page.toString());
+        } else {
+          params.delete('page');
+        }
+      }
+
+      const newURL = `${window.location.pathname}?${params.toString()}`;
+      router.replace(newURL, { scroll: false });
+    },
+    [searchParams, router]
+  );
+
+  // Initialize state from URL parameters
+  useEffect(() => {
+    const seasonParam = searchParams.get('season') as SeasonId;
+    const gameModeParam = searchParams.get('gameMode') as LadderType;
+    const divisionParam = searchParams.get('division');
+    const pageParam = searchParams.get('page');
+
+    if (
+      seasonParam &&
+      (seasonParam === 'current' || !isNaN(Number(seasonParam)))
+    ) {
+      setSelectedSeason(seasonParam);
+    }
+
+    if (
+      gameModeParam &&
+      (gameModeParam === '1v1' || gameModeParam === '2v2-random')
+    ) {
+      setLadderType(gameModeParam);
+    }
+
+    if (divisionParam && !isNaN(Number(divisionParam))) {
+      setSelectedLadderId(Number(divisionParam));
+    }
+
+    if (pageParam && !isNaN(Number(pageParam))) {
+      setPage(Number(pageParam));
+    }
+  }, [searchParams]); // Include searchParams dependency
 
   // Fetch available seasons
   const {
@@ -60,54 +132,74 @@ export default function Leaderboard() {
     data: season,
     error: seasonError,
     isLoading: seasonLoading,
-  } = useSeason(selectedSeason);
+  } = useSeason(selectedSeason || 'current');
 
   // Fetch ladder data (API uses 1-based indexing)
   const { data, error, isLoading } = useLadder(
     ladderType,
-    selectedSeason,
+    selectedSeason || 'current',
     selectedLadderId,
     (page - 1) * LADDER_PAGE_SIZE + 1,
     LADDER_PAGE_SIZE
   );
 
-  // Reset to first available ladder when season or ladder type changes
+  // Auto-select first available ladder when season or ladder type changes (only if current selection is invalid)
   useEffect(() => {
     if (season) {
       const availableLadders = getTopLadders(season, ladderType);
       if (availableLadders.length > 0) {
-        // Try to find a regular division ladder first (ID >= 2), fallback to Contenders (1), then Generals (0)
-        const regularLadder = availableLadders.find((l) => l.id >= 2);
-        const fallbackLadder =
-          availableLadders.find((l) => l.id === 1) || availableLadders[0];
-        const selectedLadder = regularLadder || fallbackLadder;
+        // Check if current selected ladder is still valid
+        const currentLadderStillExists = availableLadders.find(
+          (l) => l.id === selectedLadderId
+        );
 
-        setSelectedLadderId(selectedLadder.id);
-        setPage(1);
+        if (!currentLadderStillExists) {
+          // Only auto-select if current ladder doesn't exist in new available ladders
+          // Try to find a regular division ladder first (ID >= 2), fallback to Contenders (1), then Generals (0)
+          const regularLadder = availableLadders.find((l) => l.id >= 2);
+          const fallbackLadder =
+            availableLadders.find((l) => l.id === 1) || availableLadders[0];
+          const targetLadderId = (regularLadder || fallbackLadder).id;
+
+          setSelectedLadderId(targetLadderId);
+          setPage(1);
+          updateURL({ division: targetLadderId, page: 1 });
+        }
       }
     }
-  }, [season, ladderType]);
+  }, [season, ladderType, selectedLadderId, updateURL]);
 
-  // Reset to current season when seasons are loaded
+  // Set initial season when seasons are loaded
   useEffect(() => {
-    if (seasons && seasons.includes('current')) {
-      setSelectedSeason('current');
+    if (seasons && seasons.length > 0 && !selectedSeason) {
+      // Prefer 'current' if available, otherwise use the first season
+      const initialSeason = seasons.includes('current')
+        ? 'current'
+        : seasons[0];
+      setSelectedSeason(initialSeason);
+      updateURL({ season: initialSeason });
     }
-  }, [seasons]);
+  }, [seasons, selectedSeason, updateURL]);
 
   const handleSeasonChange = (event: SelectChangeEvent<string>) => {
-    setSelectedSeason(event.target.value as SeasonId);
+    const newSeason = event.target.value as SeasonId;
+    setSelectedSeason(newSeason);
     setPage(1);
+    updateURL({ season: newSeason, page: 1 });
   };
 
   const handleLadderTypeChange = (event: SelectChangeEvent<string>) => {
-    setLadderType(event.target.value as LadderType);
+    const newLadderType = event.target.value as LadderType;
+    setLadderType(newLadderType);
     setPage(1);
+    updateURL({ gameMode: newLadderType, page: 1 });
   };
 
   const handleLadderChange = (event: SelectChangeEvent<number>) => {
-    setSelectedLadderId(event.target.value as number);
+    const newLadderId = event.target.value as number;
+    setSelectedLadderId(newLadderId);
     setPage(1);
+    updateURL({ division: newLadderId, page: 1 });
   };
 
   const handlePageChange = (
@@ -115,6 +207,7 @@ export default function Leaderboard() {
     value: number
   ) => {
     setPage(value);
+    updateURL({ page: value });
   };
 
   // Search handlers
@@ -193,9 +286,9 @@ export default function Leaderboard() {
           </Typography>
           <Select
             id="season-select"
-            value={selectedSeason}
+            value={selectedSeason || ''}
             onChange={handleSeasonChange}
-            disabled={seasonsLoading}
+            disabled={seasonsLoading || !seasons}
             variant="outlined"
             size="small"
             sx={{ minWidth: 120 }}
