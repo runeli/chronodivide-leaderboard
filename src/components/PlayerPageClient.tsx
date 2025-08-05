@@ -172,7 +172,18 @@ export default function PlayerPageClient({
   if (playerError || matchHistoryError || !players || players.length === 0) {
     return (
       <Alert severity="error">
-        Failed to load <b>{safePlayerName}</b> data. Wrong region?
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => router.push('/')}
+          variant="outlined"
+        >
+          Back to Leaderboard
+        </Button>
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="body2" color="text.secondary">
+            Failed to load <b>{safePlayerName}</b> data. Wrong region?
+          </Typography>
+        </Box>
       </Alert>
     );
   }
