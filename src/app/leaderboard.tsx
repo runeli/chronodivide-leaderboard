@@ -57,6 +57,7 @@ export default function Leaderboard() {
       gameMode?: LadderType;
       division?: number;
       page?: number;
+      region?: string;
     }) => {
       const params = new URLSearchParams(searchParams.toString());
 
@@ -84,6 +85,10 @@ export default function Leaderboard() {
         }
       }
 
+      if (updates.region !== undefined) {
+        params.set('region', updates.region);
+      }
+
       const newURL = `${window.location.pathname}?${params.toString()}`;
       router.replace(newURL, { scroll: false });
     },
@@ -96,6 +101,7 @@ export default function Leaderboard() {
     const gameModeParam = searchParams.get('gameMode') as LadderType;
     const divisionParam = searchParams.get('division');
     const pageParam = searchParams.get('page');
+    // Note: region parameter is handled by RegionContext
 
     if (
       seasonParam &&

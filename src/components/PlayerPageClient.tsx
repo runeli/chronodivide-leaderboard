@@ -43,11 +43,25 @@ const isReplayAvailable = (game: PlayerMatchHistoryEntry): boolean => {
   return game.timestamp > 1754199900000;
 };
 
+const createSafePlayerName = (rawPlayerName: string): string => {
+  try {
+    const decoded = decodeURIComponent(rawPlayerName);
+    const sanitized = decoded
+      .replace(/[<>\"'&]/g, '')
+      .trim()
+      .substring(0, 50);
+    return sanitized || 'Unknown Player';
+  } catch {
+    return rawPlayerName.substring(0, 50) || 'Unknown Player';
+  }
+};
+
 export default function PlayerPageClient({
   playerName,
 }: PlayerPageClientProps) {
   const router = useRouter();
   const decodedPlayerName = decodeURIComponent(playerName);
+  const safePlayerName = createSafePlayerName(playerName);
   const ladderType: LadderType = '1v1';
   const [downloadingReplays, setDownloadingReplays] = useState<Set<string>>(
     new Set()
@@ -158,7 +172,7 @@ export default function PlayerPageClient({
   if (playerError || matchHistoryError || !players || players.length === 0) {
     return (
       <Alert severity="error">
-        Failed to load player data. Please check the player name and try again.
+        Failed to load <b>{safePlayerName}</b> data. Wrong region?
       </Alert>
     );
   }

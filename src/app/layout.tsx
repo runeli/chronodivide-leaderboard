@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import ThemeRegistry from '@/components/ThemeRegistry';
-import { Container, Box } from '@mui/material';
+import { Container, Box, CircularProgress } from '@mui/material';
 import { RegionProvider } from '@/contexts/RegionContext';
 import RegionPicker from '@/components/RegionPicker';
 
@@ -30,14 +31,27 @@ export default function RootLayout({
       </head>
       <body>
         <ThemeRegistry>
-          <RegionProvider>
-            <Container component="main" sx={{ mt: 2 }}>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                <RegionPicker />
-              </Box>
-              {children}
-            </Container>
-          </RegionProvider>
+          <Suspense
+            fallback={
+              <Container
+                component="main"
+                sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
+              >
+                <CircularProgress />
+              </Container>
+            }
+          >
+            <RegionProvider>
+              <Container component="main" sx={{ mt: 2 }}>
+                <Box
+                  sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}
+                >
+                  <RegionPicker />
+                </Box>
+                {children}
+              </Container>
+            </RegionProvider>
+          </Suspense>
         </ThemeRegistry>
       </body>
     </html>

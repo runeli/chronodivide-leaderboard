@@ -1,21 +1,16 @@
 import useSWR, { mutate } from 'swr';
 
-// Global variable to store the current base URL for API calls
-let currentApiBaseUrl = 'https://wol-eu1.chronodivide.com'; // Default to EU
+let currentApiBaseUrl = 'https://wol-eu1.chronodivide.com';
 
-// Function to set the API base URL (called by the region context)
 export function setApiBaseUrl(baseUrl: string) {
   currentApiBaseUrl = baseUrl;
 }
 
-// Function to get the current API base URL
 export function getApiBaseUrl() {
   return currentApiBaseUrl;
 }
 
-// Function to clear all cached data (useful when switching regions)
 export function clearApiCache() {
-  // Clear all SWR cache entries that start with our API paths
   mutate(
     (key) =>
       Array.isArray(key) &&
@@ -26,7 +21,6 @@ export function clearApiCache() {
   );
 }
 
-// Updated fetcher function that uses the selected region
 const fetcher = async (path: string, options?: RequestInit) => {
   try {
     const res = await fetch(`${currentApiBaseUrl}${path}`, options);
@@ -40,7 +34,11 @@ const fetcher = async (path: string, options?: RequestInit) => {
   }
 };
 
-// --- API Types (based on documentation) ---
+const playerSWRConfig = {
+  errorRetryCount: 0,
+  revalidateOnFocus: false,
+  revalidateOnReconnect: false,
+};
 
 export type GameSku = 16640;
 export type LadderType = '1v1' | '2v2-random';
@@ -207,7 +205,8 @@ export function usePlayerSearch(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ players: playerNames }),
-      })
+      }),
+    playerSWRConfig
   );
 
   return {
@@ -232,7 +231,8 @@ export function usePlayerMatchHistory(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ player: playerName }),
-      })
+      }),
+    playerSWRConfig
   );
 
   return {
@@ -242,7 +242,6 @@ export function usePlayerMatchHistory(
   };
 }
 
-// Helper function to get the top ladders for a given ladder type
 export function getTopLadders(
   season: LadderSeason,
   ladderType: LadderType
@@ -252,10 +251,8 @@ export function getTopLadders(
     .sort((a, b) => a.id - b.id); // Sort by ID to get Generals (0) and Contenders (1) first
 }
 
-// Helper function to format player rank display
 export function formatRankType(rankType: string | number): string {
   if (typeof rankType === 'number') {
-    // Map numeric rank types to actual Chrono Divide military rank names
     const rankNames: Record<number, string> = {
       0: 'Unranked',
       1: 'Private',
