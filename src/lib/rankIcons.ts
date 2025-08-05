@@ -21,20 +21,3 @@ export function hasRankIcon(rankType: string | number): boolean {
     typeof rankType === 'number' ? rankType : parseInt(rankType, 10);
   return numericRank > 0 && RANK_ICONS[numericRank] !== '';
 }
-
-// Example placeholder icons (you can replace these with actual base64 data)
-// Each icon should be a small PNG (16x16 or 24x24 pixels) encoded as base64
-
-// To add actual icons:
-// 1. Convert your rank icon images to base64
-// 2. Replace the empty strings above with: 'iVBORw0KGgoAAAANSUhEUgAAAB...' (your base64 data)
-// 3. Make sure the base64 string doesn't include the 'data:image/png;base64,' prefix
-
-/* Example of how to add base64 data:
-export const RANK_ICONS: Record<number, string> = {
-  0: '', // Unranked
-  1: 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVDiNpZPrS1NhHMafgwQhyKT...', // Private
-  2: 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAAdgAAAHYBTnsmCAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAANCSURBVDiNpZPrS1NhHMafgwQhyKT...', // Corporal
-  // ... etc
-};
-*/
