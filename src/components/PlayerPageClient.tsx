@@ -65,13 +65,11 @@ export default function PlayerPageClient({
     isLoading: matchHistoryLoading,
   } = usePlayerMatchHistory(ladderType, decodedPlayerName);
 
-  const formatDuration = (seconds: number) => {
-    if (isNaN(seconds) || seconds == null || seconds < 0) {
-      return '-';
+  const formatDuration = (mins: number | null | undefined) => {
+    if (mins == null) {
+      return '';
     }
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins} m`;
   };
 
   const generateReplayFilename = (
