@@ -3,8 +3,6 @@
 import {
   Typography,
   Box,
-  Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
@@ -23,13 +21,12 @@ import { useState } from 'react';
 import {
   usePlayerMatchHistory,
   usePlayerSearch,
-  formatRankType,
   LadderType,
   PlayerMatchHistoryEntry,
 } from '@/lib/api';
 import PlayerNameLink from '@/components/PlayerNameLink';
 import PlayerPerformanceGraph from '@/components/PlayerPerformanceGraph';
-import RankIcon from '@/components/RankIcon';
+import PlayerProfileCard from '@/components/PlayerProfileCard';
 
 interface PlayerPageClientProps {
   playerName: string;
@@ -211,87 +208,7 @@ export default function PlayerPageClient({
 
       <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
         <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
-          <Box sx={{ mb: 3 }}>
-            <Card>
-              <CardContent>
-                <Typography variant="h4" gutterBottom>
-                  {player.name}
-                </Typography>
-
-                {player.rank !== -1 && (
-                  <>
-                    <Box sx={{ mb: 2 }}>
-                      <Typography variant="h6" color="primary.main">
-                        {player.mmr} MMR
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {player.points} Ladder Points
-                      </Typography>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                        mb: 2,
-                      }}
-                    >
-                      <RankIcon rankType={player.rankType} size={18} />
-                      <Typography variant="body2" color="text.secondary">
-                        {formatRankType(player.rankType)}
-                      </Typography>
-                    </Box>
-
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: 2,
-                        justifyContent: 'space-around',
-                        mb: 2,
-                      }}
-                    >
-                      <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="h4" color="success.main">
-                          {player.wins}
-                        </Typography>
-                        <Typography variant="caption">Wins</Typography>
-                      </Box>
-                      <Box sx={{ textAlign: 'center' }}>
-                        <Typography variant="h4" color="error.main">
-                          {player.losses}
-                        </Typography>
-                        <Typography variant="caption">Losses</Typography>
-                      </Box>
-                      {player.draws > 0 && (
-                        <Box sx={{ textAlign: 'center' }}>
-                          <Typography variant="h4" color="warning.main">
-                            {player.draws}
-                          </Typography>
-                          <Typography variant="caption">Draws</Typography>
-                        </Box>
-                      )}
-                    </Box>
-
-                    <Typography variant="body2" color="text.secondary">
-                      Win Rate:{' '}
-                      {(
-                        (player.wins / (player.wins + player.losses)) *
-                        100
-                      ).toFixed(1)}
-                      %
-                    </Typography>
-                  </>
-                )}
-
-                {player.rank === -1 && (
-                  <Typography variant="body2" color="text.secondary">
-                    This player is not ranked yet.
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Box>
+          <PlayerProfileCard player={player} />
 
           {matchHistory && matchHistory.length > 0 && (
             <PlayerPerformanceGraph
