@@ -75,6 +75,8 @@ export interface PlayerRankedProfile {
   losses: number;
   draws: number;
   mmr: number;
+  ladder?: LadderHead;
+  bonusPool?: number;
   promotionProgress?: {
     targetMmr: number;
     gamesRemaining: number;
@@ -90,6 +92,8 @@ export interface PlayerUnrankedProfile {
   losses: 0;
   draws: 0;
   mmr: number;
+  ladder?: LadderHead;
+  bonusPool?: number;
 }
 
 export interface PlayerLadderRung {

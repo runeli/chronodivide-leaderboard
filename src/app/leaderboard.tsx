@@ -427,6 +427,7 @@ export default function Leaderboard() {
                         </Box>
                       </TableCell>
                       <TableCell>{player.mmr}</TableCell>
+
                       <TableCell>{player.wins}</TableCell>
                       <TableCell>{player.losses}</TableCell>
                       <TableCell>{player.draws}</TableCell>
