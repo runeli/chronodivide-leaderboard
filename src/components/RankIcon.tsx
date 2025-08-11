@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Box, Tooltip } from '@mui/material';
-import { formatRankType } from '@/lib/api';
-import { RANK_ICONS, hasRankIcon } from '@/lib/rankIcons';
+import { Box, Tooltip } from "@mui/material";
+import { formatRankType } from "@/lib/api";
+import { RANK_ICONS, hasRankIcon } from "@/lib/rankIcons";
 
 interface RankIconProps {
   rankType: string | number;
@@ -11,24 +11,14 @@ interface RankIconProps {
   showText?: boolean;
 }
 
-export default function RankIcon({
-  rankType,
-  size = 16,
-  showTooltip = true,
-  showText = false,
-}: RankIconProps) {
-  const numericRank =
-    typeof rankType === 'number' ? rankType : parseInt(rankType, 10);
+export default function RankIcon({ rankType, size = 16, showTooltip = true, showText = false }: RankIconProps) {
+  const numericRank = typeof rankType === "number" ? rankType : parseInt(rankType, 10);
   const rankName = formatRankType(rankType);
   const iconData = RANK_ICONS[numericRank];
 
   // If no icon data or unranked, show text or nothing
   if (!hasRankIcon(rankType)) {
-    return showText ? (
-      <span style={{ fontSize: `${size}px`, color: '#ffff00' }}>
-        {rankName}
-      </span>
-    ) : null;
+    return showText ? <span style={{ fontSize: `${size}px`, color: "#ffff00" }}>{rankName}</span> : null;
   }
 
   const iconElement = (
@@ -39,9 +29,9 @@ export default function RankIcon({
       sx={{
         width: size,
         height: size,
-        display: 'inline-block',
-        verticalAlign: 'middle',
-        imageRendering: 'pixelated', // For crisp pixel art
+        display: "inline-block",
+        verticalAlign: "middle",
+        imageRendering: "pixelated", // For crisp pixel art
       }}
     />
   );

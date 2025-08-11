@@ -37,14 +37,14 @@ export interface ServerConfig {
  */
 function parseIniContent(content: string): ServerConfig[] {
   const servers: ServerConfig[] = [];
-  const lines = content.split('\n').map((line) => line.trim());
+  const lines = content.split("\n").map((line) => line.trim());
 
   let currentSection: string | null = null;
   let currentConfig: Partial<ServerConfig> = {};
 
   for (const line of lines) {
     // Skip empty lines and comments
-    if (!line || line.startsWith(';') || line.startsWith('#')) {
+    if (!line || line.startsWith(";") || line.startsWith("#")) {
       continue;
     }
 
@@ -56,7 +56,7 @@ function parseIniContent(content: string): ServerConfig[] {
         servers.push({
           id: currentSection,
           label: currentConfig.label,
-          baseUrl: currentConfig.baseUrl || '',
+          baseUrl: currentConfig.baseUrl || "",
           available: currentConfig.available ?? true,
           gameVersion: currentConfig.gameVersion,
           wolUrl: currentConfig.wolUrl,
@@ -84,29 +84,29 @@ function parseIniContent(content: string): ServerConfig[] {
       }
 
       switch (key) {
-        case 'label':
+        case "label":
           currentConfig.label = value;
           break;
-        case 'available':
-          currentConfig.available = value.toLowerCase() === 'yes';
+        case "available":
+          currentConfig.available = value.toLowerCase() === "yes";
           break;
-        case 'gameVersion':
+        case "gameVersion":
           currentConfig.gameVersion = value;
           break;
-        case 'wolUrl':
+        case "wolUrl":
           currentConfig.wolUrl = value;
           break;
-        case 'apiRegUrl':
+        case "apiRegUrl":
           // Extract base URL by removing /register suffix
-          currentConfig.baseUrl = value.replace(/\/register$/, '');
+          currentConfig.baseUrl = value.replace(/\/register$/, "");
           break;
-        case 'wladderUrl':
+        case "wladderUrl":
           currentConfig.wladderUrl = value;
           break;
-        case 'wgameresUrl':
+        case "wgameresUrl":
           currentConfig.wgameresUrl = value;
           break;
-        case 'mapTransferUrl':
+        case "mapTransferUrl":
           currentConfig.mapTransferUrl = value;
           break;
       }
@@ -118,7 +118,7 @@ function parseIniContent(content: string): ServerConfig[] {
     servers.push({
       id: currentSection,
       label: currentConfig.label,
-      baseUrl: currentConfig.baseUrl || '',
+      baseUrl: currentConfig.baseUrl || "",
       available: currentConfig.available ?? true,
       gameVersion: currentConfig.gameVersion,
       wolUrl: currentConfig.wolUrl,
@@ -143,7 +143,7 @@ export function getDefaultServersConfig(): ServerConfig[] {
  * Throws error if fetch fails - caller should handle fallbacks
  */
 export async function fetchServersConfig(): Promise<ServerConfig[]> {
-  const response = await fetch('https://game.chronodivide.com/servers.ini');
+  const response = await fetch("https://game.chronodivide.com/servers.ini");
   if (!response.ok) {
     throw new Error(`Failed to fetch servers config: ${response.status}`);
   }
@@ -160,9 +160,7 @@ export async function fetchServersConfig(): Promise<ServerConfig[]> {
  */
 export function getDefaultServer(servers: ServerConfig[]): ServerConfig {
   // Try to find EU server first
-  const euServer = servers.find(
-    (server) => server.id === 'am-eu' && server.available
-  );
+  const euServer = servers.find((server) => server.id === "am-eu" && server.available);
   if (euServer) {
     return euServer;
   }
@@ -176,9 +174,9 @@ export function getDefaultServer(servers: ServerConfig[]): ServerConfig {
   // Ultimate fallback
   return (
     servers[0] || {
-      id: 'am-eu',
-      label: 'Americas & Europe',
-      baseUrl: 'https://wol-eu1.chronodivide.com',
+      id: "am-eu",
+      label: "Americas & Europe",
+      baseUrl: "https://wol-eu1.chronodivide.com",
       available: true,
     }
   );

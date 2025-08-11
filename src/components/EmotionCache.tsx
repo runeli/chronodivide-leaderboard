@@ -1,18 +1,15 @@
-'use client';
-import * as React from 'react';
-import { useServerInsertedHTML } from 'next/navigation';
-import createCache from '@emotion/cache';
-import { CacheProvider as EmotionCacheProvider } from '@emotion/react';
+"use client";
+import * as React from "react";
+import { useServerInsertedHTML } from "next/navigation";
+import createCache from "@emotion/cache";
+import { CacheProvider as EmotionCacheProvider } from "@emotion/react";
 
 interface EmotionCacheProviderProps {
   options: Parameters<typeof createCache>[0];
   children: React.ReactNode;
 }
 
-export default function NextAppDirEmotionCacheProvider({
-  options,
-  children,
-}: EmotionCacheProviderProps) {
+export default function NextAppDirEmotionCacheProvider({ options, children }: EmotionCacheProviderProps) {
   const [{ cache, flush }] = React.useState(() => {
     const cache = createCache(options);
     cache.compat = true;
@@ -38,14 +35,14 @@ export default function NextAppDirEmotionCacheProvider({
     if (names.length === 0) {
       return null;
     }
-    let styles = '';
+    let styles = "";
     for (const name of names) {
       styles += cache.inserted[name];
     }
     return (
       <style
         key={cache.key}
-        data-emotion={`${cache.key} ${names.join(' ')}`}
+        data-emotion={`${cache.key} ${names.join(" ")}`}
         dangerouslySetInnerHTML={{
           __html: styles,
         }}

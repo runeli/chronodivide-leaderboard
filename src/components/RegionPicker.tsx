@@ -1,15 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import {
-  Box,
-  FormControl,
-  Select,
-  MenuItem,
-  Typography,
-  SelectChangeEvent,
-} from '@mui/material';
-import { useRegion } from '@/contexts/RegionContext';
+import React from "react";
+import { Box, FormControl, Select, MenuItem, Typography, SelectChangeEvent } from "@mui/material";
+import { useRegion } from "@/contexts/RegionContext";
 
 export default function RegionPicker() {
   const { selectedRegion, setSelectedRegion, regions } = useRegion();
@@ -23,7 +16,7 @@ export default function RegionPicker() {
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Typography variant="body2" color="text.secondary">
         Region:
       </Typography>
@@ -36,11 +29,7 @@ export default function RegionPicker() {
           sx={{ minWidth: 180 }}
         >
           {regions.map((region) => (
-            <MenuItem
-              key={region.id}
-              value={region.id}
-              disabled={!region.available}
-            >
+            <MenuItem key={region.id} value={region.id} disabled={!region.available}>
               {region.label}
             </MenuItem>
           ))}

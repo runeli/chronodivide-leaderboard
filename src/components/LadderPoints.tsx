@@ -1,5 +1,5 @@
-import { Box, Typography, Tooltip, IconButton } from '@mui/material';
-import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import { Box, Typography, Tooltip, IconButton } from "@mui/material";
+import InfoOutlined from "@mui/icons-material/InfoOutlined";
 
 interface LadderPointsProps {
   points?: number | null;
@@ -12,7 +12,7 @@ export default function LadderPoints({ points }: LadderPointsProps) {
   }
 
   return (
-    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+    <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}>
       <Typography variant="body2" color="text.secondary">
         {points} Ladder Points
       </Typography>
@@ -21,11 +21,7 @@ export default function LadderPoints({ points }: LadderPointsProps) {
         placement="top"
         enterTouchDelay={0}
       >
-        <IconButton
-          size="small"
-          aria-label="Ladder Points info"
-          sx={{ p: 0.25 }}
-        >
+        <IconButton size="small" aria-label="Ladder Points info" sx={{ p: 0.25 }}>
           <InfoOutlined fontSize="inherit" />
         </IconButton>
       </Tooltip>

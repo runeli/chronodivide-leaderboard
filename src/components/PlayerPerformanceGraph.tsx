@@ -1,16 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Box, Typography, Paper } from '@mui/material';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
+import React from "react";
+import { Box, Typography, Paper } from "@mui/material";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface Match {
   gameId: string;
@@ -35,10 +27,7 @@ interface DataPoint {
   mmrChange: number;
 }
 
-const PlayerPerformanceGraph: React.FC<PlayerPerformanceGraphProps> = ({
-  matchHistory,
-  currentMMR,
-}) => {
+const PlayerPerformanceGraph: React.FC<PlayerPerformanceGraphProps> = ({ matchHistory, currentMMR }) => {
   // Process match history to create cumulative MMR data
   const processMatchData = (): DataPoint[] => {
     if (!matchHistory || matchHistory.length === 0) return [];
@@ -48,9 +37,7 @@ const PlayerPerformanceGraph: React.FC<PlayerPerformanceGraphProps> = ({
     const data: DataPoint[] = [];
 
     // Sort matches by timestamp (oldest first)
-    const sortedMatches = [...matchHistory].sort(
-      (a, b) => a.timestamp - b.timestamp
-    );
+    const sortedMatches = [...matchHistory].sort((a, b) => a.timestamp - b.timestamp);
 
     // Calculate starting MMR by working backwards from current
     for (let i = sortedMatches.length - 1; i >= 0; i--) {
@@ -64,9 +51,9 @@ const PlayerPerformanceGraph: React.FC<PlayerPerformanceGraphProps> = ({
       data.push({
         match: index + 1,
         mmr: runningMMR,
-        date: new Date(match.timestamp).toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
+        date: new Date(match.timestamp).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
         }),
         result: match.result,
         mmrChange: match.mmrGain,
@@ -108,20 +95,17 @@ const PlayerPerformanceGraph: React.FC<PlayerPerformanceGraphProps> = ({
       return (
         <Box
           sx={{
-            backgroundColor: 'background.paper',
-            border: '1px solid',
-            borderColor: 'divider',
+            backgroundColor: "background.paper",
+            border: "1px solid",
+            borderColor: "divider",
             p: 1,
             borderRadius: 1,
           }}
         >
           <Typography variant="body2">Match #{label}</Typography>
           <Typography variant="body2">MMR: {payload[0].value}</Typography>
-          <Typography
-            variant="body2"
-            color={data.mmrChange > 0 ? 'success.main' : 'error.main'}
-          >
-            Change: {data.mmrChange > 0 ? '+' : ''}
+          <Typography variant="body2" color={data.mmrChange > 0 ? "success.main" : "error.main"}>
+            Change: {data.mmrChange > 0 ? "+" : ""}
             {data.mmrChange}
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -142,22 +126,15 @@ const PlayerPerformanceGraph: React.FC<PlayerPerformanceGraphProps> = ({
       <Typography variant="h6" gutterBottom>
         MMR Performance
       </Typography>
-      <Box sx={{ width: '100%', height: 250 }}>
+      <Box sx={{ width: "100%", height: 250 }}>
         <ResponsiveContainer>
           <LineChart data={data}>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(255, 0, 0, 0.2)"
-            />
-            <XAxis
-              dataKey="match"
-              stroke="#ffff00"
-              tick={{ fill: '#ffff00', fontSize: 12 }}
-            />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 0, 0, 0.2)" />
+            <XAxis dataKey="match" stroke="#ffff00" tick={{ fill: "#ffff00", fontSize: 12 }} />
             <YAxis
               domain={[minMMR - padding, maxMMR + padding]}
               stroke="#ffff00"
-              tick={{ fill: '#ffff00', fontSize: 12 }}
+              tick={{ fill: "#ffff00", fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Line
@@ -165,17 +142,13 @@ const PlayerPerformanceGraph: React.FC<PlayerPerformanceGraphProps> = ({
               dataKey="mmr"
               stroke="#ff0000"
               strokeWidth={2}
-              dot={{ fill: '#ff0000', strokeWidth: 2, r: 3 }}
-              activeDot={{ r: 5, fill: '#ffff00', stroke: '#ff0000' }}
+              dot={{ fill: "#ff0000", strokeWidth: 2, r: 3 }}
+              activeDot={{ r: 5, fill: "#ffff00", stroke: "#ff0000" }}
             />
           </LineChart>
         </ResponsiveContainer>
       </Box>
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={{ mt: 1, display: 'block' }}
-      >
+      <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
         Shows MMR progression over last {data.length} matches
       </Typography>
     </Paper>

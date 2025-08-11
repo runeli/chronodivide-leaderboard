@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Table,
@@ -19,12 +19,12 @@ import {
   Chip,
   TextField,
   Button,
-} from '@mui/material';
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Search } from '@mui/icons-material';
-import PlayerNameLink from '@/components/PlayerNameLink';
-import RankIcon from '@/components/RankIcon';
+} from "@mui/material";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Search } from "@mui/icons-material";
+import PlayerNameLink from "@/components/PlayerNameLink";
+import RankIcon from "@/components/RankIcon";
 import {
   useLadder,
   useSeasons,
@@ -34,7 +34,7 @@ import {
   LadderHead,
   getTopLadders,
   formatRankType,
-} from '@/lib/api';
+} from "@/lib/api";
 
 const LADDER_PAGE_SIZE = 25;
 
@@ -42,51 +42,45 @@ export default function Leaderboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [selectedSeason, setSelectedSeason] = useState<SeasonId>('');
-  const [ladderType, setLadderType] = useState<LadderType>('1v1');
+  const [selectedSeason, setSelectedSeason] = useState<SeasonId>("");
+  const [ladderType, setLadderType] = useState<LadderType>("1v1");
   const [selectedLadderId, setSelectedLadderId] = useState<number>(0); // Default to Generals
   const [page, setPage] = useState(1);
 
   // Search functionality
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Helper function to update URL with current selections
   const updateURL = useCallback(
-    (updates: {
-      season?: SeasonId;
-      gameMode?: LadderType;
-      division?: number;
-      page?: number;
-      region?: string;
-    }) => {
+    (updates: { season?: SeasonId; gameMode?: LadderType; division?: number; page?: number; region?: string }) => {
       const params = new URLSearchParams(searchParams.toString());
 
       if (updates.season !== undefined) {
         if (updates.season) {
-          params.set('season', updates.season);
+          params.set("season", updates.season);
         } else {
-          params.delete('season');
+          params.delete("season");
         }
       }
 
       if (updates.gameMode !== undefined) {
-        params.set('gameMode', updates.gameMode);
+        params.set("gameMode", updates.gameMode);
       }
 
       if (updates.division !== undefined) {
-        params.set('division', updates.division.toString());
+        params.set("division", updates.division.toString());
       }
 
       if (updates.page !== undefined) {
         if (updates.page > 1) {
-          params.set('page', updates.page.toString());
+          params.set("page", updates.page.toString());
         } else {
-          params.delete('page');
+          params.delete("page");
         }
       }
 
       if (updates.region !== undefined) {
-        params.set('region', updates.region);
+        params.set("region", updates.region);
       }
 
       const newURL = `${window.location.pathname}?${params.toString()}`;
@@ -97,23 +91,17 @@ export default function Leaderboard() {
 
   // Initialize state from URL parameters
   useEffect(() => {
-    const seasonParam = searchParams.get('season') as SeasonId;
-    const gameModeParam = searchParams.get('gameMode') as LadderType;
-    const divisionParam = searchParams.get('division');
-    const pageParam = searchParams.get('page');
+    const seasonParam = searchParams.get("season") as SeasonId;
+    const gameModeParam = searchParams.get("gameMode") as LadderType;
+    const divisionParam = searchParams.get("division");
+    const pageParam = searchParams.get("page");
     // Note: region parameter is handled by RegionContext
 
-    if (
-      seasonParam &&
-      (seasonParam === 'current' || !isNaN(Number(seasonParam)))
-    ) {
+    if (seasonParam && (seasonParam === "current" || !isNaN(Number(seasonParam)))) {
       setSelectedSeason(seasonParam);
     }
 
-    if (
-      gameModeParam &&
-      (gameModeParam === '1v1' || gameModeParam === '2v2-random')
-    ) {
+    if (gameModeParam && (gameModeParam === "1v1" || gameModeParam === "2v2-random")) {
       setLadderType(gameModeParam);
     }
 
@@ -127,23 +115,15 @@ export default function Leaderboard() {
   }, [searchParams]); // Include searchParams dependency
 
   // Fetch available seasons
-  const {
-    data: seasons,
-    error: seasonsError,
-    isLoading: seasonsLoading,
-  } = useSeasons(ladderType);
+  const { data: seasons, error: seasonsError, isLoading: seasonsLoading } = useSeasons(ladderType);
 
   // Fetch season details to get available ladders
-  const {
-    data: season,
-    error: seasonError,
-    isLoading: seasonLoading,
-  } = useSeason(selectedSeason || 'current');
+  const { data: season, error: seasonError, isLoading: seasonLoading } = useSeason(selectedSeason || "current");
 
   // Fetch ladder data (API uses 1-based indexing)
   const { data, error, isLoading } = useLadder(
     ladderType,
-    selectedSeason || 'current',
+    selectedSeason || "current",
     selectedLadderId,
     (page - 1) * LADDER_PAGE_SIZE + 1,
     LADDER_PAGE_SIZE
@@ -155,16 +135,13 @@ export default function Leaderboard() {
       const availableLadders = getTopLadders(season, ladderType);
       if (availableLadders.length > 0) {
         // Check if current selected ladder is still valid
-        const currentLadderStillExists = availableLadders.find(
-          (l) => l.id === selectedLadderId
-        );
+        const currentLadderStillExists = availableLadders.find((l) => l.id === selectedLadderId);
 
         if (!currentLadderStillExists) {
           // Only auto-select if current ladder doesn't exist in new available ladders
           // Try to find a regular division ladder first (ID >= 2), fallback to Contenders (1), then Generals (0)
           const regularLadder = availableLadders.find((l) => l.id >= 2);
-          const fallbackLadder =
-            availableLadders.find((l) => l.id === 1) || availableLadders[0];
+          const fallbackLadder = availableLadders.find((l) => l.id === 1) || availableLadders[0];
           const targetLadderId = (regularLadder || fallbackLadder).id;
 
           setSelectedLadderId(targetLadderId);
@@ -179,9 +156,7 @@ export default function Leaderboard() {
   useEffect(() => {
     if (seasons && seasons.length > 0 && !selectedSeason) {
       // Prefer 'current' if available, otherwise use the first season
-      const initialSeason = seasons.includes('current')
-        ? 'current'
-        : seasons[0];
+      const initialSeason = seasons.includes("current") ? "current" : seasons[0];
       setSelectedSeason(initialSeason);
       updateURL({ season: initialSeason });
     }
@@ -208,10 +183,7 @@ export default function Leaderboard() {
     updateURL({ division: newLadderId, page: 1 });
   };
 
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    value: number
-  ) => {
+  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
     updateURL({ page: value });
   };
@@ -222,7 +194,7 @@ export default function Leaderboard() {
   };
 
   const handleSearchKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       handleDirectSearch();
     }
   };
@@ -235,9 +207,7 @@ export default function Leaderboard() {
 
   // Get available ladders for the current season and ladder type
   const availableLadders = season ? getTopLadders(season, ladderType) : [];
-  const selectedLadder = availableLadders.find(
-    (l) => l.id === selectedLadderId
-  );
+  const selectedLadder = availableLadders.find((l) => l.id === selectedLadderId);
 
   // Format ladder display name
   const getLadderDisplayName = (ladder: LadderHead) => {
@@ -249,7 +219,7 @@ export default function Leaderboard() {
 
   // Format season display name
   const getSeasonDisplayName = (seasonId: string) => {
-    if (seasonId === 'current') return 'Current Season';
+    if (seasonId === "current") return "Current Season";
     return `Season ${seasonId}`;
   };
 
@@ -264,7 +234,7 @@ export default function Leaderboard() {
         <Typography variant="h6" gutterBottom>
           Search Player
         </Typography>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
           <TextField
             placeholder="Enter player name..."
             variant="outlined"
@@ -285,14 +255,14 @@ export default function Leaderboard() {
         </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+      <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
         <Box sx={{ minWidth: 120 }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
             Season
           </Typography>
           <Select
             id="season-select"
-            value={selectedSeason || ''}
+            value={selectedSeason || ""}
             onChange={handleSeasonChange}
             disabled={seasonsLoading || !seasons}
             variant="outlined"
@@ -348,33 +318,23 @@ export default function Leaderboard() {
 
       {/* Show current selection info */}
       {season && selectedLadder && (
-        <Box sx={{ mb: 2, display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Chip
-            label={getLadderDisplayName(selectedLadder)}
-            size="small"
-            color="primary"
-            variant="outlined"
-          />
+        <Box sx={{ mb: 2, display: "flex", gap: 1, alignItems: "center" }}>
+          <Chip label={getLadderDisplayName(selectedLadder)} size="small" color="primary" variant="outlined" />
           <Typography variant="body2" color="text.secondary">
-            (
-            {season.totalRankedPlayers.find(
-              (tp) => tp.ladderType === ladderType
-            )?.value || 0}{' '}
-            total players)
+            ({season.totalRankedPlayers.find((tp) => tp.ladderType === ladderType)?.value || 0} total players)
           </Typography>
         </Box>
       )}
 
       {(isLoading || seasonsLoading || seasonLoading) && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
           <CircularProgress />
         </Box>
       )}
 
       {(error || seasonsError || seasonError) && (
         <Alert severity="error">
-          Failed to load ladder data. Please try again or select a different
-          season/division.
+          Failed to load ladder data. Please try again or select a different season/division.
         </Alert>
       )}
 
@@ -395,26 +355,19 @@ export default function Leaderboard() {
               <TableBody>
                 {data.records.map((player) => {
                   const totalGames = player.wins + player.losses + player.draws;
-                  const winRate =
-                    totalGames > 0
-                      ? ((player.wins / totalGames) * 100).toFixed(1)
-                      : '0.0';
+                  const winRate = totalGames > 0 ? ((player.wins / totalGames) * 100).toFixed(1) : "0.0";
 
                   return (
                     <TableRow hover key={player.name}>
                       <TableCell>
-                        <Chip
-                          label={player.rank}
-                          size="small"
-                          color={'default'}
-                        />
+                        <Chip label={player.rank} size="small" color={"default"} />
                       </TableCell>
                       <TableCell>
                         <PlayerNameLink playerName={player.name} />
                         <Box
                           sx={{
-                            display: 'flex',
-                            alignItems: 'center',
+                            display: "flex",
+                            alignItems: "center",
                             gap: 0.5,
                             mt: 0.5,
                           }}
@@ -436,7 +389,7 @@ export default function Leaderboard() {
               </TableBody>
             </Table>
           </TableContainer>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <Pagination
               count={Math.ceil(data.totalCount / LADDER_PAGE_SIZE)}
               page={page}

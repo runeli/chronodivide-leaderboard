@@ -8,42 +8,45 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Fira Sans Condensed';
-  --font-mono: 'Fira Sans Condensed';
+  --font-sans: "Fira Sans Condensed";
+  --font-mono: "Fira Sans Condensed";
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
-  font-family: 'Fira Sans Condensed';
+  font-family: "Fira Sans Condensed";
   font-size: 13px;
   color: yellow;
   font-weight: 500;
-  background: 
+  background:
     radial-gradient(circle at 25% 25%, rgba(255, 0, 0, 0.08) 0%, transparent 50%),
     radial-gradient(circle at 75% 75%, rgba(255, 255, 0, 0.03) 0%, transparent 50%),
-    linear-gradient(45deg, 
-      rgba(40, 40, 40, 0.6) 25%, 
-      transparent 25%, 
-      transparent 75%, 
-      rgba(40, 40, 40, 0.6) 75%, 
+    linear-gradient(
+      45deg,
+      rgba(40, 40, 40, 0.6) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(40, 40, 40, 0.6) 75%,
       rgba(40, 40, 40, 0.6)
     ),
-    linear-gradient(-45deg, 
-      rgba(40, 40, 40, 0.6) 25%, 
-      transparent 25%, 
-      transparent 75%, 
-      rgba(40, 40, 40, 0.6) 75%, 
+    linear-gradient(
+      -45deg,
+      rgba(40, 40, 40, 0.6) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(40, 40, 40, 0.6) 75%,
       rgba(40, 40, 40, 0.6)
     ),
     #1a1a1a;
-  background-size: 
+  background-size:
     800px 800px,
     600px 600px,
     60px 60px,
     60px 60px,
     auto;
-  background-position: 
+  background-position:
     0 0,
     400px 400px,
     0 0,
@@ -93,7 +96,7 @@ select {
   background: transparent;
   border: 1px red solid;
   color: yellow;
-  font-family: 'Fira Sans Condensed';
+  font-family: "Fira Sans Condensed";
   font-size: 13px;
   font-weight: 500;
   border-radius: 0;
@@ -114,13 +117,13 @@ select:disabled {
 
 /* Custom button styling that matches Red Alert 2 */
 button {
-  font-family: 'Fira Sans Condensed';
+  font-family: "Fira Sans Condensed";
   font-size: 13px;
   color: yellow;
   font-weight: 500;
   border-radius: 0;
   border: 1px solid red;
-  background: rgba(0, 0, 0, .75);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 button:hover:not(:disabled) {

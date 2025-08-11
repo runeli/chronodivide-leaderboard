@@ -1,10 +1,10 @@
-import { Box, Card, CardContent, Typography, Link } from '@mui/material';
-import { PlayerMatchHistoryEntry, PlayerRankedProfile, PlayerUnrankedProfile, formatRankType } from '@/lib/api';
-import RankIcon from '@/components/RankIcon';
-import LadderPoints from '@/components/LadderPoints';
-import PromotionProgress from '@/components/PromotionProgress';
-import NextLink from 'next/link';
-import { FC } from 'react';
+import { Box, Card, CardContent, Typography, Link } from "@mui/material";
+import { PlayerMatchHistoryEntry, PlayerRankedProfile, PlayerUnrankedProfile, formatRankType } from "@/lib/api";
+import RankIcon from "@/components/RankIcon";
+import LadderPoints from "@/components/LadderPoints";
+import PromotionProgress from "@/components/PromotionProgress";
+import NextLink from "next/link";
+import { FC } from "react";
 
 type PlayerProfile = PlayerRankedProfile | PlayerUnrankedProfile;
 
@@ -23,34 +23,34 @@ const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[] }> = ({ matchHisto
   const isEligibleForGeneralsLadder = recentGames.length >= 20;
   return (
     <Typography variant="body2" color="text.secondary">
-      <Typography component="span" variant="body1" color={isEligibleForGeneralsLadder ? 'success' : 'error'}>
+      <Typography component="span" variant="body1" color={isEligibleForGeneralsLadder ? "success" : "error"}>
         {recentGames.length}
-      </Typography>{' '}
-      {recentGames.length === 1 ? 'game' : 'games'} played in the last 3 weeks.
+      </Typography>{" "}
+      {recentGames.length === 1 ? "game" : "games"} played in the last 3 weeks.
     </Typography>
   );
 };
 
 export default function PlayerProfileCard({ player, matchHistory }: PlayerProfileCardProps) {
-  const isPetka = player.name === 'petka_pc';
+  const isPetka = player.name === "petka_pc";
   return (
     <Box sx={{ mb: 3 }}>
       <Card
         sx={{
           ...(isPetka && {
-            backgroundImage: 'url(/RA2Sovietlogo.webp)',
-            backgroundSize: 'contain',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            backgroundBlendMode: 'overlay',
+            backgroundImage: "url(/RA2Sovietlogo.webp)",
+            backgroundSize: "contain",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundBlendMode: "overlay",
           }),
         }}
       >
         <CardContent>
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
+              display: "flex",
+              justifyContent: "space-between",
               gap: 1,
               mb: 2,
             }}
@@ -58,7 +58,7 @@ export default function PlayerProfileCard({ player, matchHistory }: PlayerProfil
             <Typography variant="h4" gutterBottom>
               {player.name}
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <RankIcon rankType={player.rankType} size={18} />
               <Typography variant="body2" color="text.secondary">
                 {formatRankType(player.rankType)}
@@ -70,7 +70,7 @@ export default function PlayerProfileCard({ player, matchHistory }: PlayerProfil
               marginTop: 8,
               marginBottom: 8,
               height: 1,
-              backgroundColor: '#ff0000',
+              backgroundColor: "#ff0000",
               opacity: 0.9,
             }}
           />
@@ -83,15 +83,15 @@ export default function PlayerProfileCard({ player, matchHistory }: PlayerProfil
                   </Typography>
                   <LadderPoints points={player.points} />
                   {player.ladder && (
-                    <Box sx={{ display: 'flex' }}>
+                    <Box sx={{ display: "flex" }}>
                       <Link
                         component={NextLink}
                         href={`/?gameMode=${player.ladder.type}&division=${player.ladder.id}`}
                         underline="hover"
                         sx={{
-                          cursor: 'pointer',
+                          cursor: "pointer",
                           mt: 0.5,
-                          display: 'inline-block',
+                          display: "inline-block",
                         }}
                       >
                         <Typography variant="body2" color="primary.main">
@@ -105,7 +105,7 @@ export default function PlayerProfileCard({ player, matchHistory }: PlayerProfil
                 <Box sx={{ mt: 1 }}>
                   <PromotionProgress
                     currentMmr={player.mmr}
-                    promotionProgress={'promotionProgress' in player ? player.promotionProgress : undefined}
+                    promotionProgress={"promotionProgress" in player ? player.promotionProgress : undefined}
                     size="regular"
                   />
                 </Box>
@@ -113,26 +113,26 @@ export default function PlayerProfileCard({ player, matchHistory }: PlayerProfil
 
               <Box
                 sx={{
-                  display: 'flex',
+                  display: "flex",
                   gap: 2,
-                  justifyContent: 'space-around',
+                  justifyContent: "space-around",
                   mb: 2,
                 }}
               >
-                <Box sx={{ textAlign: 'center' }}>
+                <Box sx={{ textAlign: "center" }}>
                   <Typography variant="h4" color="success.main">
                     {player.wins}
                   </Typography>
                   <Typography variant="caption">Wins</Typography>
                 </Box>
-                <Box sx={{ textAlign: 'center' }}>
+                <Box sx={{ textAlign: "center" }}>
                   <Typography variant="h4" color="error.main">
                     {player.losses}
                   </Typography>
                   <Typography variant="caption">Losses</Typography>
                 </Box>
                 {player.draws > 0 && (
-                  <Box sx={{ textAlign: 'center' }}>
+                  <Box sx={{ textAlign: "center" }}>
                     <Typography variant="h4" color="warning.main">
                       {player.draws}
                     </Typography>

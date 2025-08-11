@@ -1,20 +1,9 @@
-'use client';
+"use client";
 
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from 'react';
-import { useRouter } from 'next/navigation';
-import { setApiBaseUrl, clearApiCache } from '@/lib/api';
-import {
-  fetchServersConfig,
-  getDefaultServersConfig,
-  getDefaultServer,
-  type ServerConfig,
-} from '@/lib/serversConfig';
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { setApiBaseUrl, clearApiCache } from "@/lib/api";
+import { fetchServersConfig, getDefaultServersConfig, getDefaultServer, type ServerConfig } from "@/lib/serversConfig";
 
 export type Region = ServerConfig;
 
@@ -34,10 +23,10 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
   const [regions, setRegions] = useState<Region[]>(defaultRegions);
   const [selectedRegion, setSelectedRegionState] = useState<Region>(() => {
     // Priority: URL parameter > localStorage > default
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // Check URL parameter first (get it directly from window.location to avoid searchParams dependency)
       const urlParams = new URLSearchParams(window.location.search);
-      const urlRegionId = urlParams.get('region');
+      const urlRegionId = urlParams.get("region");
       if (urlRegionId) {
         const urlRegion = defaultRegions.find((r) => r.id === urlRegionId);
         if (urlRegion) {
@@ -46,9 +35,7 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Fallback to localStorage
-      const savedRegionId = localStorage.getItem(
-        'chronodivide-selected-region'
-      );
+      const savedRegionId = localStorage.getItem("chronodivide-selected-region");
       if (savedRegionId) {
         const savedRegion = defaultRegions.find((r) => r.id === savedRegionId);
         if (savedRegion) {
@@ -62,9 +49,9 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
   // Helper function to update URL with region parameter
   const updateURLWithRegion = useCallback(
     (regionId: string) => {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
-        params.set('region', regionId);
+        params.set("region", regionId);
         const newURL = `${window.location.pathname}?${params.toString()}`;
         router.replace(newURL, { scroll: false });
       }
@@ -90,9 +77,7 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
           setRegions(fetchedRegions);
 
           const currentRegionId = selectedRegion.id;
-          const updatedRegion = fetchedRegions.find(
-            (r) => r.id === currentRegionId
-          );
+          const updatedRegion = fetchedRegions.find((r) => r.id === currentRegionId);
           if (updatedRegion) {
             setSelectedRegionState(updatedRegion);
             setApiBaseUrl(updatedRegion.baseUrl);
@@ -104,7 +89,7 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (err) {
-        console.warn('Failed to fetch updated server configuration:', err);
+        console.warn("Failed to fetch updated server configuration:", err);
         // Continue with default/current configuration
       }
     };
@@ -115,8 +100,8 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
   // Save region to localStorage when changed
   const setSelectedRegion = (region: Region, updateURL: boolean = true) => {
     setSelectedRegionState(region);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('chronodivide-selected-region', region.id);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("chronodivide-selected-region", region.id);
     }
     setApiBaseUrl(region.baseUrl);
     // Only update URL parameter if explicitly requested (user-initiated changes)
@@ -143,7 +128,7 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
 export function useRegion() {
   const context = useContext(RegionContext);
   if (context === undefined) {
-    throw new Error('useRegion must be used within a RegionProvider');
+    throw new Error("useRegion must be used within a RegionProvider");
   }
   return context;
 }

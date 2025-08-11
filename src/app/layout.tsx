@@ -1,13 +1,13 @@
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import ThemeRegistry from '@/components/ThemeRegistry';
-import { Container, Box, CircularProgress } from '@mui/material';
-import { RegionProvider } from '@/contexts/RegionContext';
-import RegionPicker from '@/components/RegionPicker';
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import ThemeRegistry from "@/components/ThemeRegistry";
+import { Container, Box, CircularProgress } from "@mui/material";
+import { RegionProvider } from "@/contexts/RegionContext";
+import RegionPicker from "@/components/RegionPicker";
 
 export const metadata: Metadata = {
-  title: 'Chrono Divide Replays',
-  description: 'Community statistics and replay viewer for Chrono Divide',
+  title: "Chrono Divide Replays",
+  description: "Community statistics and replay viewer for Chrono Divide",
 };
 
 export default function RootLayout({
@@ -19,11 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin=""
-        />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
           href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;500;600;700&display=swap"
           rel="stylesheet"
@@ -33,19 +29,14 @@ export default function RootLayout({
         <ThemeRegistry>
           <Suspense
             fallback={
-              <Container
-                component="main"
-                sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}
-              >
+              <Container component="main" sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
                 <CircularProgress />
               </Container>
             }
           >
             <RegionProvider>
               <Container component="main" sx={{ mt: 2 }}>
-                <Box
-                  sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}
-                >
+                <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end" }}>
                   <RegionPicker />
                 </Box>
                 {children}
