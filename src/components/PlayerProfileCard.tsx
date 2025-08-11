@@ -101,6 +101,12 @@ export default function PlayerProfileCard({ player }: PlayerProfileCardProps) {
                 </Box>
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="h4" color="error.main">
+                    {player.draws}
+                  </Typography>
+                  <Typography variant="caption">Draws</Typography>
+                </Box>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="h4" color="error.main">
                     {player.losses}
                   </Typography>
                   <Typography variant="caption">Losses</Typography>

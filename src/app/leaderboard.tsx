@@ -389,7 +389,6 @@ export default function Leaderboard() {
                   <TableCell>MMR</TableCell>
                   <TableCell>Wins</TableCell>
                   <TableCell>Losses</TableCell>
-                  <TableCell>Draws</TableCell>
                   <TableCell>Win Rate</TableCell>
                 </TableRow>
               </TableHead>
@@ -430,7 +429,6 @@ export default function Leaderboard() {
 
                       <TableCell>{player.wins}</TableCell>
                       <TableCell>{player.losses}</TableCell>
-                      <TableCell>{player.draws}</TableCell>
                       <TableCell>{winRate}%</TableCell>
                     </TableRow>
                   );
