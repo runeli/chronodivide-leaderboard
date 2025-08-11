@@ -48,30 +48,32 @@ export default function PlayerProfileCard({ player }: PlayerProfileCardProps) {
           {player.rank !== -1 && (
             <>
               <Box sx={{ mb: 2 }}>
-                <Typography variant="h6" color="primary.main">
-                  {player.mmr} MMR
-                </Typography>
-                <LadderPoints points={player.points} />
-                {player.ladder && (
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Link
-                      component={NextLink}
-                      href={`/?gameMode=${player.ladder.type}&division=${player.ladder.id}`}
-                      underline="hover"
-                      sx={{
-                        cursor: 'pointer',
-                        mt: 0.5,
-                        display: 'inline-block',
-                      }}
-                    >
-                      <Typography variant="body2" color="primary.main">
-                        {player.ladder.name}
-                        {player.ladder.divisionName &&
-                          ` - ${player.ladder.divisionName}`}
-                      </Typography>
-                    </Link>
-                  </Box>
-                )}
+                <Box display="flex" justifyContent="space-between">
+                  <Typography variant="h6" color="primary.main">
+                    {player.mmr} MMR
+                  </Typography>
+                  <LadderPoints points={player.points} />
+                  {player.ladder && (
+                    <Box sx={{ display: 'flex' }}>
+                      <Link
+                        component={NextLink}
+                        href={`/?gameMode=${player.ladder.type}&division=${player.ladder.id}`}
+                        underline="hover"
+                        sx={{
+                          cursor: 'pointer',
+                          mt: 0.5,
+                          display: 'inline-block',
+                        }}
+                      >
+                        <Typography variant="body2" color="primary.main">
+                          {player.ladder.name}
+                          {player.ladder.divisionName &&
+                            ` - ${player.ladder.divisionName}`}
+                        </Typography>
+                      </Link>
+                    </Box>
+                  )}
+                </Box>
                 <Box sx={{ mt: 1 }}>
                   <PromotionProgress
                     currentMmr={player.mmr}

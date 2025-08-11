@@ -142,8 +142,18 @@ export default function PromotionProgress({
           value={percent}
           sx={{
             height: barHeight,
-            borderRadius: 999,
-            backgroundColor: 'rgba(255,0,0,0.15)',
+            borderRadius: 0,
+            backgroundColor: 'rgba(255,255,0,0.15)',
+            '& .MuiLinearProgress-bar': {
+              background: 'linear-gradient(90deg, #ffd700 0%, #ffed4e 100%)',
+              borderRadius: 0,
+            },
+            margin: '1px',
+            outlineOffset: '2px',
+            outline: '1px solid rgba(255,255,0,0.3)',
+            outlineStyle: 'solid',
+            outlineWidth: '1px',
+            outlineColor: 'rgba(255,255,0,0.3)',
           }}
         />
       </Box>
