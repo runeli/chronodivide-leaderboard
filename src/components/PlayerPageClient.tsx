@@ -18,12 +18,7 @@ import {
 import { ArrowBack, Download } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import {
-  usePlayerMatchHistory,
-  usePlayerSearch,
-  LadderType,
-  PlayerMatchHistoryEntry,
-} from '@/lib/api';
+import { usePlayerMatchHistory, usePlayerSearch, LadderType, PlayerMatchHistoryEntry } from '@/lib/api';
 import PlayerNameLink from '@/components/PlayerNameLink';
 import PlayerPerformanceGraph from '@/components/PlayerPerformanceGraph';
 import PlayerProfileCard from '@/components/PlayerProfileCard';
@@ -53,16 +48,12 @@ const createSafePlayerName = (rawPlayerName: string): string => {
   }
 };
 
-export default function PlayerPageClient({
-  playerName,
-}: PlayerPageClientProps) {
+export default function PlayerPageClient({ playerName }: PlayerPageClientProps) {
   const router = useRouter();
   const decodedPlayerName = decodeURIComponent(playerName);
   const safePlayerName = createSafePlayerName(playerName);
   const ladderType: LadderType = '1v1';
-  const [downloadingReplays, setDownloadingReplays] = useState<Set<string>>(
-    new Set()
-  );
+  const [downloadingReplays, setDownloadingReplays] = useState<Set<string>>(new Set());
 
   const {
     data: players,
@@ -83,23 +74,14 @@ export default function PlayerPageClient({
     return `${mins} m`;
   };
 
-  const generateReplayFilename = (
-    match: PlayerMatchHistoryEntry,
-    playerName: string
-  ) => {
+  const generateReplayFilename = (match: PlayerMatchHistoryEntry, playerName: string) => {
     const date = new Date(match.timestamp).toISOString().split('T')[0];
-    const allPlayers = [
-      ...(match.teamMates || []),
-      ...(match.opponents || []),
-    ].join('_');
+    const allPlayers = [...(match.teamMates || []), ...(match.opponents || [])].join('_');
     const cleanPlayerName = removeUnsafeFilenameCharacters(playerName);
     const cleanMap = removeUnsafeFilenameCharacters(match.map);
     const result = match.result.toUpperCase();
 
-    return `${date}_${cleanPlayerName}_vs_${allPlayers}_${result}_${cleanMap}.rpl`.replace(
-      /__+/g,
-      '_'
-    );
+    return `${date}_${cleanPlayerName}_vs_${allPlayers}_${result}_${cleanMap}.rpl`.replace(/__+/g, '_');
   };
 
   const handleDownload = async (match: PlayerMatchHistoryEntry) => {
@@ -169,11 +151,7 @@ export default function PlayerPageClient({
   if (playerError || matchHistoryError || !players || players.length === 0) {
     return (
       <Alert severity="error">
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => router.push('/')}
-          variant="outlined"
-        >
+        <Button startIcon={<ArrowBack />} onClick={() => router.push('/')} variant="outlined">
           Back to Leaderboard
         </Button>
         <Box sx={{ mt: 2 }}>
@@ -197,24 +175,17 @@ export default function PlayerPageClient({
           alignItems: 'center',
         }}
       >
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => router.push('/')}
-          variant="outlined"
-        >
+        <Button startIcon={<ArrowBack />} onClick={() => router.push('/')} variant="outlined">
           Back to Leaderboard
         </Button>
       </Box>
 
       <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
         <Box sx={{ flex: '1 1 300px', minWidth: 300 }}>
-          <PlayerProfileCard player={player} />
+          <PlayerProfileCard player={player} matchHistory={matchHistory} />
 
           {matchHistory && matchHistory.length > 0 && (
-            <PlayerPerformanceGraph
-              matchHistory={matchHistory}
-              currentMMR={player.mmr}
-            />
+            <PlayerPerformanceGraph matchHistory={matchHistory} currentMMR={player.mmr} />
           )}
         </Box>
 
@@ -247,9 +218,7 @@ export default function PlayerPageClient({
                 <TableBody>
                   {matchHistory.slice(0, 50).map((match) => (
                     <TableRow key={match.gameId}>
-                      <TableCell>
-                        {new Date(match.timestamp).toLocaleString()}
-                      </TableCell>
+                      <TableCell>{new Date(match.timestamp).toLocaleString()}</TableCell>
                       <TableCell>
                         <Chip
                           label={match.result.toUpperCase()}
@@ -259,12 +228,7 @@ export default function PlayerPageClient({
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography
-                          variant="body2"
-                          color={
-                            match.mmrGain > 0 ? 'success.main' : 'error.main'
-                          }
-                        >
+                        <Typography variant="body2" color={match.mmrGain > 0 ? 'success.main' : 'error.main'}>
                           {match.mmrGain > 0 ? '+' : ''}
                           {match.mmrGain}
                         </Typography>
@@ -273,10 +237,7 @@ export default function PlayerPageClient({
                       <TableCell>
                         {match.opponents.map((opponent, index) => (
                           <Box key={index}>
-                            <PlayerNameLink
-                              playerName={opponent}
-                              variant="body2"
-                            />
+                            <PlayerNameLink playerName={opponent} variant="body2" />
                           </Box>
                         ))}
                       </TableCell>
@@ -284,10 +245,7 @@ export default function PlayerPageClient({
                       <TableCell>
                         {isReplayAvailable(match) ? (
                           <Tooltip
-                            title={`Download as: ${generateReplayFilename(
-                              match,
-                              decodedPlayerName
-                            )}`}
+                            title={`Download as: ${generateReplayFilename(match, decodedPlayerName)}`}
                             placement="top"
                           >
                             <Box
@@ -297,21 +255,15 @@ export default function PlayerPageClient({
                               sx={{
                                 background: 'none',
                                 border: 'none',
-                                cursor: downloadingReplays.has(match.gameId)
-                                  ? 'default'
-                                  : 'pointer',
+                                cursor: downloadingReplays.has(match.gameId) ? 'default' : 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
                                 padding: '4px',
                                 color: 'inherit',
                                 borderRadius: 0,
-                                opacity: downloadingReplays.has(match.gameId)
-                                  ? 0.5
-                                  : 1,
+                                opacity: downloadingReplays.has(match.gameId) ? 0.5 : 1,
                                 '&:hover': {
-                                  color: downloadingReplays.has(match.gameId)
-                                    ? 'inherit'
-                                    : 'primary.main',
+                                  color: downloadingReplays.has(match.gameId) ? 'inherit' : 'primary.main',
                                 },
                               }}
                               aria-label="Download replay"
@@ -335,9 +287,7 @@ export default function PlayerPageClient({
               </Table>
             </TableContainer>
           ) : (
-            <Alert severity="info">
-              No match history available for this player.
-            </Alert>
+            <Alert severity="info">No match history available for this player.</Alert>
           )}
         </Box>
       </Box>

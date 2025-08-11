@@ -1,19 +1,36 @@
 import { Box, Card, CardContent, Typography, Link } from '@mui/material';
-import {
-  PlayerRankedProfile,
-  PlayerUnrankedProfile,
-  formatRankType,
-} from '@/lib/api';
+import { PlayerMatchHistoryEntry, PlayerRankedProfile, PlayerUnrankedProfile, formatRankType } from '@/lib/api';
 import RankIcon from '@/components/RankIcon';
 import LadderPoints from '@/components/LadderPoints';
 import PromotionProgress from '@/components/PromotionProgress';
 import NextLink from 'next/link';
+import { FC } from 'react';
+
+type PlayerProfile = PlayerRankedProfile | PlayerUnrankedProfile;
 
 interface PlayerProfileCardProps {
-  player: PlayerRankedProfile | PlayerUnrankedProfile;
+  player: PlayerProfile;
+  matchHistory?: PlayerMatchHistoryEntry[];
 }
 
-export default function PlayerProfileCard({ player }: PlayerProfileCardProps) {
+const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[] }> = ({ matchHistory }) => {
+  if (!matchHistory) {
+    return null;
+  }
+  const threeWeeksInMilliseconds = 3 * 7 * 86400 * 1000;
+  const recentGames = matchHistory.filter((entry) => entry.timestamp > threeWeeksInMilliseconds);
+  const isEligibleForGeneralsLadder = recentGames.length >= 20;
+  return (
+    <Typography variant="body2" color="text.secondary">
+      <Typography component="span" variant="body1" color={isEligibleForGeneralsLadder ? 'success' : 'error'}>
+        {recentGames.length}
+      </Typography>{' '}
+      {recentGames.length === 1 ? 'game' : 'games'} played in the last 3 weeks.
+    </Typography>
+  );
+};
+
+export default function PlayerProfileCard({ player, matchHistory }: PlayerProfileCardProps) {
   const isPetka = player.name === 'petka_pc';
   return (
     <Box sx={{ mb: 3 }}>
@@ -78,8 +95,7 @@ export default function PlayerProfileCard({ player }: PlayerProfileCardProps) {
                       >
                         <Typography variant="body2" color="primary.main">
                           {player.ladder.name}
-                          {player.ladder.divisionName &&
-                            ` - ${player.ladder.divisionName}`}
+                          {player.ladder.divisionName && ` - ${player.ladder.divisionName}`}
                         </Typography>
                       </Link>
                     </Box>
@@ -88,11 +104,7 @@ export default function PlayerProfileCard({ player }: PlayerProfileCardProps) {
                 <Box sx={{ mt: 1 }}>
                   <PromotionProgress
                     currentMmr={player.mmr}
-                    promotionProgress={
-                      'promotionProgress' in player
-                        ? player.promotionProgress
-                        : undefined
-                    }
+                    promotionProgress={'promotionProgress' in player ? player.promotionProgress : undefined}
                     size="regular"
                   />
                 </Box>
@@ -129,12 +141,9 @@ export default function PlayerProfileCard({ player }: PlayerProfileCardProps) {
               </Box>
 
               <Typography variant="body2" color="text.secondary">
-                Win Rate:{' '}
-                {((player.wins / (player.wins + player.losses)) * 100).toFixed(
-                  1
-                )}
-                %
+                Win Rate: {((player.wins / (player.wins + player.losses)) * 100).toFixed(1)}%
               </Typography>
+              <Activity matchHistory={matchHistory} />
             </>
           )}
 
