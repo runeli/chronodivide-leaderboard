@@ -18,7 +18,8 @@ const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[] }> = ({ matchHisto
     return null;
   }
   const threeWeeksInMilliseconds = 3 * 7 * 86400 * 1000;
-  const recentGames = matchHistory.filter((entry) => entry.timestamp > threeWeeksInMilliseconds);
+  const threshold = Date.now() - threeWeeksInMilliseconds;
+  const recentGames = matchHistory.filter((entry) => entry.timestamp > threshold);
   const isEligibleForGeneralsLadder = recentGames.length >= 20;
   return (
     <Typography variant="body2" color="text.secondary">
