@@ -14,9 +14,20 @@ interface PlayerProfileCardProps {
 }
 
 export default function PlayerProfileCard({ player }: PlayerProfileCardProps) {
+  const isPetka = player.name === 'petka_pc';
   return (
     <Box sx={{ mb: 3 }}>
-      <Card>
+      <Card
+        sx={{
+          ...(isPetka && {
+            backgroundImage: 'url(/RA2Sovietlogo.webp)',
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundBlendMode: 'overlay',
+          }),
+        }}
+      >
         <CardContent>
           <Box
             sx={{
@@ -103,16 +114,18 @@ export default function PlayerProfileCard({ player }: PlayerProfileCardProps) {
                 </Box>
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography variant="h4" color="error.main">
-                    {player.draws}
-                  </Typography>
-                  <Typography variant="caption">Draws</Typography>
-                </Box>
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h4" color="error.main">
                     {player.losses}
                   </Typography>
                   <Typography variant="caption">Losses</Typography>
                 </Box>
+                {player.draws > 0 && (
+                  <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h4" color="warning.main">
+                      {player.draws}
+                    </Typography>
+                    <Typography variant="caption">Draws</Typography>
+                  </Box>
+                )}
               </Box>
 
               <Typography variant="body2" color="text.secondary">
