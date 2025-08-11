@@ -150,10 +150,7 @@ export default function PromotionProgress({
             },
             margin: '1px',
             outlineOffset: '2px',
-            outline: '1px solid rgba(255,255,0,0.3)',
-            outlineStyle: 'solid',
-            outlineWidth: '1px',
-            outlineColor: 'rgba(255,255,0,0.3)',
+            outline: '1px solid rgba(255,255,0,1)',
           }}
         />
       </Box>
