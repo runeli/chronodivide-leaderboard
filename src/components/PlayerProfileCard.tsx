@@ -13,20 +13,43 @@ interface PlayerProfileCardProps {
   matchHistory?: PlayerMatchHistoryEntry[];
 }
 
-const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[] }> = ({ matchHistory }) => {
+const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[]; player: PlayerProfile }> = ({
+  matchHistory,
+  player,
+}) => {
   if (!matchHistory) {
     return null;
   }
+  const now = Date.now();
+  const AMOUNT_OF_GAMES_FOR_GENERALS_LADDER = 20;
   const threeWeeksInMilliseconds = 3 * 7 * 86400 * 1000;
-  const threshold = Date.now() - threeWeeksInMilliseconds;
-  const recentGames = matchHistory.filter((entry) => entry.timestamp > threshold);
-  const isEligibleForGeneralsLadder = recentGames.length >= 20;
+  const threshold = now - threeWeeksInMilliseconds;
+  const recentGames = matchHistory
+    .filter((entry) => entry.timestamp > threshold)
+    .sort((a, b) => b.timestamp - a.timestamp);
+  const isEligibleForGeneralsLadder = recentGames.length >= AMOUNT_OF_GAMES_FOR_GENERALS_LADDER;
+
+  let demotionNote = "";
+  if (isEligibleForGeneralsLadder && player.ladder && player.ladder.id === 0) {
+    const oldestThresholdGame = recentGames.at(AMOUNT_OF_GAMES_FOR_GENERALS_LADDER - 1)!;
+    const demotionDueToInactivityTimestamp = oldestThresholdGame.timestamp + threeWeeksInMilliseconds;
+    const millisecondsUntilDemotion = demotionDueToInactivityTimestamp - now;
+    if (millisecondsUntilDemotion >= 0) {
+      const daysUntilDemotion = Math.floor(millisecondsUntilDemotion / (86400 * 1000));
+      const timeUntilDemotion =
+        daysUntilDemotion === 0
+          ? `${(millisecondsUntilDemotion / (3600 * 1000)).toFixed(2)} hours`
+          : `${daysUntilDemotion} ${daysUntilDemotion === 1 ? "day" : "days"}`;
+      demotionNote = ` ${timeUntilDemotion} until demotion due to inactivity.`;
+    }
+  }
+
   return (
     <Typography variant="body2" color="text.secondary">
       <Typography component="span" variant="body1" color={isEligibleForGeneralsLadder ? "success" : "error"}>
         {recentGames.length}
       </Typography>{" "}
-      {recentGames.length === 1 ? "game" : "games"} played in the last 3 weeks.
+      {recentGames.length === 1 ? "game" : "games"} played in the last 3 weeks.{demotionNote}
     </Typography>
   );
 };
@@ -144,7 +167,7 @@ export default function PlayerProfileCard({ player, matchHistory }: PlayerProfil
               <Typography variant="body2" color="text.secondary">
                 Win Rate: {((player.wins / (player.wins + player.losses)) * 100).toFixed(1)}%
               </Typography>
-              <Activity matchHistory={matchHistory} />
+              <Activity player={player} matchHistory={matchHistory} />
             </>
           )}
 
