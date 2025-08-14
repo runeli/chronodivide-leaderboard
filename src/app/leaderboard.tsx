@@ -233,11 +233,8 @@ export default function Leaderboard() {
         Chrono Divide Leaderboard
       </Typography>
 
-      {/* Two-column layout for search/filters and recent players */}
       <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
-        {/* Left column: Search and filters */}
         <Box sx={{ flex: "1 1 400px", minWidth: 400 }}>
-          {/* Player Search */}
           <Box sx={{ mb: 3 }}>
             <Typography variant="h6" gutterBottom>
               Search Player
@@ -263,7 +260,6 @@ export default function Leaderboard() {
             </Box>
           </Box>
 
-          {/* Filters */}
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <Box sx={{ minWidth: 120 }}>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
@@ -326,13 +322,11 @@ export default function Leaderboard() {
           </Box>
         </Box>
 
-        {/* Right column: Recent players */}
         <Box sx={{ minWidth: 400 }}>
           <RecentPlayers />
         </Box>
       </Box>
 
-      {/* Show current selection info */}
       {season && selectedLadder && (
         <Box sx={{ mb: 2, display: "flex", gap: 1, alignItems: "center" }}>
           <Chip label={getLadderDisplayName(selectedLadder)} size="small" color="primary" variant="outlined" />
