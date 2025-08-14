@@ -2,6 +2,7 @@
 
 import { Link, Typography, TypographyProps } from "@mui/material";
 import NextLink from "next/link";
+import { addRecentPlayer } from "@/lib/recentPlayers";
 
 interface PlayerNameLinkProps {
   playerName: string;
@@ -20,12 +21,17 @@ export default function PlayerNameLink({
   underline = "hover",
   sx,
 }: PlayerNameLinkProps) {
+  const handleClick = () => {
+    addRecentPlayer(playerName);
+  };
+
   return (
     <Link
       component={NextLink}
       href={`/player/${encodeURIComponent(playerName)}`}
       underline={underline}
       sx={{ cursor: "pointer" }}
+      onClick={handleClick}
     >
       <Typography variant={variant} fontWeight={fontWeight} color={color} sx={sx}>
         {playerName}

@@ -17,11 +17,12 @@ import {
 } from "@mui/material";
 import { ArrowBack, Download } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePlayerMatchHistory, usePlayerSearch, LadderType, PlayerMatchHistoryEntry } from "@/lib/api";
 import PlayerNameLink from "@/components/PlayerNameLink";
 import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraph";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
+import { addRecentPlayer } from "@/lib/recentPlayers";
 
 interface PlayerPageClientProps {
   playerName: string;
@@ -54,6 +55,10 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
   const safePlayerName = createSafePlayerName(playerName);
   const ladderType: LadderType = "1v1";
   const [downloadingReplays, setDownloadingReplays] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    addRecentPlayer(decodedPlayerName);
+  }, [decodedPlayerName]);
 
   const {
     data: players,

@@ -25,6 +25,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "@mui/icons-material";
 import PlayerNameLink from "@/components/PlayerNameLink";
 import RankIcon from "@/components/RankIcon";
+import RecentPlayers from "@/components/RecentPlayers";
+import { addRecentPlayer } from "@/lib/recentPlayers";
 import {
   useLadder,
   useSeasons,
@@ -201,7 +203,9 @@ export default function Leaderboard() {
 
   const handleDirectSearch = () => {
     if (searchQuery.trim()) {
-      router.push(`/player/${encodeURIComponent(searchQuery.trim())}`);
+      const playerName = searchQuery.trim();
+      addRecentPlayer(playerName); // No rank info for direct search
+      router.push(`/player/${encodeURIComponent(playerName)}`);
     }
   };
 
@@ -229,94 +233,100 @@ export default function Leaderboard() {
         Chrono Divide Leaderboard
       </Typography>
 
-      {/* Player Search */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Search Player
-        </Typography>
-        <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-          <TextField
-            placeholder="Enter player name..."
-            variant="outlined"
-            size="small"
-            value={searchQuery}
-            onChange={handleSearchChange}
-            onKeyPress={handleSearchKeyPress}
-            sx={{ flex: 1, maxWidth: 400 }}
-          />
-          <Button
-            variant="contained"
-            startIcon={<Search />}
-            onClick={handleDirectSearch}
-            disabled={!searchQuery.trim()}
-          >
-            Search
-          </Button>
+      <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
+        <Box sx={{ flex: "1 1 400px", minWidth: 400 }}>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              Search Player
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+              <TextField
+                placeholder="Enter player name..."
+                variant="outlined"
+                size="small"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                onKeyPress={handleSearchKeyPress}
+                sx={{ flex: 1 }}
+              />
+              <Button
+                variant="contained"
+                startIcon={<Search />}
+                onClick={handleDirectSearch}
+                disabled={!searchQuery.trim()}
+              >
+                Search
+              </Button>
+            </Box>
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+            <Box sx={{ minWidth: 120 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Season
+              </Typography>
+              <Select
+                id="season-select"
+                value={selectedSeason || ""}
+                onChange={handleSeasonChange}
+                disabled={seasonsLoading || !seasons}
+                variant="outlined"
+                size="small"
+                sx={{ minWidth: 120 }}
+              >
+                {seasons?.map((season) => (
+                  <MenuItem key={season} value={season}>
+                    {getSeasonDisplayName(season)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Box>
+
+            <Box sx={{ minWidth: 120 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Game Mode
+              </Typography>
+              <Select
+                id="ladder-type-select"
+                value={ladderType}
+                onChange={handleLadderTypeChange}
+                variant="outlined"
+                size="small"
+                sx={{ minWidth: 120 }}
+              >
+                <MenuItem value="1v1">1v1</MenuItem>
+                <MenuItem value="2v2-random">2v2 Random</MenuItem>
+              </Select>
+            </Box>
+
+            <Box sx={{ minWidth: 200 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Division
+              </Typography>
+              <Select
+                id="ladder-select"
+                value={selectedLadderId}
+                onChange={handleLadderChange}
+                disabled={seasonLoading || !availableLadders.length}
+                variant="outlined"
+                size="small"
+                sx={{ minWidth: 200 }}
+              >
+                {availableLadders.map((ladder) => (
+                  <MenuItem key={ladder.id} value={ladder.id}>
+                    {getLadderDisplayName(ladder)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Box>
+          </Box>
+        </Box>
+
+        <Box sx={{ minWidth: 400 }}>
+          <RecentPlayers />
         </Box>
       </Box>
 
-      <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
-        <Box sx={{ minWidth: 120 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            Season
-          </Typography>
-          <Select
-            id="season-select"
-            value={selectedSeason || ""}
-            onChange={handleSeasonChange}
-            disabled={seasonsLoading || !seasons}
-            variant="outlined"
-            size="small"
-            sx={{ minWidth: 120 }}
-          >
-            {seasons?.map((season) => (
-              <MenuItem key={season} value={season}>
-                {getSeasonDisplayName(season)}
-              </MenuItem>
-            ))}
-          </Select>
-        </Box>
-
-        <Box sx={{ minWidth: 120 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            Game Mode
-          </Typography>
-          <Select
-            id="ladder-type-select"
-            value={ladderType}
-            onChange={handleLadderTypeChange}
-            variant="outlined"
-            size="small"
-            sx={{ minWidth: 120 }}
-          >
-            <MenuItem value="1v1">1v1</MenuItem>
-            <MenuItem value="2v2-random">2v2 Random</MenuItem>
-          </Select>
-        </Box>
-
-        <Box sx={{ minWidth: 200 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            Division
-          </Typography>
-          <Select
-            id="ladder-select"
-            value={selectedLadderId}
-            onChange={handleLadderChange}
-            disabled={seasonLoading || !availableLadders.length}
-            variant="outlined"
-            size="small"
-            sx={{ minWidth: 200 }}
-          >
-            {availableLadders.map((ladder) => (
-              <MenuItem key={ladder.id} value={ladder.id}>
-                {getLadderDisplayName(ladder)}
-              </MenuItem>
-            ))}
-          </Select>
-        </Box>
-      </Box>
-
-      {/* Show current selection info */}
       {season && selectedLadder && (
         <Box sx={{ mb: 2, display: "flex", gap: 1, alignItems: "center" }}>
           <Chip label={getLadderDisplayName(selectedLadder)} size="small" color="primary" variant="outlined" />

@@ -94,7 +94,7 @@ export interface PlayerUnrankedProfile {
 export interface PlayerLadderRung {
   name: string;
   rank: number;
-  rankType: string;
+  rankType: number;
   points: number;
   wins: number;
   losses: number;
