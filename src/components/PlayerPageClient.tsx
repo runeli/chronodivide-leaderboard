@@ -312,9 +312,27 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                             </Tooltip>
                           </Box>
                         ) : (
-                          <Box sx={{ opacity: 0.3, display: "flex", gap: 1 }}>
-                            <Download fontSize="small" />
-                            <PlayArrow fontSize="small" />
+                          <Box sx={{ opacity: 0.3, display: "flex", gap: 1, alignItems: "center" }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "4px",
+                                minHeight: "24px",
+                              }}
+                            >
+                              <Download fontSize="small" />
+                            </Box>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "4px",
+                                minHeight: "24px",
+                              }}
+                            >
+                              <PlayArrow fontSize="small" />
+                            </Box>
                           </Box>
                         )}
                       </TableCell>
