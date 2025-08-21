@@ -70,7 +70,7 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
   } = usePlayerMatchHistory(selectedRegion.id, ladderType, decodedPlayerName);
 
   const formatDuration = (mins: number | null | undefined) => {
-    if (mins == null) {
+    if (mins === null || mins === undefined) {
       return "";
     }
     return `${mins} m`;
