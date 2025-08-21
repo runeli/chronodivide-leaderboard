@@ -186,7 +186,7 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
       </Box>
 
       <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
-        <Box sx={{ flex: "1 1 300px", minWidth: 300 }}>
+        <Box sx={{ flex: "1 1 300px", minWidth: { xs: "100%", sm: 300 } }}>
           <PlayerProfileCard player={player} matchHistory={matchHistory} />
 
           {matchHistory && matchHistory.length > 0 && (
@@ -194,7 +194,7 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
           )}
         </Box>
 
-        <Box sx={{ flex: "2 1 600px" }}>
+        <Box sx={{ flex: "2 1 600px", minWidth: { xs: "100%", sm: 600 } }}>
           <Box
             sx={{
               mb: 2,
