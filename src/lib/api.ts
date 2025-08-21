@@ -11,9 +11,8 @@ export function getApiBaseUrl() {
 }
 
 export function clearApiCache() {
-  mutate((key) => Array.isArray(key) && typeof key[0] === "string" && key[0].startsWith("/ladder/"), undefined, {
-    revalidate: false,
-  });
+  // Clear all SWR cache and force revalidation to ensure fresh data from new region
+  mutate(() => true, undefined, { revalidate: true });
 }
 
 const fetcher = async (path: string, options?: RequestInit) => {
@@ -33,6 +32,7 @@ const playerSWRConfig = {
   errorRetryCount: 0,
   revalidateOnFocus: false,
   revalidateOnReconnect: false,
+  revalidateIfStale: true,
 };
 
 export type GameSku = 16640;
