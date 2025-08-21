@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation";
 import { getRecentPlayers, clearRecentPlayers, RecentPlayer } from "@/lib/recentPlayers";
 import { usePlayerSearch, formatRankType } from "@/lib/api";
 import RankIcon from "@/components/RankIcon";
+import { useRegion } from "@/contexts/RegionContext";
 
 export default function RecentPlayers() {
   const router = useRouter();
+  const { selectedRegion } = useRegion();
   const [recentPlayers, setRecentPlayers] = useState<RecentPlayer[]>([]);
 
   const refreshRecentPlayers = () => {
@@ -34,7 +36,7 @@ export default function RecentPlayers() {
   const { data: playerProfiles, isLoading: profilesLoading } = usePlayerSearch("1v1", "current", playerNames);
 
   const handlePlayerClick = (playerName: string) => {
-    router.push(`/player/${encodeURIComponent(playerName)}`);
+    router.push(`/player/${encodeURIComponent(playerName)}?region=${selectedRegion.id}`);
   };
 
   const handleClearAll = () => {

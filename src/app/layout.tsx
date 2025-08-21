@@ -36,7 +36,7 @@ export default function RootLayout({
           >
             <RegionProvider>
               <Container component="main" sx={{ mt: 2 }}>
-                <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end" }}>
+                <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end", mr: 1 }}>
                   <RegionPicker />
                 </Box>
                 {children}

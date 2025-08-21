@@ -27,6 +27,7 @@ import PlayerNameLink from "@/components/PlayerNameLink";
 import RankIcon from "@/components/RankIcon";
 import RecentPlayers from "@/components/RecentPlayers";
 import { addRecentPlayer } from "@/lib/recentPlayers";
+import { useRegion } from "@/contexts/RegionContext";
 import {
   useLadder,
   useSeasons,
@@ -43,6 +44,7 @@ const LADDER_PAGE_SIZE = 25;
 export default function Leaderboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { selectedRegion } = useRegion();
 
   const [selectedSeason, setSelectedSeason] = useState<SeasonId>("");
   const [ladderType, setLadderType] = useState<LadderType>("1v1");
@@ -205,7 +207,7 @@ export default function Leaderboard() {
     if (searchQuery.trim()) {
       const playerName = searchQuery.trim();
       addRecentPlayer(playerName); // No rank info for direct search
-      router.push(`/player/${encodeURIComponent(playerName)}`);
+      router.push(`/player/${encodeURIComponent(playerName)}?region=${selectedRegion.id}`);
     }
   };
 

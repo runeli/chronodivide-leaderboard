@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { setApiBaseUrl, clearApiCache } from "@/lib/api";
 import { fetchServersConfig, getDefaultServersConfig, getDefaultServer, type ServerConfig } from "@/lib/serversConfig";
 
@@ -17,6 +17,7 @@ const RegionContext = createContext<RegionContextType | undefined>(undefined);
 
 export function RegionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Start with default configuration immediately
   const defaultRegions = getDefaultServersConfig();
@@ -24,7 +25,7 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
   const [selectedRegion, setSelectedRegionState] = useState<Region>(() => {
     // Priority: URL parameter > localStorage > default
     if (typeof window !== "undefined") {
-      // Check URL parameter first (get it directly from window.location to avoid searchParams dependency)
+      // Check URL parameter first
       const urlParams = new URLSearchParams(window.location.search);
       const urlRegionId = urlParams.get("region");
       if (urlRegionId) {
@@ -50,13 +51,13 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
   const updateURLWithRegion = useCallback(
     (regionId: string) => {
       if (typeof window !== "undefined") {
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(searchParams.toString());
         params.set("region", regionId);
         const newURL = `${window.location.pathname}?${params.toString()}`;
         router.replace(newURL, { scroll: false });
       }
     },
-    [router]
+    [searchParams, router]
   );
 
   // Set initial API base URL
@@ -64,8 +65,27 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
     setApiBaseUrl(selectedRegion.baseUrl);
   }, [selectedRegion.baseUrl]);
 
-  // Only update URL when user explicitly changes region (not on every searchParams change)
-  // This prevents infinite loops when the page loads with existing region parameters
+  useEffect(() => {
+    const urlRegionId = searchParams.get("region");
+    if (urlRegionId) {
+      const urlRegion = regions.find((r) => r.id === urlRegionId);
+      if (urlRegion && urlRegion.id !== selectedRegion.id) {
+        setSelectedRegionState(urlRegion);
+        setApiBaseUrl(urlRegion.baseUrl);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("chronodivide-selected-region", urlRegion.id);
+        }
+        clearApiCache();
+      }
+    }
+  }, [searchParams, regions, selectedRegion.id]);
+
+  //init load if user has no region in url
+  useEffect(() => {
+    if (typeof window !== "undefined" && !searchParams.get("region")) {
+      updateURLWithRegion(selectedRegion.id);
+    }
+  }, [selectedRegion.id, searchParams, updateURLWithRegion]);
 
   // Fetch updated regions in background (no loading state)
   useEffect(() => {
@@ -90,25 +110,21 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (err) {
         console.warn("Failed to fetch updated server configuration:", err);
-        // Continue with default/current configuration
       }
     };
 
     fetchUpdatedServers();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Save region to localStorage when changed
   const setSelectedRegion = (region: Region, updateURL: boolean = true) => {
     setSelectedRegionState(region);
     if (typeof window !== "undefined") {
       localStorage.setItem("chronodivide-selected-region", region.id);
     }
     setApiBaseUrl(region.baseUrl);
-    // Only update URL parameter if explicitly requested (user-initiated changes)
     if (updateURL) {
       updateURLWithRegion(region.id);
     }
-    // Clear cached data to force refetch from new region
     clearApiCache();
   };
 
