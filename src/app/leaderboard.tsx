@@ -25,8 +25,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "@mui/icons-material";
 import PlayerNameLink from "@/components/PlayerNameLink";
 import RankIcon from "@/components/RankIcon";
-import RecentPlayers from "@/components/RecentPlayers";
-import { addRecentPlayer } from "@/lib/recentPlayers";
+import PinnedPlayers from "@/components/PinnedPlayers";
 import { useRegion } from "@/contexts/RegionContext";
 import {
   useLadder,
@@ -45,7 +44,6 @@ export default function Leaderboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedRegion } = useRegion();
-
   const [selectedSeason, setSelectedSeason] = useState<SeasonId>("current");
   const [ladderType, setLadderType] = useState<LadderType>("1v1");
   const [selectedLadderId, setSelectedLadderId] = useState<number>(0); // Default to Generals
@@ -119,13 +117,18 @@ export default function Leaderboard() {
   }, [searchParams]); // Include searchParams dependency
 
   // Fetch available seasons
-  const { data: seasons, error: seasonsError, isLoading: seasonsLoading } = useSeasons(ladderType);
+  const { data: seasons, error: seasonsError, isLoading: seasonsLoading } = useSeasons(selectedRegion.id, ladderType);
 
   // Fetch season details to get available ladders
-  const { data: season, error: seasonError, isLoading: seasonLoading } = useSeason(selectedSeason || "current");
+  const {
+    data: season,
+    error: seasonError,
+    isLoading: seasonLoading,
+  } = useSeason(selectedRegion.id, selectedSeason || "current");
 
   // Fetch ladder data (API uses 1-based indexing)
   const { data, error, isLoading } = useLadder(
+    selectedRegion.id,
     ladderType,
     selectedSeason || "current",
     selectedLadderId,
@@ -138,12 +141,9 @@ export default function Leaderboard() {
     if (season) {
       const availableLadders = getTopLadders(season, ladderType);
       if (availableLadders.length > 0) {
-        // Check if current selected ladder is still valid
         const currentLadderStillExists = availableLadders.find((l) => l.id === selectedLadderId);
 
         if (!currentLadderStillExists) {
-          // Only auto-select if current ladder doesn't exist in new available ladders
-          // Try to find a regular division ladder first (ID >= 2), fallback to Contenders (1), then Generals (0)
           const regularLadder = availableLadders.find((l) => l.id >= 2);
           const fallbackLadder = availableLadders.find((l) => l.id === 1) || availableLadders[0];
           const targetLadderId = (regularLadder || fallbackLadder).id;
@@ -196,7 +196,6 @@ export default function Leaderboard() {
   const handleDirectSearch = () => {
     if (searchQuery.trim()) {
       const playerName = searchQuery.trim();
-      addRecentPlayer(playerName); // No rank info for direct search
       router.push(`/player/${encodeURIComponent(playerName)}?region=${selectedRegion.id}`);
     }
   };
@@ -315,7 +314,7 @@ export default function Leaderboard() {
         </Box>
 
         <Box sx={{ minWidth: 400 }}>
-          <RecentPlayers />
+          <PinnedPlayers />
         </Box>
       </Box>
 

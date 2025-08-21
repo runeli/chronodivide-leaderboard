@@ -17,12 +17,12 @@ import {
 } from "@mui/material";
 import { ArrowBack, Download } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePlayerMatchHistory, usePlayerSearch, LadderType, PlayerMatchHistoryEntry } from "@/lib/api";
 import PlayerNameLink from "@/components/PlayerNameLink";
 import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraph";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
-import { addRecentPlayer } from "@/lib/recentPlayers";
+import { useRegion } from "@/contexts/RegionContext";
 
 interface PlayerPageClientProps {
   playerName: string;
@@ -51,26 +51,23 @@ const createSafePlayerName = (rawPlayerName: string): string => {
 
 export default function PlayerPageClient({ playerName }: PlayerPageClientProps) {
   const router = useRouter();
+  const { selectedRegion } = useRegion();
   const decodedPlayerName = decodeURIComponent(playerName);
   const safePlayerName = createSafePlayerName(playerName);
   const ladderType: LadderType = "1v1";
   const [downloadingReplays, setDownloadingReplays] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    addRecentPlayer(decodedPlayerName);
-  }, [decodedPlayerName]);
-
   const {
     data: players,
     error: playerError,
     isLoading: playerLoading,
-  } = usePlayerSearch(ladderType, "current", [decodedPlayerName]);
+  } = usePlayerSearch(selectedRegion.id, ladderType, "current", [decodedPlayerName]);
 
   const {
     data: matchHistory,
     error: matchHistoryError,
     isLoading: matchHistoryLoading,
-  } = usePlayerMatchHistory(ladderType, decodedPlayerName);
+  } = usePlayerMatchHistory(selectedRegion.id, ladderType, decodedPlayerName);
 
   const formatDuration = (mins: number | null | undefined) => {
     if (mins == null) {

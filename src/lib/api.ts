@@ -1,13 +1,23 @@
+import { Region } from "@/contexts/RegionContext";
 import useSWR, { mutate } from "swr";
 
-let currentApiBaseUrl = "https://wol-eu1.chronodivide.com";
+export const defaultRegions: Region[] = [
+  {
+    id: "am-eu",
+    baseUrl: "https://wol-eu1.chronodivide.com",
+    label: "Americas & Europe",
+    available: true,
+  },
+  {
+    id: "sea",
+    baseUrl: "https://wol-sea1.chronodivide.com",
+    label: "South-East Asia",
+    available: true,
+  },
+];
 
-export function setApiBaseUrl(baseUrl: string) {
-  currentApiBaseUrl = baseUrl;
-}
-
-export function getApiBaseUrl() {
-  return currentApiBaseUrl;
+export function getApiBaseUrl(regionId: string) {
+  return defaultRegions.find((r) => r.id === regionId)?.baseUrl;
 }
 
 export function clearApiCache() {
@@ -15,7 +25,9 @@ export function clearApiCache() {
   mutate(() => true, undefined, { revalidate: true });
 }
 
-const fetcher = async (path: string, options?: RequestInit) => {
+const fetcher = async (regionId: string, path: string, options?: RequestInit) => {
+  console.log("fetcher", regionId, path, options);
+  const currentApiBaseUrl = getApiBaseUrl(regionId);
   try {
     const res = await fetch(`${currentApiBaseUrl}${path}`, options);
     if (!res.ok) {
@@ -122,11 +134,10 @@ export interface PlayerMatchHistoryEntry {
 // --- SWR Hooks ---
 
 // Hook: Fetch available seasons
-export function useSeasons(ladderType?: LadderType) {
+export function useSeasons(regionId: string, ladderType?: LadderType) {
   const path = ladderType ? `/ladder/16640/${ladderType}` : `/ladder/16640/1v1`;
-  const apiBaseUrl = getApiBaseUrl();
 
-  const { data, error, isLoading } = useSWR<string[]>([path, apiBaseUrl], () => fetcher(path));
+  const { data, error, isLoading } = useSWR<string[]>([path, regionId], () => fetcher(regionId, path));
 
   return {
     data,
@@ -136,11 +147,12 @@ export function useSeasons(ladderType?: LadderType) {
 }
 
 // Hook: Fetch season details with all ladders
-export function useSeason(seasonId: SeasonId) {
+export function useSeason(regionId: string, seasonId: SeasonId) {
   const path = `/ladder/16640/${seasonId}`;
-  const apiBaseUrl = getApiBaseUrl();
 
-  const { data, error, isLoading } = useSWR<LadderSeason>(seasonId ? [path, apiBaseUrl] : null, () => fetcher(path));
+  const { data, error, isLoading } = useSWR<LadderSeason>(seasonId ? [path, regionId] : null, () =>
+    fetcher(regionId, path)
+  );
 
   return {
     data,
@@ -150,14 +162,20 @@ export function useSeason(seasonId: SeasonId) {
 }
 
 // Hook: Fetching ladder entries for a specific ladder
-export function useLadder(ladderType: LadderType, seasonId: SeasonId, ladderId: number, start: number, count: number) {
+export function useLadder(
+  regionId: string,
+  ladderType: LadderType,
+  seasonId: SeasonId,
+  ladderId: number,
+  start: number,
+  count: number
+) {
   const path = `/ladder/16640/${ladderType}/${seasonId}/rungsearch`;
-  const apiBaseUrl = getApiBaseUrl();
 
   const { data, error, isLoading } = useSWR<PagedResponse<PlayerLadderRung>>(
-    seasonId && ladderId !== undefined ? [path, ladderType, seasonId, ladderId, start, count, apiBaseUrl] : null,
+    seasonId && ladderId !== undefined ? [path, ladderType, seasonId, ladderId, start, count, regionId] : null,
     () =>
-      fetcher(path, {
+      fetcher(regionId, path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ladderId, start, count }),
@@ -172,14 +190,13 @@ export function useLadder(ladderType: LadderType, seasonId: SeasonId, ladderId: 
 }
 
 // Hook: Search for specific players
-export function usePlayerSearch(ladderType: LadderType, seasonId: SeasonId, playerNames: string[]) {
+export function usePlayerSearch(regionId: string, ladderType: LadderType, seasonId: SeasonId, playerNames: string[]) {
   const path = `/ladder/16640/${ladderType}/${seasonId}/listsearch`;
-  const apiBaseUrl = getApiBaseUrl();
 
   const { data, error, isLoading } = useSWR<(PlayerRankedProfile | PlayerUnrankedProfile)[]>(
-    seasonId && playerNames.length > 0 ? [path, ladderType, seasonId, playerNames, apiBaseUrl] : null,
+    seasonId && playerNames.length > 0 ? [path, ladderType, seasonId, playerNames, regionId] : null,
     () =>
-      fetcher(path, {
+      fetcher(regionId, path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ players: playerNames }),
@@ -194,15 +211,13 @@ export function usePlayerSearch(ladderType: LadderType, seasonId: SeasonId, play
   };
 }
 
-// Hook: Fetch player match history
-export function usePlayerMatchHistory(ladderType: LadderType, playerName: string) {
+export function usePlayerMatchHistory(regionId: string, ladderType: LadderType, playerName: string) {
   const path = `/ladder/16640/${ladderType}/match-history`;
-  const apiBaseUrl = getApiBaseUrl();
 
   const { data, error, isLoading } = useSWR<PlayerMatchHistoryEntry[]>(
-    playerName ? [path, ladderType, playerName, apiBaseUrl] : null,
+    playerName ? [`match-history`, regionId, ladderType, playerName] : null,
     () =>
-      fetcher(path, {
+      fetcher(regionId, path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ player: playerName }),

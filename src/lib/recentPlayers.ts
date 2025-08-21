@@ -1,63 +1,128 @@
-const RECENT_PLAYERS_KEY = "recent_players";
-const MAX_RECENT_PLAYERS = 3;
+const PINNED_PLAYERS_KEY = "pinned_players";
+const MAX_PINNED_PLAYERS = 10;
+const SELECTED_REGION_KEY = "chronodivide-selected-region";
 
-export interface RecentPlayer {
+export interface PinnedPlayer {
   name: string;
   timestamp: number;
+  rank: number;
+  mmr: number;
+  region: string;
+  rankType: string;
 }
 
-export function getRecentPlayers(): RecentPlayer[] {
+export function getPinnedPlayers(): PinnedPlayer[] {
   if (typeof window === "undefined") {
     return [];
   }
 
   try {
-    const stored = localStorage.getItem(RECENT_PLAYERS_KEY);
+    const stored = localStorage.getItem(PINNED_PLAYERS_KEY);
     if (!stored) return [];
 
-    const players = JSON.parse(stored) as RecentPlayer[];
+    const players = JSON.parse(stored) as PinnedPlayer[];
     return Array.isArray(players) ? players : [];
   } catch (error) {
-    console.error("Error reading recent players from localStorage:", error);
+    console.error("Error reading pinned players from localStorage:", error);
     return [];
   }
 }
 
-export function addRecentPlayer(playerName: string): void {
+export function addPinnedPlayer(playerName: string, rank: number, mmr: number, region: string, rankType: string): void {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    const currentPlayers = getRecentPlayers();
+    const currentPlayers = getPinnedPlayers();
 
     const existingPlayers = currentPlayers.filter((p) => p.name !== playerName);
 
-    const newPlayer: RecentPlayer = {
+    const newPlayer: PinnedPlayer = {
       name: playerName,
       timestamp: Date.now(),
+      rank,
+      mmr,
+      region,
+      rankType,
     };
 
-    const updatedPlayers = [newPlayer, ...existingPlayers].slice(0, MAX_RECENT_PLAYERS);
+    const updatedPlayers = [newPlayer, ...existingPlayers].slice(0, MAX_PINNED_PLAYERS);
 
-    localStorage.setItem(RECENT_PLAYERS_KEY, JSON.stringify(updatedPlayers));
+    localStorage.setItem(PINNED_PLAYERS_KEY, JSON.stringify(updatedPlayers));
 
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("recentPlayersChanged"));
+      window.dispatchEvent(new CustomEvent("pinnedPlayersChanged"));
     }
   } catch (error) {
-    console.error("Error saving recent player to localStorage:", error);
+    console.error("Error saving pinned player to localStorage:", error);
   }
 }
 
-export function clearRecentPlayers(): void {
+export function removePinnedPlayer(playerName: string): void {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    localStorage.removeItem(RECENT_PLAYERS_KEY);
+    const currentPlayers = getPinnedPlayers();
+    const updatedPlayers = currentPlayers.filter((p) => p.name !== playerName);
+    localStorage.setItem(PINNED_PLAYERS_KEY, JSON.stringify(updatedPlayers));
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("pinnedPlayersChanged"));
+    }
   } catch (error) {
-    console.error("Error clearing recent players from localStorage:", error);
+    console.error("Error removing pinned player from localStorage:", error);
+  }
+}
+
+export function isPlayerPinned(playerName: string): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const pinnedPlayers = getPinnedPlayers();
+  return pinnedPlayers.some((p) => p.name === playerName);
+}
+
+export function clearPinnedPlayers(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    localStorage.removeItem(PINNED_PLAYERS_KEY);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("pinnedPlayersChanged"));
+    }
+  } catch (error) {
+    console.error("Error clearing pinned players from localStorage:", error);
+  }
+}
+
+export function getSavedRegion(): string {
+  if (typeof window === "undefined") {
+    return "am-eu";
+  }
+
+  try {
+    const savedRegionId = localStorage.getItem(SELECTED_REGION_KEY);
+    return savedRegionId || "am-eu";
+  } catch (error) {
+    console.error("Error reading saved region from localStorage:", error);
+    return "am-eu";
+  }
+}
+
+export function saveRegion(regionId: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    localStorage.setItem(SELECTED_REGION_KEY, regionId);
+  } catch (error) {
+    console.error("Error saving region to localStorage:", error);
   }
 }

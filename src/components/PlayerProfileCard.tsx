@@ -3,6 +3,7 @@ import { PlayerMatchHistoryEntry, PlayerRankedProfile, PlayerUnrankedProfile, fo
 import RankIcon from "@/components/RankIcon";
 import LadderPoints from "@/components/LadderPoints";
 import PromotionProgress from "@/components/PromotionProgress";
+import PinPlayer from "@/components/PinPlayer";
 import NextLink from "next/link";
 import { FC } from "react";
 
@@ -78,9 +79,17 @@ export default function PlayerProfileCard({ player, matchHistory }: PlayerProfil
               mb: 2,
             }}
           >
-            <Typography variant="h4" gutterBottom>
-              {player.name}
-            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Typography variant="h4" gutterBottom>
+                {player.name}
+              </Typography>
+              <PinPlayer
+                playerName={player.name}
+                playerRank={player.rank}
+                playerMmr={player.mmr}
+                playerRankType={player.rankType}
+              />
+            </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <RankIcon rankType={player.rankType} size={18} />
               <Typography variant="body2" color="text.secondary">

@@ -2,10 +2,17 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { setApiBaseUrl, clearApiCache } from "@/lib/api";
-import { fetchServersConfig, getDefaultServersConfig, getDefaultServer, type ServerConfig } from "@/lib/serversConfig";
+import { clearApiCache } from "@/lib/api";
+import { getSavedRegion, saveRegion } from "@/lib/recentPlayers";
 
-export type Region = ServerConfig;
+export interface Region {
+  id: string;
+  baseUrl: string;
+  label: string;
+  available: boolean;
+}
+
+import { defaultRegions } from "@/lib/api";
 
 interface RegionContextType {
   selectedRegion: Region;
@@ -19,9 +26,7 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Start with default configuration immediately
-  const defaultRegions = getDefaultServersConfig();
-  const [regions, setRegions] = useState<Region[]>(defaultRegions);
+  const [regions] = useState<Region[]>(defaultRegions);
   const [selectedRegion, setSelectedRegionState] = useState<Region>(() => {
     // Priority: URL parameter > localStorage > default
     if (typeof window !== "undefined") {
@@ -35,16 +40,13 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
         }
       }
 
-      // Fallback to localStorage
-      const savedRegionId = localStorage.getItem("chronodivide-selected-region");
-      if (savedRegionId) {
-        const savedRegion = defaultRegions.find((r) => r.id === savedRegionId);
-        if (savedRegion) {
-          return savedRegion;
-        }
+      const savedRegionId = getSavedRegion();
+      const savedRegion = defaultRegions.find((r) => r.id === savedRegionId);
+      if (savedRegion) {
+        return savedRegion;
       }
     }
-    return getDefaultServer(defaultRegions);
+    return defaultRegions[0]; // Default to first region (am-eu)
   });
 
   // Helper function to update URL with region parameter
@@ -60,22 +62,15 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
     [searchParams, router]
   );
 
-  // Set initial API base URL
-  useEffect(() => {
-    setApiBaseUrl(selectedRegion.baseUrl);
-  }, [selectedRegion.baseUrl]);
-
   useEffect(() => {
     const urlRegionId = searchParams.get("region");
     if (urlRegionId) {
       const urlRegion = regions.find((r) => r.id === urlRegionId);
       if (urlRegion && urlRegion.id !== selectedRegion.id) {
         setSelectedRegionState(urlRegion);
-        setApiBaseUrl(urlRegion.baseUrl);
         if (typeof window !== "undefined") {
-          localStorage.setItem("chronodivide-selected-region", urlRegion.id);
+          saveRegion(urlRegion.id);
         }
-        clearApiCache();
       }
     }
   }, [searchParams, regions, selectedRegion.id]);
@@ -87,45 +82,14 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
     }
   }, [selectedRegion.id, searchParams, updateURLWithRegion]);
 
-  // Fetch updated regions in background (no loading state)
-  useEffect(() => {
-    const fetchUpdatedServers = async () => {
-      try {
-        const fetchedRegions = await fetchServersConfig();
-
-        if (JSON.stringify(fetchedRegions) !== JSON.stringify(regions)) {
-          setRegions(fetchedRegions);
-
-          const currentRegionId = selectedRegion.id;
-          const updatedRegion = fetchedRegions.find((r) => r.id === currentRegionId);
-          if (updatedRegion) {
-            setSelectedRegionState(updatedRegion);
-            setApiBaseUrl(updatedRegion.baseUrl);
-          } else {
-            const newDefaultRegion = getDefaultServer(fetchedRegions);
-            setSelectedRegionState(newDefaultRegion);
-            setApiBaseUrl(newDefaultRegion.baseUrl);
-            clearApiCache();
-          }
-        }
-      } catch (err) {
-        console.warn("Failed to fetch updated server configuration:", err);
-      }
-    };
-
-    fetchUpdatedServers();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
   const setSelectedRegion = (region: Region, updateURL: boolean = true) => {
     setSelectedRegionState(region);
     if (typeof window !== "undefined") {
-      localStorage.setItem("chronodivide-selected-region", region.id);
+      saveRegion(region.id);
     }
-    setApiBaseUrl(region.baseUrl);
     if (updateURL) {
       updateURLWithRegion(region.id);
     }
-    clearApiCache();
   };
 
   return (

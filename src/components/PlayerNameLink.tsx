@@ -2,7 +2,6 @@
 
 import { Link, Typography, TypographyProps } from "@mui/material";
 import NextLink from "next/link";
-import { addRecentPlayer } from "@/lib/recentPlayers";
 import { useRegion } from "@/contexts/RegionContext";
 
 interface PlayerNameLinkProps {
@@ -25,7 +24,7 @@ export default function PlayerNameLink({
   const { selectedRegion } = useRegion();
 
   const handleClick = () => {
-    addRecentPlayer(playerName);
+    // No longer adding to recent players
   };
 
   return (

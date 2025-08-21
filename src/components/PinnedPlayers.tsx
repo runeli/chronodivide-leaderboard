@@ -5,12 +5,11 @@ import { Delete, PushPin } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getPinnedPlayers, clearPinnedPlayers, removePinnedPlayer, PinnedPlayer } from "@/lib/recentPlayers";
-
-import { useRegion } from "@/contexts/RegionContext";
+import RankIcon from "@/components/RankIcon";
+import { formatRankType } from "@/lib/api";
 
 export default function PinnedPlayers() {
   const router = useRouter();
-  const { selectedRegion } = useRegion();
   const [pinnedPlayers, setPinnedPlayers] = useState<PinnedPlayer[]>([]);
 
   const refreshPinnedPlayers = () => {
@@ -65,14 +64,16 @@ export default function PinnedPlayers() {
               >
                 <Box sx={{ flex: 1, minHeight: 40 }}>
                   <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Typography variant="body2" color="primary" fontWeight="medium">
-                      {player.name}
-                    </Typography>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <Typography variant="body2" color="primary" fontWeight="medium">
+                        {player.name}
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
-                    <Chip label={`Rank ${player.rank}`} size="small" variant="outlined" />
+                    <RankIcon rankType={player.rankType} size={14} />
                     <Typography variant="caption" color="text.secondary">
-                      {player.mmr} MMR
+                      {formatRankType(player.rankType)}
                     </Typography>
                   </Box>
                 </Box>
