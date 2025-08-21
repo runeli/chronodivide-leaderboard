@@ -5,13 +5,18 @@ import { formatRankType } from "@/lib/api";
 import { RANK_ICONS, hasRankIcon } from "@/lib/rankIcons";
 
 interface RankIconProps {
-  rankType: string | number;
+  rankType: string | number | null | undefined;
   size?: number;
   showTooltip?: boolean;
   showText?: boolean;
 }
 
 export default function RankIcon({ rankType, size = 16, showTooltip = true, showText = false }: RankIconProps) {
+  // Handle null/undefined rankType
+  if (rankType == null) {
+    return showText ? <span style={{ fontSize: `${size}px`, color: "#ffff00" }}>Unranked</span> : null;
+  }
+
   const numericRank = typeof rankType === "number" ? rankType : parseInt(rankType, 10);
   const rankName = formatRankType(rankType);
   const iconData = RANK_ICONS[numericRank];

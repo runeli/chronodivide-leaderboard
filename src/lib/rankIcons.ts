@@ -16,7 +16,10 @@ export const RANK_ICONS: Record<number, string> = {
 };
 
 // Helper function to check if a rank has an icon
-export function hasRankIcon(rankType: string | number): boolean {
+export function hasRankIcon(rankType: string | number | null | undefined): boolean {
+  if (rankType == null) {
+    return false;
+  }
   const numericRank = typeof rankType === "number" ? rankType : parseInt(rankType, 10);
   return numericRank > 0 && RANK_ICONS[numericRank] !== "";
 }

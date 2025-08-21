@@ -18,21 +18,21 @@ export default function PinPlayer({ playerName, playerRank, playerMmr, playerRan
   const [isPinned, setIsPinned] = useState(false);
 
   useEffect(() => {
-    setIsPinned(isPlayerPinned(playerName));
-  }, [playerName]);
+    setIsPinned(isPlayerPinned(playerName, selectedRegion.id));
+  }, [playerName, selectedRegion.id]);
 
   useEffect(() => {
     const handlePinnedPlayersChanged = () => {
-      setIsPinned(isPlayerPinned(playerName));
+      setIsPinned(isPlayerPinned(playerName, selectedRegion.id));
     };
 
     window.addEventListener("pinnedPlayersChanged", handlePinnedPlayersChanged);
     return () => window.removeEventListener("pinnedPlayersChanged", handlePinnedPlayersChanged);
-  }, [playerName]);
+  }, [playerName, selectedRegion.id]);
 
   const handleTogglePin = () => {
     if (isPinned) {
-      removePinnedPlayer(playerName);
+      removePinnedPlayer(selectedRegion.id, playerName);
     } else {
       addPinnedPlayer(playerName, playerRank, playerMmr, selectedRegion.id, playerRankType);
     }

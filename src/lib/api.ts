@@ -230,7 +230,11 @@ export function getTopLadders(season: LadderSeason, ladderType: LadderType): Lad
   return season.ladders.filter((ladder) => ladder.type === ladderType).sort((a, b) => a.id - b.id); // Sort by ID to get Generals (0) and Contenders (1) first
 }
 
-export function formatRankType(rankType: string | number): string {
+export function formatRankType(rankType: string | number | null | undefined): string {
+  if (rankType == null) {
+    return "Unranked";
+  }
+
   if (typeof rankType === "number") {
     const rankNames: Record<number, string> = {
       0: "Unranked",
@@ -247,5 +251,10 @@ export function formatRankType(rankType: string | number): string {
     };
     return rankNames[rankType] || `Rank ${rankType}`;
   }
+
+  if (rankType === "unranked") {
+    return "Unranked";
+  }
+
   return rankType;
 }

@@ -230,7 +230,9 @@ export default function Leaderboard() {
             <Typography variant="h6" gutterBottom>
               Search Player
             </Typography>
-            <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <Box
+              sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr auto" }, gap: 2, alignItems: "center" }}
+            >
               <TextField
                 placeholder="Enter player name..."
                 variant="outlined"
@@ -238,13 +240,13 @@ export default function Leaderboard() {
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onKeyPress={handleSearchKeyPress}
-                sx={{ flex: 1 }}
               />
               <Button
                 variant="contained"
                 startIcon={<Search />}
                 onClick={handleDirectSearch}
                 disabled={!searchQuery.trim()}
+                sx={{ minWidth: "fit-content" }}
               >
                 Search
               </Button>

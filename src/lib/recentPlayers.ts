@@ -5,10 +5,10 @@ const SELECTED_REGION_KEY = "chronodivide-selected-region";
 export interface PinnedPlayer {
   name: string;
   timestamp: number;
-  rank: number;
-  mmr: number;
+  rank?: number;
+  mmr?: number;
   region: string;
-  rankType: string;
+  rankType?: string | number;
 }
 
 export function getPinnedPlayers(): PinnedPlayer[] {
@@ -28,6 +28,19 @@ export function getPinnedPlayers(): PinnedPlayer[] {
   }
 }
 
+function filterOutPlayer(players: PinnedPlayer[], playerName: string, region: string): PinnedPlayer[] {
+  return players.filter((p) => {
+    console.log("filtering out player", p.name, p.region);
+    if (p.name === playerName) {
+      if (p.region === region) {
+        return false;
+      }
+      return true;
+    }
+    return true;
+  });
+}
+
 export function addPinnedPlayer(playerName: string, rank: number, mmr: number, region: string, rankType: string): void {
   if (typeof window === "undefined") {
     return;
@@ -36,8 +49,7 @@ export function addPinnedPlayer(playerName: string, rank: number, mmr: number, r
   try {
     const currentPlayers = getPinnedPlayers();
 
-    const existingPlayers = currentPlayers.filter((p) => p.name !== playerName);
-
+    const existingPlayers = filterOutPlayer(currentPlayers, playerName, region);
     const newPlayer: PinnedPlayer = {
       name: playerName,
       timestamp: Date.now(),
@@ -59,16 +71,15 @@ export function addPinnedPlayer(playerName: string, rank: number, mmr: number, r
   }
 }
 
-export function removePinnedPlayer(playerName: string): void {
+export function removePinnedPlayer(region: string, playerName: string): void {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
     const currentPlayers = getPinnedPlayers();
-    const updatedPlayers = currentPlayers.filter((p) => p.name !== playerName);
+    const updatedPlayers = filterOutPlayer(currentPlayers, playerName, region);
     localStorage.setItem(PINNED_PLAYERS_KEY, JSON.stringify(updatedPlayers));
-
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("pinnedPlayersChanged"));
     }
@@ -77,13 +88,13 @@ export function removePinnedPlayer(playerName: string): void {
   }
 }
 
-export function isPlayerPinned(playerName: string): boolean {
+export function isPlayerPinned(playerName: string, region: string): boolean {
   if (typeof window === "undefined") {
     return false;
   }
 
   const pinnedPlayers = getPinnedPlayers();
-  return pinnedPlayers.some((p) => p.name === playerName);
+  return pinnedPlayers.some((p) => p.name === playerName && p.region === region);
 }
 
 export function clearPinnedPlayers(): void {
