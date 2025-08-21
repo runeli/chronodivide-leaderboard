@@ -46,7 +46,7 @@ export default function Leaderboard() {
   const searchParams = useSearchParams();
   const { selectedRegion } = useRegion();
 
-  const [selectedSeason, setSelectedSeason] = useState<SeasonId>("");
+  const [selectedSeason, setSelectedSeason] = useState<SeasonId>("current");
   const [ladderType, setLadderType] = useState<LadderType>("1v1");
   const [selectedLadderId, setSelectedLadderId] = useState<number>(0); // Default to Generals
   const [page, setPage] = useState(1);
@@ -156,16 +156,6 @@ export default function Leaderboard() {
     }
   }, [season, ladderType, selectedLadderId, updateURL]);
 
-  // Set initial season when seasons are loaded
-  useEffect(() => {
-    if (seasons && seasons.length > 0 && !selectedSeason) {
-      // Prefer 'current' if available, otherwise use the first season
-      const initialSeason = seasons.includes("current") ? "current" : seasons[0];
-      setSelectedSeason(initialSeason);
-      updateURL({ season: initialSeason });
-    }
-  }, [seasons, selectedSeason, updateURL]);
-
   const handleSeasonChange = (event: SelectChangeEvent<string>) => {
     const newSeason = event.target.value as SeasonId;
     setSelectedSeason(newSeason);
@@ -269,14 +259,14 @@ export default function Leaderboard() {
               </Typography>
               <Select
                 id="season-select"
-                value={selectedSeason || ""}
+                value={selectedSeason || "current"}
                 onChange={handleSeasonChange}
                 disabled={seasonsLoading || !seasons}
                 variant="outlined"
                 size="small"
                 sx={{ minWidth: 120 }}
               >
-                {seasons?.map((season) => (
+                {(seasons ? seasons : ["current"]).map((season) => (
                   <MenuItem key={season} value={season}>
                     {getSeasonDisplayName(season)}
                   </MenuItem>
