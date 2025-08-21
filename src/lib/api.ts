@@ -1,5 +1,5 @@
 import { Region } from "@/contexts/RegionContext";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 
 export const defaultRegions: Region[] = [
   {
@@ -20,13 +20,7 @@ export function getApiBaseUrl(regionId: string) {
   return defaultRegions.find((r) => r.id === regionId)?.baseUrl;
 }
 
-export function clearApiCache() {
-  // Clear all SWR cache and force revalidation to ensure fresh data from new region
-  mutate(() => true, undefined, { revalidate: true });
-}
-
 const fetcher = async (regionId: string, path: string, options?: RequestInit) => {
-  console.log("fetcher", regionId, path, options);
   const currentApiBaseUrl = getApiBaseUrl(regionId);
   try {
     const res = await fetch(`${currentApiBaseUrl}${path}`, options);

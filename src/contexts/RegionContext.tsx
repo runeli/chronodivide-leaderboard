@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { clearApiCache } from "@/lib/api";
 import { getSavedRegion, saveRegion } from "@/lib/recentPlayers";
 
 export interface Region {
@@ -61,19 +60,6 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
     },
     [searchParams, router]
   );
-
-  useEffect(() => {
-    const urlRegionId = searchParams.get("region");
-    if (urlRegionId) {
-      const urlRegion = regions.find((r) => r.id === urlRegionId);
-      if (urlRegion && urlRegion.id !== selectedRegion.id) {
-        setSelectedRegionState(urlRegion);
-        if (typeof window !== "undefined") {
-          saveRegion(urlRegion.id);
-        }
-      }
-    }
-  }, [searchParams, regions, selectedRegion.id]);
 
   //init load if user has no region in url
   useEffect(() => {

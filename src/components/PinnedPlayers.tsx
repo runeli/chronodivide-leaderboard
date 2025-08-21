@@ -1,10 +1,10 @@
 "use client";
 
-import { Box, Typography, List, ListItem, ListItemButton, Paper, IconButton, Tooltip, Chip } from "@mui/material";
-import { Delete, PushPin } from "@mui/icons-material";
+import { Box, Typography, List, ListItem, ListItemButton, Paper } from "@mui/material";
+import { PushPin } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getPinnedPlayers, clearPinnedPlayers, removePinnedPlayer, PinnedPlayer } from "@/lib/recentPlayers";
+import { getPinnedPlayers, PinnedPlayer } from "@/lib/recentPlayers";
 import RankIcon from "@/components/RankIcon";
 import { formatRankType } from "@/lib/api";
 
@@ -32,15 +32,6 @@ export default function PinnedPlayers() {
 
   const handlePlayerClick = (playerName: string, playerRegion: string) => {
     router.push(`/player/${encodeURIComponent(playerName)}?region=${playerRegion}`);
-  };
-
-  const handleRemovePlayer = (playerName: string) => {
-    removePinnedPlayer(playerName);
-  };
-
-  const handleClearAll = () => {
-    clearPinnedPlayers();
-    setPinnedPlayers([]);
   };
 
   if (pinnedPlayers.length === 0) {
