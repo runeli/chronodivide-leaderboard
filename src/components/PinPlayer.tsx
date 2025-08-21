@@ -45,6 +45,7 @@ export default function PinPlayer({ playerName, playerRank, playerMmr, playerRan
         color="primary"
         size="small"
         sx={{
+          cursor: "pointer",
           ml: 1,
           p: 0.5,
           minWidth: "auto",
