@@ -31,10 +31,11 @@ export default function PinnedPlayers() {
 
   const groupedPlayers = pinnedPlayers.reduce(
     (groups, player) => {
-      if (!groups[player.name]) {
-        groups[player.name] = [];
+      const playerName = player.name.toLowerCase();
+      if (!groups[playerName]) {
+        groups[playerName] = [];
       }
-      groups[player.name].push(player);
+      groups[playerName].push(player);
       return groups;
     },
     {} as Record<string, PinnedPlayer[]>
@@ -59,7 +60,7 @@ export default function PinnedPlayers() {
       <Paper sx={{ p: 2, position: "relative" }}>
         <List dense sx={{ py: 0, mr: 3 }}>
           {pinnedPlayers.map((player) => {
-            const hasMultiplePlayersWithSameName = groupedPlayers[player.name].length > 1;
+            const hasMultiplePlayersWithSameName = groupedPlayers[player.name.toLowerCase()].length > 1;
             const displayName = hasMultiplePlayersWithSameName
               ? `${player.name} (${getRegionLabel(player.region)})`
               : player.name;
