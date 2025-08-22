@@ -125,9 +125,6 @@ export interface PlayerMatchHistoryEntry {
   replayUrl: string;
 }
 
-// --- SWR Hooks ---
-
-// Hook: Fetch available seasons
 export function useSeasons(regionId: string, ladderType?: LadderType) {
   const path = ladderType ? `/ladder/16640/${ladderType}` : `/ladder/16640/1v1`;
 
@@ -140,7 +137,6 @@ export function useSeasons(regionId: string, ladderType?: LadderType) {
   };
 }
 
-// Hook: Fetch season details with all ladders
 export function useSeason(regionId: string, seasonId: SeasonId) {
   const path = `/ladder/16640/${seasonId}`;
 

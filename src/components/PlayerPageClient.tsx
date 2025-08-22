@@ -16,7 +16,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { ArrowBack, Download } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { usePlayerMatchHistory, usePlayerSearch, LadderType, PlayerMatchHistoryEntry } from "@/lib/api";
 import PlayerNameLink from "@/components/PlayerNameLink";
@@ -52,6 +52,8 @@ const createSafePlayerName = (rawPlayerName: string): string => {
 export default function PlayerPageClient({ playerName }: PlayerPageClientProps) {
   const router = useRouter();
   const { selectedRegion } = useRegion();
+  const searchParams = useSearchParams();
+  const regionParam = searchParams.get("region") ?? selectedRegion.id;
   const decodedPlayerName = decodeURIComponent(playerName);
   const safePlayerName = createSafePlayerName(playerName);
   const ladderType: LadderType = "1v1";
@@ -61,13 +63,13 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
     data: players,
     error: playerError,
     isLoading: playerLoading,
-  } = usePlayerSearch(selectedRegion.id, ladderType, "current", [decodedPlayerName]);
+  } = usePlayerSearch(regionParam, ladderType, "current", [decodedPlayerName]);
 
   const {
     data: matchHistory,
     error: matchHistoryError,
     isLoading: matchHistoryLoading,
-  } = usePlayerMatchHistory(selectedRegion.id, ladderType, decodedPlayerName);
+  } = usePlayerMatchHistory(regionParam, ladderType, decodedPlayerName);
 
   const formatDuration = (mins: number | null | undefined) => {
     if (mins === null || mins === undefined) {

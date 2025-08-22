@@ -24,7 +24,6 @@ const RegionContext = createContext<RegionContextType | undefined>(undefined);
 export function RegionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const [regions] = useState<Region[]>(defaultRegions);
   const [selectedRegion, setSelectedRegionState] = useState<Region>(() => {
     // Priority: URL parameter > localStorage > default

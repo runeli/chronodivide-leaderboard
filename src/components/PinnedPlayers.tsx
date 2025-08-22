@@ -3,13 +3,12 @@
 import { Box, Typography, List, ListItem, ListItemButton, Paper } from "@mui/material";
 import { PushPin } from "@mui/icons-material";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { getPinnedPlayers, PinnedPlayer } from "@/lib/recentPlayers";
 import RankIcon from "@/components/RankIcon";
 import { formatRankType, defaultRegions } from "@/lib/api";
 
 export default function PinnedPlayers() {
-  const router = useRouter();
   const [pinnedPlayers, setPinnedPlayers] = useState<PinnedPlayer[]>([]);
 
   const refreshPinnedPlayers = () => {
@@ -29,10 +28,6 @@ export default function PinnedPlayers() {
     window.addEventListener("pinnedPlayersChanged", handlePinnedPlayersChanged);
     return () => window.removeEventListener("pinnedPlayersChanged", handlePinnedPlayersChanged);
   }, []);
-
-  const handlePlayerClick = (playerName: string, playerRegion: string) => {
-    router.push(`/player/${encodeURIComponent(playerName)}?region=${playerRegion}`);
-  };
 
   const groupedPlayers = pinnedPlayers.reduce(
     (groups, player) => {
@@ -72,7 +67,8 @@ export default function PinnedPlayers() {
             return (
               <ListItem key={`${player.name}-${player.timestamp}`} disablePadding sx={{ cursor: "pointer" }}>
                 <ListItemButton
-                  onClick={() => handlePlayerClick(player.name, player.region)}
+                  component={Link}
+                  href={`/player/${encodeURIComponent(player.name)}?region=${player.region}`}
                   sx={{ borderRadius: 1, mb: 0.5, cursor: "pointer" }}
                 >
                   <Box sx={{ flex: 1, minHeight: 40 }}>

@@ -30,7 +30,6 @@ export function getPinnedPlayers(): PinnedPlayer[] {
 
 function filterOutPlayer(players: PinnedPlayer[], playerName: string, region: string): PinnedPlayer[] {
   return players.filter((p) => {
-    console.log("filtering out player", p.name, p.region);
     if (p.name === playerName) {
       if (p.region === region) {
         return false;

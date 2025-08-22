@@ -3,6 +3,7 @@
 import React from "react";
 import { Box, FormControl, Select, MenuItem, Typography, SelectChangeEvent } from "@mui/material";
 import { useRegion } from "@/contexts/RegionContext";
+import { useSearchParams } from "next/navigation";
 
 export default function RegionPicker() {
   const { selectedRegion, setSelectedRegion, regions } = useRegion();
@@ -15,6 +16,9 @@ export default function RegionPicker() {
     }
   };
 
+  const searchParams = useSearchParams();
+  const regionParam = searchParams.get("region") ?? selectedRegion.id;
+
   return (
     <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
       <Typography variant="body2" color="text.secondary">
@@ -22,7 +26,7 @@ export default function RegionPicker() {
       </Typography>
       <FormControl sx={{ minWidth: 180 }}>
         <Select
-          value={selectedRegion.id}
+          value={regionParam}
           onChange={handleRegionChange}
           variant="outlined"
           size="small"
