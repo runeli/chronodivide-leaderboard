@@ -37,6 +37,7 @@ import {
   getTopLadders,
   formatRankType,
 } from "@/lib/api";
+import RA2Button from "@/components/RA2Button";
 
 const LADDER_PAGE_SIZE = 25;
 
@@ -225,7 +226,7 @@ export default function Leaderboard() {
       </Typography>
 
       <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
-        <Box sx={{ flex: "1 1 400px", minWidth: 400 }}>
+        <Box sx={{ flex: "1 1 400px" }}>
           <Box sx={{ mb: 3 }}>
             <Typography variant="h6" gutterBottom>
               Search Player
@@ -241,15 +242,14 @@ export default function Leaderboard() {
                 onChange={handleSearchChange}
                 onKeyPress={handleSearchKeyPress}
               />
-              <Button
+              <RA2Button
                 variant="contained"
                 startIcon={<Search />}
                 onClick={handleDirectSearch}
-                disabled={!searchQuery.trim()}
                 sx={{ minWidth: "fit-content" }}
               >
                 Search
-              </Button>
+              </RA2Button>
             </Box>
           </Box>
 
@@ -315,7 +315,7 @@ export default function Leaderboard() {
           </Box>
         </Box>
 
-        <Box sx={{ minWidth: 400 }}>
+        <Box>
           <PinnedPlayers />
         </Box>
       </Box>
