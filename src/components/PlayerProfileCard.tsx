@@ -12,6 +12,7 @@ type PlayerProfile = PlayerRankedProfile | PlayerUnrankedProfile;
 interface PlayerProfileCardProps {
   player: PlayerProfile;
   matchHistory?: PlayerMatchHistoryEntry[];
+  playerPreferredSide?: "soviet" | "allies";
 }
 
 const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[]; player: PlayerProfile }> = ({
@@ -55,14 +56,19 @@ const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[]; player: PlayerPro
   );
 };
 
-export default function PlayerProfileCard({ player, matchHistory }: PlayerProfileCardProps) {
-  const isPetka = player.name === "petka_pc";
+export default function PlayerProfileCard({ player, matchHistory, playerPreferredSide }: PlayerProfileCardProps) {
+  const backgroundImage =
+    playerPreferredSide === "soviet"
+      ? "/RA2Sovietlogo.webp"
+      : playerPreferredSide === "allies"
+        ? "/RA2Alliedlogo.webp"
+        : undefined;
   return (
     <Box sx={{ mb: 3 }}>
       <Card
         sx={{
-          ...(isPetka && {
-            backgroundImage: "url(/RA2Sovietlogo.webp)",
+          ...(backgroundImage && {
+            backgroundImage: `url(${backgroundImage})`,
             backgroundSize: "contain",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",

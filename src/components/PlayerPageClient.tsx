@@ -9,13 +9,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Chip,
   Button,
   CircularProgress,
   Alert,
   Tooltip,
 } from "@mui/material";
-import { ArrowBack, Download } from "@mui/icons-material";
+import { ArrowBack, Download, ArrowDropUp, ArrowDropDown } from "@mui/icons-material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { usePlayerMatchHistory, usePlayerSearch, LadderType, PlayerMatchHistoryEntry } from "@/lib/api";
@@ -23,7 +22,6 @@ import PlayerNameLink from "@/components/PlayerNameLink";
 import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraph";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
 import { useRegion } from "@/contexts/RegionContext";
-import RankIcon from "./RankIcon";
 import PlayerCountry from "./PlayerCountry";
 
 interface PlayerPageClientProps {
@@ -133,18 +131,7 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
     }
   };
 
-  const getResultColor = (result: string) => {
-    switch (result.toLowerCase()) {
-      case "win":
-        return "success";
-      case "loss":
-        return "error";
-      case "draw":
-        return "warning";
-      default:
-        return "default";
-    }
-  };
+  // removed old result color chip usage; merged into MMR Change column with arrows
 
   if (playerLoading || matchHistoryLoading) {
     return (
@@ -188,7 +175,7 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
 
       <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
         <Box sx={{ flex: "1 1 300px", minWidth: { xs: "100%", sm: 300 } }}>
-          <PlayerProfileCard player={player} matchHistory={matchHistory} />
+          <PlayerProfileCard playerPreferredSide="allies" player={player} matchHistory={matchHistory} />
 
           {matchHistory && matchHistory.length > 0 && (
             <PlayerPerformanceGraph matchHistory={matchHistory} currentMMR={player.mmr} />
@@ -213,7 +200,6 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                 <TableHead>
                   <TableRow>
                     <TableCell>Date</TableCell>
-                    <TableCell>Result</TableCell>
                     <TableCell>MMR Change</TableCell>
                     <TableCell>Map</TableCell>
                     <TableCell>Players</TableCell>
@@ -226,18 +212,19 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                     <TableRow key={match.gameId}>
                       <TableCell>{new Date(match.timestamp).toLocaleString()}</TableCell>
                       <TableCell>
-                        <Chip
-                          label={match.result.toUpperCase()}
-                          color={getResultColor(match.result)}
-                          size="small"
-                          sx={{ minWidth: 60, width: 60 }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" color={match.mmrGain > 0 ? "success.main" : "error.main"}>
-                          {match.mmrGain > 0 ? "+" : ""}
-                          {match.mmrGain}
-                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                          {match.result === "win" && <ArrowDropUp sx={{ color: "success.main" }} />}
+                          {match.result === "loss" && <ArrowDropDown sx={{ color: "error.main" }} />}
+                          <Typography
+                            variant="body2"
+                            color={
+                              match.mmrGain > 0 ? "success.main" : match.mmrGain < 0 ? "error.main" : "text.secondary"
+                            }
+                          >
+                            {match.mmrGain > 0 ? "+" : ""}
+                            {match.mmrGain}
+                          </Typography>
+                        </Box>
                       </TableCell>
                       <TableCell>{match.map}</TableCell>
                       <TableCell>
