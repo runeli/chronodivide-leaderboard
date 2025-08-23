@@ -23,6 +23,7 @@ import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraph";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
 import { useRegion } from "@/contexts/RegionContext";
 import PlayerCountry from "./PlayerCountry";
+import RA2Button from "./RA2Button";
 
 interface PlayerPageClientProps {
   playerName: string;
@@ -144,9 +145,9 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
   if (playerError || matchHistoryError || !players || players.length === 0) {
     return (
       <Alert severity="error">
-        <Button startIcon={<ArrowBack />} onClick={() => router.push("/")} variant="outlined">
+        <RA2Button startIcon={<ArrowBack />} onClick={() => router.push("/")}>
           Back to Leaderboard
-        </Button>
+        </RA2Button>
         <Box sx={{ mt: 2 }}>
           <Typography variant="body2" color="text.secondary">
             Failed to load <b>{safePlayerName}</b> data. Wrong region?
@@ -168,9 +169,9 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
           alignItems: "center",
         }}
       >
-        <Button startIcon={<ArrowBack />} onClick={() => router.push("/")} variant="outlined">
+        <RA2Button startIcon={<ArrowBack />} onClick={() => router.push("/")}>
           Back to Leaderboard
-        </Button>
+        </RA2Button>
       </Box>
 
       <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
