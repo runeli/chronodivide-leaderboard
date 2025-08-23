@@ -35,7 +35,7 @@ export default function PlayerNameLink({
       sx={{ cursor: "pointer" }}
       onClick={handleClick}
     >
-      <Typography variant={variant} fontWeight={fontWeight} color={color} sx={sx}>
+      <Typography component="span" display="inline" variant={variant} fontWeight={fontWeight} color={color} sx={sx}>
         {playerName}
       </Typography>
     </Link>

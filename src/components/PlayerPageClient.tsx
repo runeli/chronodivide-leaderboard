@@ -23,6 +23,8 @@ import PlayerNameLink from "@/components/PlayerNameLink";
 import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraph";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
 import { useRegion } from "@/contexts/RegionContext";
+import RankIcon from "./RankIcon";
+import PlayerCountry from "./PlayerCountry";
 
 interface PlayerPageClientProps {
   playerName: string;
@@ -214,7 +216,7 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                     <TableCell>Result</TableCell>
                     <TableCell>MMR Change</TableCell>
                     <TableCell>Map</TableCell>
-                    <TableCell>Opponents</TableCell>
+                    <TableCell>Players</TableCell>
                     <TableCell>Duration</TableCell>
                     <TableCell>Replay</TableCell>
                   </TableRow>
@@ -240,7 +242,11 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                       <TableCell>{match.map}</TableCell>
                       <TableCell>
                         {match.opponents.map((opponent, index) => (
-                          <Box key={index}>
+                          <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <PlayerNameLink playerName={safePlayerName} variant="body2" />
+                            <PlayerCountry countryName={"Iraq"} />
+                            {" - "}
+                            <PlayerCountry countryName={"America"} />
                             <PlayerNameLink playerName={opponent} variant="body2" />
                           </Box>
                         ))}
