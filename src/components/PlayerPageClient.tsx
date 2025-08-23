@@ -9,7 +9,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
   CircularProgress,
   Alert,
   Tooltip,
@@ -201,8 +200,8 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                 <TableHead>
                   <TableRow>
                     <TableCell>Date</TableCell>
-                    <TableCell>MMR Change</TableCell>
                     <TableCell>Map</TableCell>
+                    <TableCell>MMR Change</TableCell>
                     <TableCell>Players</TableCell>
                     <TableCell>Duration</TableCell>
                     <TableCell>Replay</TableCell>
@@ -212,12 +211,14 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                   {matchHistory.slice(0, 50).map((match) => (
                     <TableRow key={match.gameId}>
                       <TableCell>{new Date(match.timestamp).toLocaleString()}</TableCell>
+                      <TableCell>{match.map}</TableCell>
                       <TableCell>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                          {match.result === "win" && <ArrowDropUp sx={{ color: "success.main" }} />}
-                          {match.result === "loss" && <ArrowDropDown sx={{ color: "error.main" }} />}
+                          {match.result === "win" && <ArrowDropUp sx={{ color: "success.main", fontSize: 32 }} />}
+                          {match.result === "loss" && <ArrowDropDown sx={{ color: "error.main", fontSize: 32 }} />}
                           <Typography
                             variant="body2"
+                            fontWeight="bold"
                             color={
                               match.mmrGain > 0 ? "success.main" : match.mmrGain < 0 ? "error.main" : "text.secondary"
                             }
@@ -227,7 +228,6 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                           </Typography>
                         </Box>
                       </TableCell>
-                      <TableCell>{match.map}</TableCell>
                       <TableCell>
                         {match.opponents.map((opponent, index) => (
                           <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
