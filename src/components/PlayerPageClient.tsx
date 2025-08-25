@@ -13,6 +13,7 @@ import {
   Alert,
   Tooltip,
 } from "@mui/material";
+import { ThemeProvider, CssBaseline } from "@mui/material";
 import { ArrowBack, Download, ArrowDropUp, ArrowDropDown } from "@mui/icons-material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -29,6 +30,7 @@ import PlayerProfileCard from "@/components/PlayerProfileCard";
 import { useRegion } from "@/contexts/RegionContext";
 import PlayerCountry from "./PlayerCountry";
 import RA2Button from "./RA2Button";
+import { alliedTheme, neutralTheme } from "@/theme/themes";
 
 interface PlayerPageClientProps {
   playerName: string;
@@ -169,7 +171,9 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
 
   const player = players[0];
 
-  return (
+  const preferredSide = getPreferredSide(matchHistory);
+
+  const content = (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
       <Box
         sx={{
@@ -186,11 +190,7 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
 
       <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
         <Box sx={{ flex: "1 1 300px", minWidth: { xs: "100%", sm: 300 } }}>
-          <PlayerProfileCard
-            playerPreferredSide={getPreferredSide(matchHistory)}
-            player={player}
-            matchHistory={matchHistory}
-          />
+          <PlayerProfileCard playerPreferredSide={preferredSide} player={player} matchHistory={matchHistory} />
 
           {matchHistory && matchHistory.length > 0 && (
             <PlayerPerformanceGraph matchHistory={matchHistory} currentMMR={player.mmr} />
@@ -306,4 +306,24 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
       </Box>
     </Box>
   );
+
+  if (preferredSide === "allies") {
+    return (
+      <ThemeProvider theme={alliedTheme}>
+        <CssBaseline />
+        {content}
+      </ThemeProvider>
+    );
+  }
+
+  if (preferredSide === undefined) {
+    return (
+      <ThemeProvider theme={neutralTheme}>
+        <CssBaseline />
+        {content}
+      </ThemeProvider>
+    );
+  }
+
+  return content;
 }

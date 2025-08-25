@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import { Box, LinearProgress, Tooltip, Typography } from "@mui/material";
 import { useRegion } from "@/contexts/RegionContext";
+import { useTheme, alpha, lighten } from "@mui/material/styles";
 
 interface PromotionProgressProps {
   currentMmr: number;
@@ -64,6 +65,7 @@ export default function PromotionProgress({
   width,
 }: PromotionProgressProps) {
   const { selectedRegion } = useRegion();
+  const theme = useTheme();
 
   const { percent, targetMmr, label, needsEligibilityNote, useServerTarget } = useMemo(() => {
     // Prefer server-provided promotion target if available
@@ -142,14 +144,14 @@ export default function PromotionProgress({
           sx={{
             height: barHeight,
             borderRadius: 0,
-            backgroundColor: "rgba(255,255,0,0.15)",
+            backgroundColor: alpha(theme.palette.primary.main, 0.15),
             "& .MuiLinearProgress-bar": {
-              background: "linear-gradient(90deg, #ffd700 0%, #ffed4e 100%)",
+              background: `linear-gradient(90deg, ${lighten(theme.palette.primary.main, 0.15)} 0%, ${theme.palette.primary.main} 100%)`,
               borderRadius: 0,
             },
             margin: "1px",
             outlineOffset: "2px",
-            outline: "1px solid rgba(255,255,0,1)",
+            outline: `1px solid ${theme.palette.divider}`,
           }}
         />
       </Box>
