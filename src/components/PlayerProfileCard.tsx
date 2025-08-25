@@ -111,11 +111,17 @@ export default function PlayerProfileCard({ player, matchHistory, playerPreferre
                 const prefix =
                   playerPreferredSide === "allies" ? "Allied" : playerPreferredSide === "soviet" ? "Soviet" : undefined;
                 const text = formatRankType(player.rankType);
-                const display = prefix ? `${prefix} ${text}` : text;
                 return (
-                  <Typography variant="body2" color={prefix ? "primary.main" : "text.secondary"}>
-                    {display}
-                  </Typography>
+                  <Box sx={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
+                    {prefix && (
+                      <Typography variant="body2" sx={{ color: "primary.main" }}>
+                        {prefix}
+                      </Typography>
+                    )}
+                    <Typography variant="body2" color="text.secondary">
+                      {text}
+                    </Typography>
+                  </Box>
                 );
               })()}
             </Box>

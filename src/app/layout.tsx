@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import { Container, Box, CircularProgress } from "@mui/material";
 import { RegionProvider } from "@/contexts/RegionContext";
-import RegionPicker from "@/components/RegionPicker";
+import RegionPickerWithTheme from "@/components/RegionPickerWithTheme";
 
 export const metadata: Metadata = {
   title: "Chrono Divide Replays",
@@ -37,7 +37,7 @@ export default function RootLayout({
             <RegionProvider>
               <Container component="main" sx={{ mt: 2 }}>
                 <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end", mr: 1 }}>
-                  <RegionPicker />
+                  <RegionPickerWithTheme />
                 </Box>
                 {children}
               </Container>

@@ -18,8 +18,8 @@ import {
   SelectChangeEvent,
   Chip,
   TextField,
-  Button,
 } from "@mui/material";
+import { ThemeProvider, CssBaseline } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search } from "@mui/icons-material";
@@ -27,6 +27,7 @@ import PlayerNameLink from "@/components/PlayerNameLink";
 import RankIcon from "@/components/RankIcon";
 import PinnedPlayers from "@/components/PinnedPlayers";
 import { useRegion } from "@/contexts/RegionContext";
+import { neutralTheme } from "@/theme/themes";
 import {
   useLadder,
   useSeasons,
@@ -220,188 +221,196 @@ export default function Leaderboard() {
   };
 
   return (
-    <Paper sx={{ p: 2, m: 1 }}>
-      <Typography variant="h4" gutterBottom>
-        Chrono Divide Leaderboard
-      </Typography>
+    <ThemeProvider theme={neutralTheme}>
+      <CssBaseline />
+      <Paper sx={{ p: 2, m: 1 }}>
+        <Typography variant="h4" gutterBottom>
+          Chrono Divide Leaderboard
+        </Typography>
 
-      <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
-        <Box sx={{ flex: "1 1 400px" }}>
-          <Box sx={{ mb: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Search Player
+        <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
+          <Box sx={{ flex: "1 1 400px" }}>
+            <Box sx={{ mb: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Search Player
+              </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "1fr auto" },
+                  gap: 2,
+                  alignItems: "center",
+                }}
+              >
+                <TextField
+                  placeholder="Enter player name..."
+                  variant="outlined"
+                  size="small"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onKeyPress={handleSearchKeyPress}
+                />
+                <RA2Button
+                  variant="contained"
+                  startIcon={<Search />}
+                  onClick={handleDirectSearch}
+                  sx={{ minWidth: "fit-content" }}
+                >
+                  Search
+                </RA2Button>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <Box sx={{ minWidth: 120 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Season
+                </Typography>
+                <Select
+                  id="season-select"
+                  value={selectedSeason || "current"}
+                  onChange={handleSeasonChange}
+                  disabled={seasonsLoading || !seasons}
+                  variant="outlined"
+                  size="small"
+                  sx={{ minWidth: 120 }}
+                >
+                  {(seasons ? seasons : ["current"]).map((season) => (
+                    <MenuItem key={season} value={season}>
+                      {getSeasonDisplayName(season)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Box>
+
+              <Box sx={{ minWidth: 120 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Game Mode
+                </Typography>
+                <Select
+                  id="ladder-type-select"
+                  value={ladderType}
+                  onChange={handleLadderTypeChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{ minWidth: 120 }}
+                >
+                  <MenuItem value="1v1">1v1</MenuItem>
+                  <MenuItem value="2v2-random">2v2 Random</MenuItem>
+                </Select>
+              </Box>
+
+              <Box sx={{ minWidth: 200 }}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  Division
+                </Typography>
+                <Select
+                  id="ladder-select"
+                  value={selectedLadderId}
+                  onChange={handleLadderChange}
+                  disabled={seasonLoading || !availableLadders.length}
+                  variant="outlined"
+                  size="small"
+                  sx={{ minWidth: 200 }}
+                >
+                  {availableLadders.map((ladder) => (
+                    <MenuItem key={ladder.id} value={ladder.id}>
+                      {getLadderDisplayName(ladder)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Box>
+            </Box>
+          </Box>
+
+          <Box>
+            <PinnedPlayers />
+          </Box>
+        </Box>
+
+        {season && selectedLadder && (
+          <Box sx={{ mb: 2, display: "flex", gap: 1, alignItems: "center" }}>
+            <Chip label={getLadderDisplayName(selectedLadder)} size="small" color="primary" variant="outlined" />
+            <Typography variant="body2" color="text.secondary">
+              ({season.totalRankedPlayers.find((tp) => tp.ladderType === ladderType)?.value || 0} total players)
             </Typography>
-            <Box
-              sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr auto" }, gap: 2, alignItems: "center" }}
-            >
-              <TextField
-                placeholder="Enter player name..."
-                variant="outlined"
-                size="small"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onKeyPress={handleSearchKeyPress}
+          </Box>
+        )}
+
+        {(isLoading || seasonsLoading || seasonLoading) && (
+          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+            <CircularProgress />
+          </Box>
+        )}
+
+        {(error || seasonsError || seasonError) && (
+          <Alert severity="error">
+            Failed to load ladder data. Please try again or select a different season/division.
+          </Alert>
+        )}
+
+        {data && (
+          <>
+            <TableContainer>
+              <Table stickyHeader size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Rank</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>MMR</TableCell>
+                    <TableCell>Wins</TableCell>
+                    <TableCell>Losses</TableCell>
+                    <TableCell>Win Rate</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.records.map((player) => {
+                    const totalGames = player.wins + player.losses + player.draws;
+                    const winRate = totalGames > 0 ? ((player.wins / totalGames) * 100).toFixed(1) : "0.0";
+
+                    return (
+                      <TableRow hover key={player.name}>
+                        <TableCell>
+                          <Chip label={player.rank} size="small" color={"default"} />
+                        </TableCell>
+                        <TableCell>
+                          <PlayerNameLink playerName={player.name} />
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                              mt: 0.5,
+                            }}
+                          >
+                            <RankIcon rankType={player.rankType} size={14} />
+                            <Typography variant="caption" color="text.secondary">
+                              {formatRankType(player.rankType)}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>{player.mmr}</TableCell>
+
+                        <TableCell>{player.wins}</TableCell>
+                        <TableCell>{player.losses}</TableCell>
+                        <TableCell>{winRate}%</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+              <Pagination
+                count={Math.ceil(data.totalCount / LADDER_PAGE_SIZE)}
+                page={page}
+                onChange={handlePageChange}
+                color="primary"
               />
-              <RA2Button
-                variant="contained"
-                startIcon={<Search />}
-                onClick={handleDirectSearch}
-                sx={{ minWidth: "fit-content" }}
-              >
-                Search
-              </RA2Button>
             </Box>
-          </Box>
-
-          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-            <Box sx={{ minWidth: 120 }}>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Season
-              </Typography>
-              <Select
-                id="season-select"
-                value={selectedSeason || "current"}
-                onChange={handleSeasonChange}
-                disabled={seasonsLoading || !seasons}
-                variant="outlined"
-                size="small"
-                sx={{ minWidth: 120 }}
-              >
-                {(seasons ? seasons : ["current"]).map((season) => (
-                  <MenuItem key={season} value={season}>
-                    {getSeasonDisplayName(season)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Box>
-
-            <Box sx={{ minWidth: 120 }}>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Game Mode
-              </Typography>
-              <Select
-                id="ladder-type-select"
-                value={ladderType}
-                onChange={handleLadderTypeChange}
-                variant="outlined"
-                size="small"
-                sx={{ minWidth: 120 }}
-              >
-                <MenuItem value="1v1">1v1</MenuItem>
-                <MenuItem value="2v2-random">2v2 Random</MenuItem>
-              </Select>
-            </Box>
-
-            <Box sx={{ minWidth: 200 }}>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                Division
-              </Typography>
-              <Select
-                id="ladder-select"
-                value={selectedLadderId}
-                onChange={handleLadderChange}
-                disabled={seasonLoading || !availableLadders.length}
-                variant="outlined"
-                size="small"
-                sx={{ minWidth: 200 }}
-              >
-                {availableLadders.map((ladder) => (
-                  <MenuItem key={ladder.id} value={ladder.id}>
-                    {getLadderDisplayName(ladder)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Box>
-          </Box>
-        </Box>
-
-        <Box>
-          <PinnedPlayers />
-        </Box>
-      </Box>
-
-      {season && selectedLadder && (
-        <Box sx={{ mb: 2, display: "flex", gap: 1, alignItems: "center" }}>
-          <Chip label={getLadderDisplayName(selectedLadder)} size="small" color="primary" variant="outlined" />
-          <Typography variant="body2" color="text.secondary">
-            ({season.totalRankedPlayers.find((tp) => tp.ladderType === ladderType)?.value || 0} total players)
-          </Typography>
-        </Box>
-      )}
-
-      {(isLoading || seasonsLoading || seasonLoading) && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
-
-      {(error || seasonsError || seasonError) && (
-        <Alert severity="error">
-          Failed to load ladder data. Please try again or select a different season/division.
-        </Alert>
-      )}
-
-      {data && (
-        <>
-          <TableContainer>
-            <Table stickyHeader size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>Rank</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>MMR</TableCell>
-                  <TableCell>Wins</TableCell>
-                  <TableCell>Losses</TableCell>
-                  <TableCell>Win Rate</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.records.map((player) => {
-                  const totalGames = player.wins + player.losses + player.draws;
-                  const winRate = totalGames > 0 ? ((player.wins / totalGames) * 100).toFixed(1) : "0.0";
-
-                  return (
-                    <TableRow hover key={player.name}>
-                      <TableCell>
-                        <Chip label={player.rank} size="small" color={"default"} />
-                      </TableCell>
-                      <TableCell>
-                        <PlayerNameLink playerName={player.name} />
-                        <Box
-                          sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 0.5,
-                            mt: 0.5,
-                          }}
-                        >
-                          <RankIcon rankType={player.rankType} size={14} />
-                          <Typography variant="caption" color="text.secondary">
-                            {formatRankType(player.rankType)}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>{player.mmr}</TableCell>
-
-                      <TableCell>{player.wins}</TableCell>
-                      <TableCell>{player.losses}</TableCell>
-                      <TableCell>{winRate}%</TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-            <Pagination
-              count={Math.ceil(data.totalCount / LADDER_PAGE_SIZE)}
-              page={page}
-              onChange={handlePageChange}
-              color="primary"
-            />
-          </Box>
-        </>
-      )}
-    </Paper>
+          </>
+        )}
+      </Paper>
+    </ThemeProvider>
   );
 }
