@@ -1,3 +1,4 @@
+"use client";
 import { Box, Card, CardContent, Typography, Link } from "@mui/material";
 import { PlayerMatchHistoryEntry, PlayerRankedProfile, PlayerUnrankedProfile, formatRankType } from "@/lib/api";
 import RankIcon from "@/components/RankIcon";
@@ -6,6 +7,7 @@ import PromotionProgress from "@/components/PromotionProgress";
 import PinPlayer from "@/components/PinPlayer";
 import NextLink from "next/link";
 import { FC } from "react";
+import { useTheme } from "@mui/material/styles";
 
 type PlayerProfile = PlayerRankedProfile | PlayerUnrankedProfile;
 
@@ -69,6 +71,7 @@ const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[]; player: PlayerPro
 
 export default function PlayerProfileCard({ player, matchHistory, playerPreferredSide }: PlayerProfileCardProps) {
   const backgroundImage = getPreferredSideBackground(playerPreferredSide);
+  const theme = useTheme();
   return (
     <Box sx={{ mb: 3 }}>
       <Card
@@ -104,9 +107,23 @@ export default function PlayerProfileCard({ player, matchHistory, playerPreferre
             </Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <RankIcon rankType={player.rankType} size={18} />
-              <Typography variant="body2" color="text.secondary">
-                {formatRankType(player.rankType)}
-              </Typography>
+              {(() => {
+                const prefix =
+                  playerPreferredSide === "allies" ? "Allied" : playerPreferredSide === "soviet" ? "Soviet" : undefined;
+                const text = formatRankType(player.rankType);
+                return (
+                  <Box sx={{ display: "flex", flexDirection: "column", lineHeight: 1.1 }}>
+                    {prefix && (
+                      <Typography variant="body2" sx={{ color: "primary.main" }}>
+                        {prefix}
+                      </Typography>
+                    )}
+                    <Typography variant="body2" color="text.secondary">
+                      {text}
+                    </Typography>
+                  </Box>
+                );
+              })()}
             </Box>
           </Box>
           <div
@@ -114,7 +131,7 @@ export default function PlayerProfileCard({ player, matchHistory, playerPreferre
               marginTop: 8,
               marginBottom: 8,
               height: 1,
-              backgroundColor: "#ff0000",
+              backgroundColor: theme.palette.divider,
               opacity: 0.9,
             }}
           />
