@@ -24,7 +24,7 @@ export default function RegionPickerWithTheme() {
   const { data: matchHistory } = usePlayerMatchHistory(regionParam, ladderType, playerName);
 
   // Default: neutral on search page, otherwise soviet; override on player page by side
-  let themeToUse = isSearchPage ? neutralTheme : sovietTheme;
+  let themeToUse = isSearchPage ? sovietTheme : neutralTheme;
   if (isPlayerPage) {
     const side = getPreferredSide(matchHistory);
     themeToUse = side === "allies" ? alliedTheme : side === undefined ? neutralTheme : sovietTheme;

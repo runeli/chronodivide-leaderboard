@@ -27,7 +27,7 @@ import PlayerNameLink from "@/components/PlayerNameLink";
 import RankIcon from "@/components/RankIcon";
 import PinnedPlayers from "@/components/PinnedPlayers";
 import { useRegion } from "@/contexts/RegionContext";
-import { neutralTheme } from "@/theme/themes";
+import { neutralTheme, sovietTheme } from "@/theme/themes";
 import {
   useLadder,
   useSeasons,
@@ -221,7 +221,7 @@ export default function Leaderboard() {
   };
 
   return (
-    <ThemeProvider theme={neutralTheme}>
+    <ThemeProvider theme={sovietTheme}>
       <CssBaseline />
       <Paper sx={{ p: 2, m: 1 }}>
         <Typography variant="h4" gutterBottom>
