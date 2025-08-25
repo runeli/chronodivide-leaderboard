@@ -113,6 +113,12 @@ export interface PagedResponse<T> {
   records: T[];
 }
 
+export interface PlayerInfo {
+  name: string;
+  countryId?: number;
+  colorId?: number;
+}
+
 export interface PlayerMatchHistoryEntry {
   gameId: string;
   timestamp: number;
@@ -120,9 +126,11 @@ export interface PlayerMatchHistoryEntry {
   map: string;
   result: "win" | "loss" | "draw";
   mmrGain: number;
-  opponents: string[];
-  teamMates: string[];
-  replayUrl: string;
+  countryId?: number;
+  colorId?: number;
+  opponents: PlayerInfo[];
+  teamMates?: PlayerInfo[];
+  replayUrl?: string;
 }
 
 export function useSeasons(regionId: string, ladderType?: LadderType) {
@@ -202,7 +210,7 @@ export function usePlayerSearch(regionId: string, ladderType: LadderType, season
 }
 
 export function usePlayerMatchHistory(regionId: string, ladderType: LadderType, playerName: string) {
-  const path = `/ladder/16640/${ladderType}/match-history`;
+  const path = `/ladder/16640/${ladderType}/match-history/v2`;
 
   const { data, error, isLoading } = useSWR<PlayerMatchHistoryEntry[]>(
     playerName ? [`match-history`, regionId, ladderType, playerName] : null,
@@ -253,4 +261,32 @@ export function formatRankType(rankType: string | number | null | undefined): st
   }
 
   return rankType;
+}
+
+export type PreferredSide = "soviet" | "allies";
+
+export function getPreferredSide(matches?: PlayerMatchHistoryEntry[]): PreferredSide | undefined {
+  if (!matches || matches.length === 0) {
+    return undefined;
+  }
+
+  const alliedCountryIds = new Set<number>([0, 1, 2, 3, 4]);
+  const sovietCountryIds = new Set<number>([5, 6, 7, 8]);
+
+  let alliedCount = 0;
+  let sovietCount = 0;
+
+  for (const match of matches) {
+    const id = match.countryId;
+    if (id == null) continue;
+    if (alliedCountryIds.has(id)) alliedCount++;
+    else if (sovietCountryIds.has(id)) sovietCount++;
+  }
+
+  const considered = alliedCount + sovietCount;
+  if (considered === 0) return undefined;
+
+  if (alliedCount / considered >= 0.75) return "allies";
+  if (sovietCount / considered >= 0.75) return "soviet";
+  return undefined;
 }

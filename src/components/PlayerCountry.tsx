@@ -14,7 +14,9 @@ export type CountryName =
   | "Random";
 
 interface PlayerCountryProps {
-  countryName: CountryName;
+  countryId?: number;
+  width?: number;
+  height?: number;
 }
 
 const filenameByCountry: Record<CountryName, string> = {
@@ -30,14 +32,27 @@ const filenameByCountry: Record<CountryName, string> = {
   Random: "random.png",
 };
 
-export default function PlayerCountry({ countryName }: PlayerCountryProps) {
-  const country = getRandomCountry();
-  const src = `/country/${filenameByCountry[country]}`;
-  return <Image src={src} alt={`${country} flag`} width={47} height={23} />;
+// Temporary mapping; update IDs when API mapping is finalized
+const countryIdToName: Record<number, CountryName> = {
+  0: "America",
+  1: "Korea",
+  2: "France",
+  3: "Germany",
+  4: "Great Britain",
+  5: "Libya",
+  6: "Iraq",
+  7: "Cuba",
+  8: "Russia",
+};
+
+function resolveCountryName(countryId?: number): CountryName | undefined {
+  if (countryId == null) return undefined;
+  return countryIdToName[countryId];
 }
 
-export function getRandomCountry(): CountryName {
-  const countries = Object.keys(filenameByCountry) as CountryName[];
-  const index = Math.floor(Math.random() * countries.length);
-  return countries[index];
+export default function PlayerCountry({ countryId, width = 47, height = 23 }: PlayerCountryProps) {
+  const resolvedName = resolveCountryName(countryId);
+  if (!resolvedName) return null;
+  const src = `/country/${filenameByCountry[resolvedName]}`;
+  return <Image src={src} alt={`${resolvedName} flag`} width={width} height={height} />;
 }

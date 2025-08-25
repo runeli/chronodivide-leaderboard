@@ -16,7 +16,13 @@ import {
 import { ArrowBack, Download, ArrowDropUp, ArrowDropDown } from "@mui/icons-material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { usePlayerMatchHistory, usePlayerSearch, LadderType, PlayerMatchHistoryEntry } from "@/lib/api";
+import {
+  usePlayerMatchHistory,
+  usePlayerSearch,
+  LadderType,
+  PlayerMatchHistoryEntry,
+  getPreferredSide,
+} from "@/lib/api";
 import PlayerNameLink from "@/components/PlayerNameLink";
 import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraph";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
@@ -80,7 +86,9 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
 
   const generateReplayFilename = (match: PlayerMatchHistoryEntry, playerName: string) => {
     const date = new Date(match.timestamp).toISOString().split("T")[0];
-    const allPlayers = [...(match.teamMates || []), ...(match.opponents || [])].join("_");
+    const teamMates = (match.teamMates || []).map((p) => p.name);
+    const opponents = (match.opponents || []).map((p) => p.name);
+    const allPlayers = [...teamMates, ...opponents].join("_");
     const cleanPlayerName = removeUnsafeFilenameCharacters(playerName);
     const cleanMap = removeUnsafeFilenameCharacters(match.map);
     const result = match.result.toUpperCase();
@@ -98,6 +106,9 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
     setDownloadingReplays((prev) => new Set(prev).add(gameId));
 
     try {
+      if (!match.replayUrl) {
+        throw new Error("Replay URL unavailable");
+      }
       const response = await fetch(match.replayUrl, {
         method: "GET",
         mode: "cors",
@@ -175,7 +186,11 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
 
       <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
         <Box sx={{ flex: "1 1 300px", minWidth: { xs: "100%", sm: 300 } }}>
-          <PlayerProfileCard playerPreferredSide="allies" player={player} matchHistory={matchHistory} />
+          <PlayerProfileCard
+            playerPreferredSide={getPreferredSide(matchHistory)}
+            player={player}
+            matchHistory={matchHistory}
+          />
 
           {matchHistory && matchHistory.length > 0 && (
             <PlayerPerformanceGraph matchHistory={matchHistory} currentMMR={player.mmr} />
@@ -231,11 +246,11 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                       <TableCell>
                         {match.opponents.map((opponent, index) => (
                           <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <PlayerCountry countryId={match.countryId} />
                             <PlayerNameLink playerName={safePlayerName} variant="body2" />
-                            <PlayerCountry countryName={"Iraq"} />
                             {" - "}
-                            <PlayerCountry countryName={"America"} />
-                            <PlayerNameLink playerName={opponent} variant="body2" />
+                            <PlayerCountry countryId={opponent.countryId} />
+                            <PlayerNameLink playerName={opponent.name} variant="body2" />
                           </Box>
                         ))}
                       </TableCell>

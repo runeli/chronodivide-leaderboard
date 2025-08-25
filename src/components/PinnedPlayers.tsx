@@ -1,10 +1,10 @@
 "use client";
 
-import { Box, Typography, List, ListItem, ListItemButton, Paper } from "@mui/material";
-import { PushPin } from "@mui/icons-material";
+import { Box, Typography, List, ListItem, ListItemButton, Paper, IconButton, Tooltip } from "@mui/material";
+import { ClearAll, PushPin } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getPinnedPlayers, PinnedPlayer } from "@/lib/recentPlayers";
+import { getPinnedPlayers, PinnedPlayer, clearPinnedPlayers } from "@/lib/recentPlayers";
 import RankIcon from "@/components/RankIcon";
 import { formatRankType, defaultRegions } from "@/lib/api";
 
@@ -14,6 +14,10 @@ export default function PinnedPlayers() {
   const refreshPinnedPlayers = () => {
     const players = getPinnedPlayers();
     setPinnedPlayers(players);
+  };
+
+  const handleClearAll = () => {
+    clearPinnedPlayers();
   };
 
   useEffect(() => {
@@ -58,6 +62,13 @@ export default function PinnedPlayers() {
       </Typography>
 
       <Paper sx={{ p: 2, position: "relative" }}>
+        <Box sx={{ position: "absolute", top: 8, right: 8 }}>
+          <Tooltip title="Clear all pinned players">
+            <IconButton size="small" onClick={handleClearAll} aria-label="Clear all pinned players">
+              <ClearAll fontSize="small" color="primary" />
+            </IconButton>
+          </Tooltip>
+        </Box>
         <List dense sx={{ py: 0, mr: 3 }}>
           {pinnedPlayers.map((player) => {
             const hasMultiplePlayersWithSameName = groupedPlayers[player.name.toLowerCase()].length > 1;

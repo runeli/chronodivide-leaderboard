@@ -15,6 +15,17 @@ interface PlayerProfileCardProps {
   playerPreferredSide?: "soviet" | "allies";
 }
 
+function getPreferredSideBackground(side?: "soviet" | "allies"): string | undefined {
+  switch (side) {
+    case "soviet":
+      return "/RA2Sovietlogo.webp";
+    case "allies":
+      return "/RA2Alliedlogo.webp";
+    default:
+      return undefined;
+  }
+}
+
 const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[]; player: PlayerProfile }> = ({
   matchHistory,
   player,
@@ -57,12 +68,7 @@ const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[]; player: PlayerPro
 };
 
 export default function PlayerProfileCard({ player, matchHistory, playerPreferredSide }: PlayerProfileCardProps) {
-  const backgroundImage =
-    playerPreferredSide === "soviet"
-      ? "/RA2Sovietlogo.webp"
-      : playerPreferredSide === "allies"
-        ? "/RA2Alliedlogo.webp"
-        : undefined;
+  const backgroundImage = getPreferredSideBackground(playerPreferredSide);
   return (
     <Box sx={{ mb: 3 }}>
       <Card
