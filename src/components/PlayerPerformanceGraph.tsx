@@ -3,19 +3,10 @@
 import React from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-interface Match {
-  gameId: string;
-  result: string;
-  mmrGain: number;
-  timestamp: number;
-  map: string;
-  opponents: string[];
-  duration: number;
-}
+import { PlayerMatchHistoryEntry } from "@/lib/api";
 
 interface PlayerPerformanceGraphProps {
-  matchHistory: Match[];
+  matchHistory: PlayerMatchHistoryEntry[];
   currentMMR?: number;
 }
 

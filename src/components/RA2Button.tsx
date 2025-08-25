@@ -11,7 +11,7 @@ const StyledButton = styled(Button)(() => ({
   borderRadius: 0,
   boxShadow: "inset 0 0 0 2px #000000",
   background:
-    "radial-gradient(ellipse at center, rgba(255, 220, 150, 0.4) 0%, rgba(255,255,255,0) 60%), linear-gradient(to bottom, #a00000, #4d0000)",
+    "radial-gradient(ellipse at center, rgba(255, 220, 150, 0.4) 0%, rgba(255,255,255,0) 60%), linear-gradient(to bottom, #900000, #4d0000)",
   transition: "none",
   "&:hover": {
     boxShadow: "inset 0 0 0 2px #000000",
