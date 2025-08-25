@@ -23,7 +23,6 @@ export default function RegionPickerWithTheme() {
   const ladderType: LadderType = "1v1";
   const { data: matchHistory } = usePlayerMatchHistory(regionParam, ladderType, playerName);
 
-  // Default: neutral on search page, otherwise soviet; override on player page by side
   let themeToUse = isSearchPage ? sovietTheme : neutralTheme;
   if (isPlayerPage) {
     const side = getPreferredSide(matchHistory);

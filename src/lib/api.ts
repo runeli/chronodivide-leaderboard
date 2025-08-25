@@ -133,6 +133,54 @@ export interface PlayerMatchHistoryEntry {
   replayUrl?: string;
 }
 
+export type StatsMetricName = "xwol_users" | "xwol_games" | "xwol_login_queue_size";
+
+export interface StatsTimeSeries<TLabels> {
+  labels: TLabels;
+  values: Array<[number, number]>; // [timestampSeconds, value]
+}
+
+export interface XwolUsersLabels {
+  __name__: "xwol_users";
+  type: "playing" | "total";
+}
+
+export interface XwolGamesLabels {
+  __name__: "xwol_games";
+  type: "open" | "started" | "ladder" | "total";
+  ladderType?: "1v1" | "2v2";
+}
+
+export interface XwolLoginQueueLabels {
+  __name__: "xwol_login_queue_size";
+}
+
+export interface StatsMetric<TLabels> {
+  metric: StatsMetricName;
+  rangeSeconds: number;
+  stepSeconds: number;
+  series: StatsTimeSeries<TLabels>[];
+}
+
+export interface StatsResponse {
+  xwol_users?: StatsMetric<XwolUsersLabels>;
+  xwol_games?: StatsMetric<XwolGamesLabels>;
+  xwol_login_queue_size?: StatsMetric<XwolLoginQueueLabels>;
+}
+
+export function useStats(regionId: string) {
+  const path = `/stats`;
+  const { data, error, isLoading } = useSWR<StatsResponse>([path, regionId], () => fetcher(regionId, path), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    revalidateIfStale: false,
+    refreshInterval: 0,
+    shouldRetryOnError: false,
+    errorRetryCount: 0,
+  });
+  return { data, error, isLoading };
+}
+
 export function useSeasons(regionId: string, ladderType?: LadderType) {
   const path = ladderType ? `/ladder/16640/${ladderType}` : `/ladder/16640/1v1`;
 

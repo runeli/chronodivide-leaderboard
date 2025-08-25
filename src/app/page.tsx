@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { CircularProgress, Box } from "@mui/material";
 import Leaderboard from "./leaderboard";
+import StatsChart from "@/components/StatsChart";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       }
     >
       <Leaderboard />
+      <StatsChart />
     </Suspense>
   );
 }
