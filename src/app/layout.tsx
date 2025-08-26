@@ -6,8 +6,8 @@ import { RegionProvider } from "@/contexts/RegionContext";
 import RegionPickerWithTheme from "@/components/RegionPickerWithTheme";
 
 export const metadata: Metadata = {
-  title: "Chrono Divide Replays",
-  description: "Community statistics and replay viewer for Chrono Divide",
+  title: "Chrono Divide Ladder",
+  description: "Statistics and leaderboard for Chrono Divide",
 };
 
 export default function RootLayout({
