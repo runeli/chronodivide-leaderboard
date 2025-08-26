@@ -34,6 +34,7 @@ export default function PlayerNameLink({
       underline={underline}
       sx={{ cursor: "pointer" }}
       onClick={handleClick}
+      prefetch={false}
     >
       <Typography component="span" display="inline" variant={variant} fontWeight={fontWeight} color={color} sx={sx}>
         {playerName}
