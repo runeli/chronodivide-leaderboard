@@ -154,6 +154,7 @@ export default function PlayerProfileCard({ player, matchHistory, playerPreferre
                           mt: 0.5,
                           display: "inline-block",
                         }}
+                        prefetch={false}
                       >
                         <Typography variant="body2" color="primary.main">
                           {player.ladder.name}
