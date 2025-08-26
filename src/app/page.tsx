@@ -4,6 +4,7 @@ import Leaderboard from "./leaderboard";
 import StatsChart from "@/components/StatsChart";
 import type { Metadata } from "next";
 import type { StatsResponse } from "@/lib/api";
+import { config } from "@/lib/config";
 
 export const revalidate = 300;
 
@@ -33,12 +34,17 @@ export async function generateMetadata(): Promise<Metadata> {
     const ogUrl = `/api/og?${params.toString()}`;
 
     return {
+      metadataBase: new URL(config.siteUrl),
       openGraph: { images: [ogUrl] },
       twitter: { images: [ogUrl] },
     };
   } catch {
     const ogUrl = `/api/og?title=Chrono%20Divide%20Leaderboard`;
-    return { openGraph: { images: [ogUrl] }, twitter: { images: [ogUrl] } };
+    return {
+      metadataBase: new URL(config.siteUrl),
+      openGraph: { images: [ogUrl] },
+      twitter: { images: [ogUrl] },
+    };
   }
 }
 
