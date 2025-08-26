@@ -1,5 +1,15 @@
 import { Region } from "@/contexts/RegionContext";
-import useSWR from "swr";
+import useSWR, { SWRConfiguration } from "swr";
+
+// Global SWR configuration to reduce API calls
+export const globalSWRConfig: SWRConfiguration = {
+  revalidateOnFocus: false,
+  revalidateOnReconnect: false,
+  revalidateIfStale: false,
+  refreshInterval: 0,
+  shouldRetryOnError: false,
+  errorRetryCount: 0,
+};
 
 export const defaultRegions: Region[] = [
   {
@@ -38,7 +48,9 @@ const playerSWRConfig = {
   errorRetryCount: 0,
   revalidateOnFocus: false,
   revalidateOnReconnect: false,
-  revalidateIfStale: true,
+  revalidateIfStale: false,
+  refreshInterval: 0,
+  shouldRetryOnError: false,
 };
 
 export type GameSku = 16640;
@@ -171,12 +183,7 @@ export interface StatsResponse {
 export function useStats(regionId: string) {
   const path = `/stats`;
   const { data, error, isLoading } = useSWR<StatsResponse>([path, regionId], () => fetcher(regionId, path), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    revalidateIfStale: false,
-    refreshInterval: 0,
-    shouldRetryOnError: false,
-    errorRetryCount: 0,
+    ...globalSWRConfig,
   });
   return { data, error, isLoading };
 }
@@ -184,7 +191,9 @@ export function useStats(regionId: string) {
 export function useSeasons(regionId: string, ladderType?: LadderType) {
   const path = ladderType ? `/ladder/16640/${ladderType}` : `/ladder/16640/1v1`;
 
-  const { data, error, isLoading } = useSWR<string[]>([path, regionId], () => fetcher(regionId, path));
+  const { data, error, isLoading } = useSWR<string[]>([path, regionId], () => fetcher(regionId, path), {
+    ...globalSWRConfig,
+  });
 
   return {
     data,
@@ -196,8 +205,12 @@ export function useSeasons(regionId: string, ladderType?: LadderType) {
 export function useSeason(regionId: string, seasonId: SeasonId) {
   const path = `/ladder/16640/${seasonId}`;
 
-  const { data, error, isLoading } = useSWR<LadderSeason>(seasonId ? [path, regionId] : null, () =>
-    fetcher(regionId, path)
+  const { data, error, isLoading } = useSWR<LadderSeason>(
+    seasonId ? [path, regionId] : null,
+    () => fetcher(regionId, path),
+    {
+      ...globalSWRConfig,
+    }
   );
 
   return {
@@ -225,7 +238,10 @@ export function useLadder(
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ladderId, start, count }),
-      })
+      }),
+    {
+      ...globalSWRConfig,
+    }
   );
 
   return {
