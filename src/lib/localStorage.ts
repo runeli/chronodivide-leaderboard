@@ -1,3 +1,5 @@
+"use client";
+
 const SELECTED_REGION_KEY = "chronodivide-selected-region";
 
 export function getSavedRegion(): string {

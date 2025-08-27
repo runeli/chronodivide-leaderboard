@@ -6,6 +6,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ name: st
 
   const playerName = decodeURIComponent(name);
   const mmr = searchParams.get("mmr") ?? "0";
+  const rank = searchParams.get("rank") ?? "";
+  const rankTypeParam = searchParams.get("rankType");
+  let rankTypeForFormat: string | number | null = rankTypeParam;
+  if (rankTypeParam != null && /^\d+$/.test(rankTypeParam)) {
+    rankTypeForFormat = parseInt(rankTypeParam, 10);
+  }
+  const preferredSideParam = searchParams.get("preferredSide") as "soviet" | "allies" | null;
   const matchHistoryParam = searchParams.get("history");
   let matchHistory: Array<{ timestamp: number; mmrGain: number }> = [];
   if (matchHistoryParam) {
@@ -40,6 +47,41 @@ export async function GET(req: Request, { params }: { params: Promise<{ name: st
   };
 
   const performanceData = processMatchData();
+
+  const formatRankType = (rankType: string | number | null | undefined): string => {
+    if (rankType == null) {
+      return "Unranked";
+    }
+    if (typeof rankType === "number") {
+      const rankNames: Record<number, string> = {
+        0: "Unranked",
+        1: "Private",
+        2: "Corporal",
+        3: "Sergeant",
+        4: "Lieutenant",
+        5: "Major",
+        6: "Colonel",
+        7: "Brigadier General",
+        8: "General",
+        9: "5-Star General",
+        10: "Commander-in-chief",
+      };
+      return rankNames[rankType] || `Rank ${rankType}`;
+    }
+    if (rankType === "unranked") {
+      return "Unranked";
+    }
+    return String(rankType);
+  };
+
+  const titlePrefix =
+    preferredSideParam === "allies" ? "Allied" : preferredSideParam === "soviet" ? "Soviet" : undefined;
+  const playerTitle =
+    rankTypeForFormat != null
+      ? titlePrefix
+        ? `${titlePrefix} ${formatRankType(rankTypeForFormat)}`
+        : formatRankType(rankTypeForFormat)
+      : undefined;
 
   // dirty hack but so is your mom
   const baseWidth = 1200;
@@ -95,36 +137,74 @@ export async function GET(req: Request, { params }: { params: Promise<{ name: st
         <div
           style={{
             display: "flex",
-            fontSize: 64,
-            fontWeight: 700,
-            lineHeight: 1,
-            textAlign: "left",
+            flexDirection: "column",
             paddingLeft: "48px",
           }}
         >
-          {playerName}
-        </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "24px",
+              marginBottom: "16px",
+            }}
+          >
+            {rank && (
+              <div
+                style={{
+                  borderRadius: "24px",
+                  padding: "16px 32px",
+                  display: "flex",
+                  color: "#ff0000",
+                  backgroundColor: "#ffff00",
+                  fontWeight: 700,
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 }}>
+                  <div style={{ display: "flex", fontSize: 128 }}>#{rank}</div>
+                  <div style={{ display: "flex", fontSize: 36, marginTop: 8 }}>MMR: {mmr}</div>
+                </div>
+              </div>
+            )}
 
-        <div
-          style={{
-            display: "flex",
-            marginBottom: "48px",
-            fontSize: 128,
-            marginTop: "24px",
-            textAlign: "left",
-            paddingLeft: "48px",
-          }}
-        >
-          MMR: {mmr}
-        </div>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {playerTitle && (
+                <div
+                  style={{
+                    display: "flex",
+                    fontSize: 36,
+                    fontWeight: 600,
+                    color: "#ffff00",
+                    marginBottom: "8px",
+                  }}
+                >
+                  {playerTitle}
+                </div>
+              )}
 
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 64,
+                  fontWeight: 700,
+                  lineHeight: 1,
+                  textAlign: "left",
+                  color: "#ffff00",
+                }}
+              >
+                {playerName}
+              </div>
+            </div>
+          </div>
+        </div>
         {performanceData.length > 0 && (
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               position: "absolute",
-              top: "48px",
+              bottom: "48px",
               right: "48px",
               width: "400px",
               height: "200px",

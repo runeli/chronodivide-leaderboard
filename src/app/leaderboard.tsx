@@ -9,7 +9,6 @@ import {
   TableRow,
   Typography,
   Paper,
-  CircularProgress,
   Alert,
   Box,
   Select,
@@ -17,15 +16,15 @@ import {
   Pagination,
   SelectChangeEvent,
   Chip,
-  TextField,
 } from "@mui/material";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search } from "@mui/icons-material";
 import PlayerNameLink from "@/components/PlayerNameLink";
 import RankIcon from "@/components/RankIcon";
 import PinnedPlayers from "@/components/PinnedPlayers";
+import PlayerSearch from "@/components/PlayerSearch";
+import LeaderboardSkeleton from "@/components/LeaderboardSkeleton";
 import { useRegion } from "@/contexts/RegionContext";
 import { sovietTheme } from "@/theme/themes";
 import {
@@ -38,7 +37,6 @@ import {
   getTopLadders,
   formatRankType,
 } from "@/lib/api";
-import RA2Button from "@/components/RA2Button";
 
 const LADDER_PAGE_SIZE = 25;
 
@@ -50,9 +48,6 @@ export default function Leaderboard() {
   const [ladderType, setLadderType] = useState<LadderType>("1v1");
   const [selectedLadderId, setSelectedLadderId] = useState<number>(0); // Default to Generals
   const [page, setPage] = useState(1);
-
-  // Search functionality
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Helper function to update URL with current selections
   const updateURL = useCallback(
@@ -181,24 +176,6 @@ export default function Leaderboard() {
     updateURL({ page: value });
   };
 
-  // Search handlers
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-  };
-
-  const handleSearchKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === "Enter") {
-      handleDirectSearch();
-    }
-  };
-
-  const handleDirectSearch = () => {
-    if (searchQuery.trim()) {
-      const playerName = searchQuery.trim();
-      router.push(`/player/${selectedRegion.id}/${encodeURIComponent(playerName)}`);
-    }
-  };
-
   // Get available ladders for the current season and ladder type
   const availableLadders = season ? getTopLadders(season, ladderType) : [];
   const selectedLadder = availableLadders.find((l) => l.id === selectedLadderId);
@@ -227,36 +204,7 @@ export default function Leaderboard() {
 
         <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
           <Box sx={{ flex: "1 1 400px" }}>
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Search Player
-              </Typography>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: { xs: "1fr", sm: "1fr auto" },
-                  gap: 2,
-                  alignItems: "center",
-                }}
-              >
-                <TextField
-                  placeholder="Enter player name..."
-                  variant="outlined"
-                  size="small"
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  onKeyPress={handleSearchKeyPress}
-                />
-                <RA2Button
-                  variant="contained"
-                  startIcon={<Search />}
-                  onClick={handleDirectSearch}
-                  sx={{ minWidth: "fit-content" }}
-                >
-                  Search
-                </RA2Button>
-              </Box>
-            </Box>
+            <PlayerSearch />
 
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
               <Box sx={{ minWidth: 120 }}>
@@ -334,11 +282,7 @@ export default function Leaderboard() {
           </Box>
         )}
 
-        {(isLoading || seasonsLoading || seasonLoading) && (
-          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-            <CircularProgress />
-          </Box>
-        )}
+        {(isLoading || seasonsLoading || seasonLoading) && <LeaderboardSkeleton />}
 
         {(error || seasonsError || seasonError) && (
           <Alert severity="error">

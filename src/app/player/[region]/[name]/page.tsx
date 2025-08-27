@@ -77,6 +77,11 @@ export async function generateMetadata({
   if (playerData) {
     ogImageUrl += `?mmr=${playerData.player.mmr}`;
 
+    // Add rank if available
+    if (playerData.player.rank && playerData.player.rank > 0) {
+      ogImageUrl += `&rank=${playerData.player.rank}`;
+    }
+
     // Add match history data for the performance graph
     if (playerData.matchHistory.length > 0) {
       const historyData = playerData.matchHistory.slice(0, 20).map((match: PlayerMatchHistoryEntry) => ({

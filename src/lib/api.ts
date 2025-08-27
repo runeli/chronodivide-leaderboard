@@ -1,7 +1,6 @@
 import { Region } from "@/contexts/RegionContext";
 import useSWR, { SWRConfiguration } from "swr";
 
-// Global SWR configuration to reduce API calls
 export const globalSWRConfig: SWRConfiguration = {
   revalidateOnFocus: false,
   revalidateOnReconnect: false,
