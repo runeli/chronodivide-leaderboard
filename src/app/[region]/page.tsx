@@ -18,12 +18,12 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ region: string }> }): Promise<Metadata> {
-  const { region } = await params;
+  let { region } = await params;
 
   // Validate region
   const validRegion = defaultRegions.find((r) => r.id === region);
   if (!validRegion) {
-    notFound();
+    region = "am-eu";
   }
 
   try {
@@ -72,15 +72,7 @@ export async function generateMetadata({ params }: { params: Promise<{ region: s
   }
 }
 
-export default async function RegionPage({ params }: { params: Promise<{ region: string }> }) {
-  const { region } = await params;
-
-  // Validate region
-  const validRegion = defaultRegions.find((r) => r.id === region);
-  if (!validRegion) {
-    notFound();
-  }
-
+export default async function RegionPage({}: { params: Promise<{ region: string }> }) {
   return (
     <Suspense
       fallback={
