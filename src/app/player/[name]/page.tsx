@@ -1,6 +1,7 @@
 import PlayerPageClient from "@/components/PlayerPageClient";
 import { Metadata } from "next";
 import { defaultRegions, PlayerMatchHistoryEntry } from "@/lib/api";
+import { config } from "@/lib/config";
 
 export async function generateStaticParams() {
   // Return empty array to handle all routes client-side
@@ -68,7 +69,7 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
     : `View ${decodedName}'s profile on Chrono Divide Replays`;
 
   // Build OG image URL
-  let ogImageUrl = `/api/og/player?name=${encodeURIComponent(decodedName)}`;
+  let ogImageUrl = `${config.siteUrl}/api/og/player?name=${encodeURIComponent(decodedName)}`;
 
   if (playerData) {
     ogImageUrl += `&mmr=${playerData.player.mmr}`;
