@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
+import { getSavedRegion } from "@/lib/localStorage";
 
 export default function Home() {
-  // Redirect to the default region
-  redirect("/am-eu");
+  const savedRegion = getSavedRegion();
+  redirect(`/${savedRegion}`);
 }

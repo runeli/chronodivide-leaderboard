@@ -4,7 +4,7 @@ import { Box, Typography, List, ListItem, ListItemButton, Paper, IconButton, Too
 import { ClearAll, PushPin } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { getPinnedPlayers, PinnedPlayer, clearPinnedPlayers } from "@/lib/recentPlayers";
+import { getPinnedPlayers, PinnedPlayer, clearPinnedPlayers } from "@/lib/pinnedPlayers";
 import RankIcon from "@/components/RankIcon";
 import { formatRankType, defaultRegions } from "@/lib/api";
 

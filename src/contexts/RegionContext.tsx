@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { getSavedRegion, saveRegion } from "@/lib/recentPlayers";
+import { getSavedRegion, saveRegion } from "@/lib/localStorage";
 
 export interface Region {
   id: string;

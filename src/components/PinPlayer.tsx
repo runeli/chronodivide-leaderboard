@@ -3,7 +3,7 @@
 import { IconButton, Tooltip } from "@mui/material";
 import { PushPin, PushPinOutlined } from "@mui/icons-material";
 import { useState, useEffect } from "react";
-import { addPinnedPlayer, removePinnedPlayer, isPlayerPinned } from "@/lib/recentPlayers";
+import { addPinnedPlayer, removePinnedPlayer, isPlayerPinned } from "@/lib/pinnedPlayers";
 import { useRegion } from "@/contexts/RegionContext";
 
 interface PinPlayerProps {
