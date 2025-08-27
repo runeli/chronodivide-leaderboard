@@ -68,10 +68,10 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
     : `View ${decodedName}'s profile on Chrono Divide Replays`;
 
   // Build OG image URL
-  let ogImageUrl = `${config.siteUrl}/api/og/player?name=${encodeURIComponent(decodedName)}`;
+  let ogImageUrl = `${config.siteUrl}/api/og/player/${encodeURIComponent(decodedName)}`;
 
   if (playerData) {
-    ogImageUrl += `&mmr=${playerData.player.mmr}`;
+    ogImageUrl += `?mmr=${playerData.player.mmr}`;
 
     // Add match history data for the performance graph
     if (playerData.matchHistory.length > 0) {
@@ -82,8 +82,6 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
       ogImageUrl += `&history=${encodeURIComponent(JSON.stringify(historyData))}`;
     }
   }
-
-  ogImageUrl += `&t=${Date.now()}`;
 
   return {
     title,

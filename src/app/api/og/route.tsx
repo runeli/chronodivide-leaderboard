@@ -89,8 +89,5 @@ export async function GET(req: Request) {
     }
   );
 
-  // Add caching headers to reduce function invocations
-  response.headers.set("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
-
   return response;
 }
