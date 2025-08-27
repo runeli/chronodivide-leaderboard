@@ -10,7 +10,6 @@ export async function GET(req: Request) {
   const mmr = searchParams.get("mmr") ?? "0";
   const matchHistoryParam = searchParams.get("history");
   let matchHistory: Array<{ timestamp: number; mmrGain: number }> = [];
-  console.log(matchHistoryParam);
   if (matchHistoryParam) {
     try {
       matchHistory = JSON.parse(decodeURIComponent(matchHistoryParam));
