@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { getSavedRegion, saveRegion } from "@/lib/recentPlayers";
 
 export interface Region {
@@ -23,19 +23,42 @@ const RegionContext = createContext<RegionContextType | undefined>(undefined);
 
 export function RegionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [regions] = useState<Region[]>(defaultRegions);
+
+  // Extract region from pathname
+  const getRegionFromPath = useCallback(() => {
+    const pathSegments = pathname.split("/");
+
+    // Check if we're on a player page
+    const playerIndex = pathSegments.findIndex((segment) => segment === "player");
+    if (playerIndex !== -1 && playerIndex + 1 < pathSegments.length) {
+      const regionFromPath = pathSegments[playerIndex + 1];
+      if (defaultRegions.find((r) => r.id === regionFromPath)) {
+        return regionFromPath;
+      }
+    }
+
+    // Check if we're on a region page (like /am-eu, /sea)
+    if (pathSegments.length > 1) {
+      const regionFromPath = pathSegments[1];
+      if (defaultRegions.find((r) => r.id === regionFromPath)) {
+        return regionFromPath;
+      }
+    }
+
+    // Default to am-eu if no valid region found
+    return "am-eu";
+  }, [pathname]);
+
   const [selectedRegion, setSelectedRegionState] = useState<Region>(() => {
-    // Priority: URL parameter > localStorage > default
+    // Priority: URL path > localStorage > default
     if (typeof window !== "undefined") {
-      // Check URL parameter first
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlRegionId = urlParams.get("region");
-      if (urlRegionId) {
-        const urlRegion = defaultRegions.find((r) => r.id === urlRegionId);
-        if (urlRegion) {
-          return urlRegion;
-        }
+      // Check URL path first
+      const regionFromPath = getRegionFromPath();
+      const pathRegion = defaultRegions.find((r) => r.id === regionFromPath);
+      if (pathRegion) {
+        return pathRegion;
       }
 
       const savedRegionId = getSavedRegion();
@@ -47,25 +70,52 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
     return defaultRegions[0]; // Default to first region (am-eu)
   });
 
-  // Helper function to update URL with region parameter
+  // Helper function to update URL path with region
   const updateURLWithRegion = useCallback(
     (regionId: string) => {
       if (typeof window !== "undefined") {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("region", regionId);
-        const newURL = `${window.location.pathname}?${params.toString()}`;
-        router.replace(newURL, { scroll: false });
+        const pathSegments = pathname.split("/");
+
+        // Check if we're on a player page
+        const playerIndex = pathSegments.findIndex((segment) => segment === "player");
+        if (playerIndex !== -1 && playerIndex + 1 < pathSegments.length) {
+          // Replace the region in the player path
+          pathSegments[playerIndex + 1] = regionId;
+          const newPath = pathSegments.join("/");
+          router.replace(newPath, { scroll: false });
+        } else if (pathSegments.length > 1 && defaultRegions.find((r) => r.id === pathSegments[1])) {
+          // Replace the region in the main region path
+          pathSegments[1] = regionId;
+          const newPath = pathSegments.join("/");
+          router.replace(newPath, { scroll: false });
+        } else {
+          // Navigate to the new region page
+          router.replace(`/${regionId}`, { scroll: false });
+        }
       }
     },
-    [searchParams, router]
+    [pathname, router]
   );
 
-  //init load if user has no region in url
+  // Update selected region when path changes
   useEffect(() => {
-    if (typeof window !== "undefined" && !searchParams.get("region")) {
-      updateURLWithRegion(selectedRegion.id);
+    const regionFromPath = getRegionFromPath();
+    const pathRegion = defaultRegions.find((r) => r.id === regionFromPath);
+    if (pathRegion && pathRegion.id !== selectedRegion.id) {
+      setSelectedRegionState(pathRegion);
     }
-  }, [selectedRegion.id, searchParams, updateURLWithRegion]);
+  }, [pathname, getRegionFromPath, selectedRegion.id]);
+
+  //init load if user has no region in path
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const regionFromPath = getRegionFromPath();
+      if (regionFromPath === "am-eu" && pathname === "/") {
+        // If we're on the root path, redirect to am-eu
+        router.replace("/am-eu", { scroll: false });
+      }
+    }
+  }, [pathname, getRegionFromPath, router]);
 
   const setSelectedRegion = (region: Region, updateURL: boolean = true) => {
     setSelectedRegionState(region);

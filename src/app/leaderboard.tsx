@@ -27,7 +27,7 @@ import PlayerNameLink from "@/components/PlayerNameLink";
 import RankIcon from "@/components/RankIcon";
 import PinnedPlayers from "@/components/PinnedPlayers";
 import { useRegion } from "@/contexts/RegionContext";
-import { neutralTheme, sovietTheme } from "@/theme/themes";
+import { sovietTheme } from "@/theme/themes";
 import {
   useLadder,
   useSeasons,
@@ -118,17 +118,14 @@ export default function Leaderboard() {
     }
   }, [searchParams]); // Include searchParams dependency
 
-  // Fetch available seasons
   const { data: seasons, error: seasonsError, isLoading: seasonsLoading } = useSeasons(selectedRegion.id, ladderType);
 
-  // Fetch season details to get available ladders
   const {
     data: season,
     error: seasonError,
     isLoading: seasonLoading,
   } = useSeason(selectedRegion.id, selectedSeason || "current");
 
-  // Fetch ladder data (API uses 1-based indexing)
   const { data, error, isLoading } = useLadder(
     selectedRegion.id,
     ladderType,

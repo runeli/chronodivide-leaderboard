@@ -23,17 +23,12 @@ export default function PlayerNameLink({
 }: PlayerNameLinkProps) {
   const { selectedRegion } = useRegion();
 
-  const handleClick = () => {
-    // No longer adding to recent players
-  };
-
   return (
     <Link
       component={NextLink}
-      href={`/player/${encodeURIComponent(playerName)}?region=${selectedRegion.id}`}
+      href={`/player/${selectedRegion.id}/${encodeURIComponent(playerName)}`}
       underline={underline}
       sx={{ cursor: "pointer" }}
-      onClick={handleClick}
       prefetch={false}
     >
       <Typography component="span" display="inline" variant={variant} fontWeight={fontWeight} color={color} sx={sx}>

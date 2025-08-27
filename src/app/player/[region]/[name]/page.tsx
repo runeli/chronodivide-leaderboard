@@ -55,12 +55,16 @@ async function getPlayerData(playerName: string, regionId: string) {
   }
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
-  const { name } = await params;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ name: string; region: string }>;
+}): Promise<Metadata> {
+  const { name, region } = await params;
   const decodedName = decodeURIComponent(name);
 
-  // Try to get player data from the default region
-  const playerData = await getPlayerData(decodedName, "am-eu");
+  // Get player data from the region specified in the URL
+  const playerData = await getPlayerData(decodedName, region);
 
   const title = `${decodedName} - Chrono Divide Replays`;
   const description = playerData
@@ -68,7 +72,7 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
     : `View ${decodedName}'s profile on Chrono Divide Replays`;
 
   // Build OG image URL
-  let ogImageUrl = `${config.siteUrl}/api/og/player/${encodeURIComponent(decodedName)}`;
+  let ogImageUrl = `${config.siteUrl}/api/og/player/${region}/${encodeURIComponent(decodedName)}`;
 
   if (playerData) {
     ogImageUrl += `?mmr=${playerData.player.mmr}`;
@@ -110,7 +114,7 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
   };
 }
 
-export default async function PlayerPage({ params }: { params: Promise<{ name: string }> }) {
-  const { name } = await params;
+export default async function PlayerPage({ params }: { params: Promise<{ name: string; region: string }> }) {
+  const { name, region } = await params;
   return <PlayerPageClient playerName={name} />;
 }
