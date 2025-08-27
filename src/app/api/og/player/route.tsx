@@ -1,8 +1,5 @@
 import { ImageResponse } from "next/og";
 
-// Add caching to reduce function invocations
-export const revalidate = 300; // Cache for 5 minutes
-
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
 
@@ -166,8 +163,6 @@ export async function GET(req: Request) {
       height: 630,
     }
   );
-
-  response.headers.set("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
 
   return response;
 }
