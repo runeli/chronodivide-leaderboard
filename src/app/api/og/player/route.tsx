@@ -40,12 +40,21 @@ export async function GET(req: Request) {
 
   const performanceData = processMatchData();
 
+  // dirty hack but so is your mom
+  const baseWidth = 1200;
+  const baseHeight = 630;
+  const mmrOffset = (parseInt(mmr) % 10) * 2; // 0-18 pixels variation
+  const matchCountOffset = (matchHistory.length % 5) * 3; // 0-12 pixels variation
+
+  const width = baseWidth + mmrOffset;
+  const height = baseHeight + matchCountOffset;
+
   const response = new ImageResponse(
     (
       <div
         style={{
-          width: 1200,
-          height: 630,
+          width,
+          height,
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-end",
@@ -159,8 +168,8 @@ export async function GET(req: Request) {
       </div>
     ),
     {
-      width: 1200,
-      height: 630,
+      width,
+      height,
     }
   );
 
