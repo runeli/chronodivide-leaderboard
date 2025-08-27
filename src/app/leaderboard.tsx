@@ -195,7 +195,7 @@ export default function Leaderboard() {
   const handleDirectSearch = () => {
     if (searchQuery.trim()) {
       const playerName = searchQuery.trim();
-      router.push(`/player${selectedRegion.id}/${encodeURIComponent(playerName)}`);
+      router.push(`/player/${selectedRegion.id}/${encodeURIComponent(playerName)}`);
     }
   };
 
