@@ -56,7 +56,6 @@ async function getPlayerData(playerName: string, regionId: string) {
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ name: string }> }): Promise<Metadata> {
-  console.log("Generating metadata for", params);
   const { name } = await params;
   const decodedName = decodeURIComponent(name);
 
@@ -84,6 +83,8 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
     }
   }
 
+  ogImageUrl += `&t=${Date.now()}`;
+
   return {
     title,
     description,
@@ -98,6 +99,9 @@ export async function generateMetadata({ params }: { params: Promise<{ name: str
           alt: `${decodedName} profile card`,
         },
       ],
+    },
+    other: {
+      "og:updated_time": new Date().toISOString(),
     },
     twitter: {
       card: "summary_large_image",
