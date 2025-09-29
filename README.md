@@ -2,16 +2,39 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### Running with Docker (Recommended)
+
+The easiest way to run this application is using Docker:
 
 ```bash
+# Build and start the application
+docker-compose up --build
+
+# Or use the provided script
+./docker-start.sh
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000).
+
+To stop the application:
+
+```bash
+docker-compose down
+```
+
+### Running in Development Mode
+
+Alternatively, you can run the development server locally:
+
+```bash
+npm install
 npm run dev
 # or
-yarn dev
+yarn install && yarn dev
 # or
-pnpm dev
+pnpm install && pnpm dev
 # or
-bun dev
+bun install && bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
