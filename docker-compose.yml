@@ -8,8 +8,11 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
-      - HOSTNAME=localhost
+      - HOSTNAME=0.0.0.0
+      - PORT=3000
     restart: unless-stopped
+    networks:
+      - chronodivide-network
     healthcheck:
       test:
         [
@@ -24,3 +27,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+networks:
+  chronodivide-network:
+    driver: bridge
