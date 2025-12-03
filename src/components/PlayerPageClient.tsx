@@ -30,10 +30,13 @@ import PlayerProfileCard from "@/components/PlayerProfileCard";
 import { useRegion } from "@/contexts/RegionContext";
 import PlayerCountry from "./PlayerCountry";
 import RA2Button from "./RA2Button";
+import LadderEntry1v1 from "./LadderEntry1v1";
+import LadderEntryMultiplayer from "./LadderEntryMultiplayer";
 import { alliedTheme, neutralTheme } from "@/theme/themes";
 
 interface PlayerPageClientProps {
   playerName: string;
+  ladderType: LadderType;
 }
 
 const removeUnsafeFilenameCharacters = (input: string): string => {
@@ -57,14 +60,13 @@ const createSafePlayerName = (rawPlayerName: string): string => {
   }
 };
 
-export default function PlayerPageClient({ playerName }: PlayerPageClientProps) {
+export default function PlayerPageClient({ playerName, ladderType }: PlayerPageClientProps) {
   const router = useRouter();
   const { selectedRegion } = useRegion();
   const searchParams = useSearchParams();
   const regionParam = searchParams.get("region") ?? selectedRegion.id;
   const decodedPlayerName = decodeURIComponent(playerName);
   const safePlayerName = createSafePlayerName(playerName);
-  const ladderType: LadderType = "1v1";
   const [downloadingReplays, setDownloadingReplays] = useState<Set<string>>(new Set());
 
   const {
@@ -244,15 +246,22 @@ export default function PlayerPageClient({ playerName }: PlayerPageClientProps) 
                         </Box>
                       </TableCell>
                       <TableCell>
-                        {match.opponents.map((opponent, index) => (
-                          <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <PlayerCountry countryId={match.countryId} />
-                            <PlayerNameLink playerName={safePlayerName} variant="body2" />
-                            {" - "}
-                            <PlayerCountry countryId={opponent.countryId} />
-                            <PlayerNameLink playerName={opponent.name} variant="body2" />
-                          </Box>
-                        ))}
+                        {match.teamMates && match.teamMates.length > 0 ? (
+                          <LadderEntryMultiplayer
+                            playerName={safePlayerName}
+                            playerCountryId={match.countryId}
+                            teamMates={match.teamMates}
+                            opponents={match.opponents}
+                            ladderType={ladderType}
+                          />
+                        ) : (
+                          <LadderEntry1v1
+                            playerName={safePlayerName}
+                            playerCountryId={match.countryId}
+                            opponent={match.opponents[0]}
+                            ladderType={ladderType}
+                          />
+                        )}
                       </TableCell>
                       <TableCell>{formatDuration(match.duration)}</TableCell>
                       <TableCell>

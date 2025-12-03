@@ -3,9 +3,11 @@
 import { Link, Typography, TypographyProps } from "@mui/material";
 import NextLink from "next/link";
 import { useRegion } from "@/contexts/RegionContext";
+import { LadderType } from "@/lib/api";
 
 interface PlayerNameLinkProps {
   playerName: string;
+  ladderType?: LadderType;
   variant?: TypographyProps["variant"];
   color?: TypographyProps["color"];
   fontWeight?: TypographyProps["fontWeight"];
@@ -15,6 +17,7 @@ interface PlayerNameLinkProps {
 
 export default function PlayerNameLink({
   playerName,
+  ladderType,
   variant = "body2",
   color = "primary",
   fontWeight = "medium",
@@ -22,11 +25,14 @@ export default function PlayerNameLink({
   sx,
 }: PlayerNameLinkProps) {
   const { selectedRegion } = useRegion();
-
+  // Ensure ladderType is always a valid string - handle undefined explicitly
+  const validLadderType: LadderType = ladderType === "2v2-random" ? "2v2-random" : "1v1";
+  const href = `/player/${selectedRegion.id}/${validLadderType}/${encodeURIComponent(playerName)}`;
+  
   return (
     <Link
       component={NextLink}
-      href={`/player/${selectedRegion.id}/${encodeURIComponent(playerName)}`}
+      href={href}
       underline={underline}
       sx={{ cursor: "pointer" }}
       prefetch={false}

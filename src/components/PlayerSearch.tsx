@@ -25,7 +25,7 @@ const PlayerSearch = memo(function PlayerSearch() {
   const handleDirectSearch = () => {
     if (searchQuery.trim()) {
       const playerName = searchQuery.trim();
-      router.push(`/player/${selectedRegion.id}/${encodeURIComponent(playerName)}`);
+      router.push(`/player/${selectedRegion.id}/1v1/${encodeURIComponent(playerName)}`);
     }
   };
 

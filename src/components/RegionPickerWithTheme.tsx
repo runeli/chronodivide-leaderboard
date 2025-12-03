@@ -15,7 +15,7 @@ export default function RegionPickerWithTheme() {
   const isRegionPage = pathname === "/am-eu" || pathname === "/sea";
   const isPlayerPage = pathname.startsWith("/player/");
 
-  // Extract region from pathname for player pages
+  // Extract region and ladder type from pathname for player pages
   const getRegionFromPath = () => {
     if (isPlayerPage) {
       const pathSegments = pathname.split("/");
@@ -26,11 +26,13 @@ export default function RegionPickerWithTheme() {
     return selectedRegion.id;
   };
 
-  // Determine player name if on player page; pass empty otherwise to keep hook order stable
-  const playerNameEncoded = isPlayerPage ? (pathname.split("/player/")[1]?.split("/")[1] ?? "") : "";
+  // Determine player name and ladder type if on player page; pass empty otherwise to keep hook order stable
+  const pathSegments = isPlayerPage ? pathname.split("/").filter(Boolean) : [];
+  const playerNameEncoded = isPlayerPage && pathSegments.length >= 4 ? pathSegments[3] : "";
   const playerName = playerNameEncoded ? decodeURIComponent(playerNameEncoded) : "";
   const regionParam = getRegionFromPath();
-  const ladderType: LadderType = "1v1";
+  const ladderTypeFromPath = isPlayerPage && pathSegments.length >= 3 ? pathSegments[2] : "1v1";
+  const ladderType: LadderType = ladderTypeFromPath === "2v2-random" ? "2v2-random" : "1v1";
   const { data: matchHistory } = usePlayerMatchHistory(regionParam, ladderType, playerName);
 
   let themeToUse = isRegionPage ? sovietTheme : neutralTheme;

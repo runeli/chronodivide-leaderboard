@@ -80,7 +80,7 @@ export default function PinnedPlayers() {
               <ListItem key={`${player.name}-${player.timestamp}`} disablePadding sx={{ cursor: "pointer" }}>
                 <ListItemButton
                   component={Link}
-                  href={`/player/${player.region}/${encodeURIComponent(player.name)}`}
+                  href={`/player/${player.region}/1v1/${encodeURIComponent(player.name)}`}
                   sx={{ borderRadius: 1, mb: 0.5, cursor: "pointer" }}
                 >
                   <Box sx={{ flex: 1, minHeight: 40 }}>

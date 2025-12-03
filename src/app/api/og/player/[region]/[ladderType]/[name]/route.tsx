@@ -1,7 +1,10 @@
 import { ImageResponse } from "next/og";
 
-export async function GET(req: Request, { params }: { params: Promise<{ name: string; region: string }> }) {
-  const { name, region } = await params;
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ name: string; region: string; ladderType: string }> }
+) {
+  const { name, region, ladderType } = await params;
   const { searchParams } = new URL(req.url);
 
   const playerName = decodeURIComponent(name);
@@ -255,3 +258,4 @@ export async function GET(req: Request, { params }: { params: Promise<{ name: st
 
   return response;
 }
+

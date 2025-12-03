@@ -308,14 +308,13 @@ export default function Leaderboard() {
                   {data.records.map((player) => {
                     const totalGames = player.wins + player.losses + player.draws;
                     const winRate = totalGames > 0 ? ((player.wins / totalGames) * 100).toFixed(1) : "0.0";
-
                     return (
-                      <TableRow hover key={player.name}>
+                      <TableRow hover key={`${player.name}-${ladderType}`}>
                         <TableCell>
                           <Chip label={player.rank} size="small" color={"default"} />
                         </TableCell>
                         <TableCell>
-                          <PlayerNameLink playerName={player.name} />
+                          <PlayerNameLink key={`${player.name}-${ladderType}`} playerName={player.name} ladderType={ladderType} />
                           <Box
                             sx={{
                               display: "flex",
