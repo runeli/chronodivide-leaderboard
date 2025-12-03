@@ -6,8 +6,13 @@ import { Search } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import RA2Button from "@/components/RA2Button";
 import { useRegion } from "@/contexts/RegionContext";
+import { LadderType } from "@/lib/api";
 
-const PlayerSearch = memo(function PlayerSearch() {
+interface PlayerSearchProps {
+  ladderType?: LadderType;
+}
+
+const PlayerSearch = memo(function PlayerSearch({ ladderType = "1v1" }: PlayerSearchProps) {
   const router = useRouter();
   const { selectedRegion } = useRegion();
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,7 +30,7 @@ const PlayerSearch = memo(function PlayerSearch() {
   const handleDirectSearch = () => {
     if (searchQuery.trim()) {
       const playerName = searchQuery.trim();
-      router.push(`/player/${selectedRegion.id}/1v1/${encodeURIComponent(playerName)}`);
+      router.push(`/player/${selectedRegion.id}/${ladderType}/${encodeURIComponent(playerName)}`);
     }
   };
 

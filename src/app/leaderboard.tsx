@@ -204,7 +204,7 @@ export default function Leaderboard() {
 
         <Box sx={{ display: "flex", gap: 3, mb: 3, flexWrap: "wrap" }}>
           <Box sx={{ flex: "1 1 400px" }}>
-            <PlayerSearch />
+            <PlayerSearch ladderType={ladderType} />
 
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
               <Box sx={{ minWidth: 120 }}>
