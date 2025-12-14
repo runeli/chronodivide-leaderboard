@@ -1,5 +1,10 @@
 import { Region } from "@/contexts/RegionContext";
-import useSWR, { SWRConfiguration } from "swr";
+import type { SWRConfiguration, SWRHook } from "swr";
+
+// Use require() to access SWR's default export to work around Next.js/webpack
+// module resolution issues with ESM default exports
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const useSWR = require("swr").default as SWRHook;
 
 export const globalSWRConfig: SWRConfiguration = {
   revalidateOnFocus: false,
