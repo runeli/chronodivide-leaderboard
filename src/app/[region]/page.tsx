@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 import type { StatsResponse } from "@/lib/api";
 import { config } from "@/lib/config";
 import { defaultRegions } from "@/lib/api";
-import { notFound } from "next/navigation";
 
 export const revalidate = 300;
 

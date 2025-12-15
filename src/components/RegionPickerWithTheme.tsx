@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import RegionPicker from "./RegionPicker";
 import { usePathname } from "next/navigation";
 import { ThemeProvider, CssBaseline } from "@mui/material";

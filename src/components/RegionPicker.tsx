@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Box, FormControl, Select, MenuItem, Typography, SelectChangeEvent } from "@mui/material";
 import { useRegion } from "@/contexts/RegionContext";
 import { useRouter, usePathname } from "next/navigation";

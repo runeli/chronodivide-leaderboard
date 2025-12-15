@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Box, Typography, Paper } from "@mui/material";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { PlayerMatchHistoryEntry } from "@/lib/api";
