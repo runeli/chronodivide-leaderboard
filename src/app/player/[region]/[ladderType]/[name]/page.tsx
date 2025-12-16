@@ -16,7 +16,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { name, region, ladderType } = await params;
   const decodedName = decodeURIComponent(name);
-  
+
   // Validate ladder type
   const validLadderType: LadderType = ladderType === "2v2-random" ? "2v2-random" : "1v1";
 
@@ -81,11 +81,10 @@ export default async function PlayerPage({
 }: {
   params: Promise<{ name: string; region: string; ladderType: string }>;
 }) {
-  const { name, region, ladderType } = await params;
-  
+  const { name, ladderType } = await params;
+
   // Validate ladder type
   const validLadderType: LadderType = ladderType === "2v2-random" ? "2v2-random" : "1v1";
-  
+
   return <PlayerPageClient playerName={name} ladderType={validLadderType} />;
 }
-

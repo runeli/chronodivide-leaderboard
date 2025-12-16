@@ -4,7 +4,7 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ name: string; region: string; ladderType: string }> }
 ) {
-  const { name, region, ladderType } = await params;
+  const { name } = await params;
   const { searchParams } = new URL(req.url);
 
   const playerName = decodeURIComponent(name);
@@ -110,6 +110,7 @@ export async function GET(
           boxSizing: "border-box",
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={new URL("/ogbg.jpg", req.url).href}
           alt=""
@@ -258,4 +259,3 @@ export async function GET(
 
   return response;
 }
-
