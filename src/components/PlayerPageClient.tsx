@@ -86,9 +86,10 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
     return `${mins} m`;
   };
 
-  const handleReplayClick = (gameId: string) => {
-    if (gameId) {
-      window.open(`https://game.chronodivide.com/#/replay/${gameId}`, "_blank");
+  const handleReplayClick = (replayUrl: string) => {
+    const encodedReplayUrl = `https://game.chronodivide.com/#/replay/${encodeURIComponent(replayUrl)}`;
+    if (encodedReplayUrl) {
+      window.open(encodedReplayUrl, "_blank");
     }
   };
 
@@ -271,7 +272,6 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
                       <TableCell>
                         {isReplayAvailable(match) && match.replayUrl ? (
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-
                             <Tooltip
                               title={`Download as: ${generateReplayFilename(match, decodedPlayerName)}`}
                               placement="top"
@@ -305,7 +305,9 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
                                   opacity: downloadingReplays.has(match.gameId) ? 0.5 : 1,
                                   "&:hover": {
                                     color: downloadingReplays.has(match.gameId) ? "inherit" : "primary.main",
-                                    filter: downloadingReplays.has(match.gameId) ? "none" : "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
+                                    filter: downloadingReplays.has(match.gameId)
+                                      ? "none"
+                                      : "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
                                   },
                                 }}
                                 aria-label="Download replay"

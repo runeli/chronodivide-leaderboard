@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Fira_Sans_Condensed } from "next/font/google";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import { Container, Box, CircularProgress } from "@mui/material";
 import { RegionProvider } from "@/contexts/RegionContext";
 import RegionPickerWithTheme from "@/components/RegionPickerWithTheme";
+
+const firaSansCondensed = Fira_Sans_Condensed({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-fira-sans-condensed",
+});
 
 export const metadata: Metadata = {
   title: "Chrono Divide Ladder",
@@ -16,15 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={firaSansCondensed.variable}>
       <body>
         <ThemeRegistry>
           <Suspense
