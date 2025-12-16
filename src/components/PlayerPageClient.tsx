@@ -41,8 +41,13 @@ const removeUnsafeFilenameCharacters = (input: string): string => {
   return input.replace(/[^0-9a-zA-Z_\-]+/g, "_").replace(/__+/g, "_");
 };
 
+// if you are reading this and wondering why, we repleased this play replay in game feateure on this date
+// now its safe to remove. It was here just so that players will not click on older replays and wonder
+// why they do not work
 const isReplayAvailable = (game: PlayerMatchHistoryEntry): boolean => {
-  return game.timestamp > 1754199900000;
+  const gameDate = new Date(game.timestamp);
+  const now = new Date(Date.UTC(2025, 11, 16, 13, 0, 0, 0)); // 2025-12-16 13:00 UTC
+  return gameDate.getTime() > now.getTime();
 };
 
 const createSafePlayerName = (rawPlayerName: string): string => {
@@ -270,7 +275,7 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
                       </TableCell>
                       <TableCell>{formatDuration(match.duration)}</TableCell>
                       <TableCell>
-                        {isReplayAvailable(match) && match.replayUrl ? (
+                        {match.replayUrl ? (
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                             <Tooltip
                               title={`Download as: ${generateReplayFilename(match, decodedPlayerName)}`}
@@ -319,45 +324,48 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
                                 )}
                               </Box>
                             </Tooltip>
-                            <Tooltip
-                              title="Open replay in game"
-                              placement="top"
-                              componentsProps={{
-                                tooltip: {
-                                  sx: {
-                                    backgroundColor: "background.paper",
-                                    color: "text.primary",
-                                    border: "1px solid",
-                                    borderColor: "primary.main",
-                                    borderRadius: 0,
-                                    fontSize: 13,
-                                  },
-                                },
-                              }}
-                            >
-                              <Box
-                                component="button"
-                                onClick={() => handleReplayClick(match.replayUrl!)}
-                                sx={{
-                                  background: "none",
-                                  border: "none",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  padding: 0,
-                                  borderRadius: 0,
-                                  color: "primary.main",
-                                  "&:hover": {
-                                    color: "primary.main",
-                                    filter: "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
+
+                            {match.replayUrl && isReplayAvailable(match) && (
+                              <Tooltip
+                                title="Open replay in game"
+                                placement="top"
+                                componentsProps={{
+                                  tooltip: {
+                                    sx: {
+                                      backgroundColor: "background.paper",
+                                      color: "text.primary",
+                                      border: "1px solid",
+                                      borderColor: "primary.main",
+                                      borderRadius: 0,
+                                      fontSize: 13,
+                                    },
                                   },
                                 }}
-                                aria-label="Open replay in game"
                               >
-                                <PlayArrow sx={{ fontSize: 18 }} />
-                              </Box>
-                            </Tooltip>
+                                <Box
+                                  component="button"
+                                  onClick={() => handleReplayClick(match.replayUrl!)}
+                                  sx={{
+                                    background: "none",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    padding: 0,
+                                    borderRadius: 0,
+                                    color: "primary.main",
+                                    "&:hover": {
+                                      color: "primary.main",
+                                      filter: "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
+                                    },
+                                  }}
+                                  aria-label="Open replay in game"
+                                >
+                                  <PlayArrow sx={{ fontSize: 18 }} />
+                                </Box>
+                              </Tooltip>
+                            )}
                           </Box>
                         ) : null}
                       </TableCell>
