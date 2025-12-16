@@ -23,13 +23,6 @@ export async function GET(req: Request, { params }: { params: Promise<{ region: 
     return num;
   };
 
-  const sanitizeText = (value: string | null, maxLength: number = 100, defaultValue: string = ""): string => {
-    if (!value) return defaultValue;
-    // Remove any HTML tags and limit length
-    const sanitized = value.replace(/<[^>]*>/g, "").slice(0, maxLength);
-    return sanitized || defaultValue;
-  };
-
   // Get and sanitize data
   const players = sanitizeNumber(searchParams.get("players"), 0, 999999);
   const games = sanitizeNumber(searchParams.get("games"), 0, 999999);
@@ -65,6 +58,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ region: 
         }}
       >
         {/* Background image */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={new URL("/ogbg.jpg", req.url).href}
           alt=""

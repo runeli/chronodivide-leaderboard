@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { CircularProgress, Box } from "@mui/material";
-import type { StatsResponse, LadderSeason } from "@/lib/api";
+import { LadderSeason, StatsResponse } from "@/lib/api";
 
 interface ServerSideDataProviderProps {
   children: React.ReactNode;

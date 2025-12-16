@@ -14,7 +14,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { ArrowBack, Download, ArrowDropUp, ArrowDropDown } from "@mui/icons-material";
+import { ArrowBack, ArrowDropUp, ArrowDropDown, PlayArrow, Download } from "@mui/icons-material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import {
@@ -24,11 +24,9 @@ import {
   PlayerMatchHistoryEntry,
   getPreferredSide,
 } from "@/lib/api";
-import PlayerNameLink from "@/components/PlayerNameLink";
 import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraph";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
 import { useRegion } from "@/contexts/RegionContext";
-import PlayerCountry from "./PlayerCountry";
 import RA2Button from "./RA2Button";
 import LadderEntry1v1 from "./LadderEntry1v1";
 import LadderEntryMultiplayer from "./LadderEntryMultiplayer";
@@ -86,6 +84,13 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
       return "";
     }
     return `${mins} m`;
+  };
+
+  const handleReplayClick = (replayUrl: string) => {
+    const encodedReplayUrl = `https://game.chronodivide.com/#/replay/${encodeURIComponent(replayUrl)}`;
+    if (encodedReplayUrl) {
+      window.open(encodedReplayUrl, "_blank");
+    }
   };
 
   const generateReplayFilename = (match: PlayerMatchHistoryEntry, playerName: string) => {
@@ -265,43 +270,96 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
                       </TableCell>
                       <TableCell>{formatDuration(match.duration)}</TableCell>
                       <TableCell>
-                        {isReplayAvailable(match) ? (
-                          <Tooltip
-                            title={`Download as: ${generateReplayFilename(match, decodedPlayerName)}`}
-                            placement="top"
-                          >
-                            <Box
-                              component="button"
-                              onClick={() => handleDownload(match)}
-                              disabled={downloadingReplays.has(match.gameId)}
-                              sx={{
-                                background: "none",
-                                border: "none",
-                                cursor: downloadingReplays.has(match.gameId) ? "default" : "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                padding: "4px",
-                                color: "inherit",
-                                borderRadius: 0,
-                                opacity: downloadingReplays.has(match.gameId) ? 0.5 : 1,
-                                "&:hover": {
-                                  color: downloadingReplays.has(match.gameId) ? "inherit" : "primary.main",
+                        {isReplayAvailable(match) && match.replayUrl ? (
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <Tooltip
+                              title={`Download as: ${generateReplayFilename(match, decodedPlayerName)}`}
+                              placement="top"
+                              componentsProps={{
+                                tooltip: {
+                                  sx: {
+                                    backgroundColor: "background.paper",
+                                    color: "text.primary",
+                                    border: "1px solid",
+                                    borderColor: "primary.main",
+                                    borderRadius: 0,
+                                    fontSize: 13,
+                                  },
                                 },
                               }}
-                              aria-label="Download replay"
                             >
-                              {downloadingReplays.has(match.gameId) ? (
-                                <CircularProgress size={16} />
-                              ) : (
-                                <Download fontSize="small" />
-                              )}
-                            </Box>
-                          </Tooltip>
-                        ) : (
-                          <Box sx={{ opacity: 0.3 }}>
-                            <Download fontSize="small" />
+                              <Box
+                                component="button"
+                                onClick={() => handleDownload(match)}
+                                disabled={downloadingReplays.has(match.gameId)}
+                                sx={{
+                                  background: "none",
+                                  border: "none",
+                                  cursor: downloadingReplays.has(match.gameId) ? "default" : "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  padding: "4px",
+                                  color: "primary.main",
+                                  borderRadius: 0,
+                                  opacity: downloadingReplays.has(match.gameId) ? 0.5 : 1,
+                                  "&:hover": {
+                                    color: downloadingReplays.has(match.gameId) ? "inherit" : "primary.main",
+                                    filter: downloadingReplays.has(match.gameId)
+                                      ? "none"
+                                      : "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
+                                  },
+                                }}
+                                aria-label="Download replay"
+                              >
+                                {downloadingReplays.has(match.gameId) ? (
+                                  <CircularProgress size={16} />
+                                ) : (
+                                  <Download fontSize="small" />
+                                )}
+                              </Box>
+                            </Tooltip>
+                            <Tooltip
+                              title="Open replay in game"
+                              placement="top"
+                              componentsProps={{
+                                tooltip: {
+                                  sx: {
+                                    backgroundColor: "background.paper",
+                                    color: "text.primary",
+                                    border: "1px solid",
+                                    borderColor: "primary.main",
+                                    borderRadius: 0,
+                                    fontSize: 13,
+                                  },
+                                },
+                              }}
+                            >
+                              <Box
+                                component="button"
+                                onClick={() => handleReplayClick(match.replayUrl!)}
+                                sx={{
+                                  background: "none",
+                                  border: "none",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  padding: 0,
+                                  borderRadius: 0,
+                                  color: "primary.main",
+                                  "&:hover": {
+                                    color: "primary.main",
+                                    filter: "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
+                                  },
+                                }}
+                                aria-label="Open replay in game"
+                              >
+                                <PlayArrow sx={{ fontSize: 18 }} />
+                              </Box>
+                            </Tooltip>
                           </Box>
-                        )}
+                        ) : null}
                       </TableCell>
                     </TableRow>
                   ))}

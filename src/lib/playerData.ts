@@ -1,4 +1,4 @@
-import { defaultRegions, LadderType, PlayerMatchHistoryEntry } from "@/lib/api";
+import { defaultRegions, LadderType } from "@/lib/api";
 
 // Server-side fetcher function similar to the one in api.ts
 const serverFetcher = async (regionId: string, path: string, options?: RequestInit) => {
@@ -41,7 +41,8 @@ export async function getPlayerData(playerName: string, regionId: string, ladder
     });
 
     return { player, matchHistory: matchHistory || [] };
-  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (_e: unknown) {
     console.error("Failed to fetch player data");
     return null;
   }
