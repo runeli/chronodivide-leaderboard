@@ -12,9 +12,19 @@ import {
   CircularProgress,
   Alert,
   Tooltip,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { ArrowBack, ArrowDropUp, ArrowDropDown, PlayArrow, Download } from "@mui/icons-material";
+import {
+  ArrowBack,
+  ArrowDropUp,
+  ArrowDropDown,
+  PlayArrow,
+  Download,
+  ContentCopy,
+  OpenInNew,
+} from "@mui/icons-material";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import {
@@ -71,6 +81,7 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
   const decodedPlayerName = decodeURIComponent(playerName);
   const safePlayerName = createSafePlayerName(playerName);
   const [downloadingReplays, setDownloadingReplays] = useState<Set<string>>(new Set());
+  const [menuAnchor, setMenuAnchor] = useState<{ element: HTMLElement; gameId: string } | null>(null);
 
   const {
     data: players,
@@ -96,6 +107,21 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
     if (encodedReplayUrl) {
       window.open(encodedReplayUrl, "_blank");
     }
+    setMenuAnchor(null);
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, gameId: string) => {
+    setMenuAnchor({ element: event.currentTarget, gameId });
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchor(null);
+  };
+
+  const handleCopyReplayUrl = async (replayUrl: string) => {
+    const encodedReplayUrl = `https://game.chronodivide.com/#/replay/${encodeURIComponent(replayUrl)}`;
+    await navigator.clipboard.writeText(encodedReplayUrl);
+    setMenuAnchor(null);
   };
 
   const generateReplayFilename = (match: PlayerMatchHistoryEntry, playerName: string) => {
@@ -326,45 +352,90 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
                             </Tooltip>
 
                             {match.replayUrl && isReplayAvailable(match) && (
-                              <Tooltip
-                                title="Open replay in game"
-                                placement="top"
-                                componentsProps={{
-                                  tooltip: {
+                              <>
+                                <Tooltip
+                                  title="Replay options"
+                                  placement="top"
+                                  componentsProps={{
+                                    tooltip: {
+                                      sx: {
+                                        backgroundColor: "background.paper",
+                                        color: "text.primary",
+                                        border: "1px solid",
+                                        borderColor: "primary.main",
+                                        borderRadius: 0,
+                                        fontSize: 13,
+                                      },
+                                    },
+                                  }}
+                                >
+                                  <Box
+                                    component="button"
+                                    onClick={(e) => handleMenuOpen(e, match.gameId)}
+                                    sx={{
+                                      background: "none",
+                                      border: "none",
+                                      cursor: "pointer",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      padding: 0,
+                                      borderRadius: 0,
+                                      color: "primary.main",
+                                      "&:hover": {
+                                        color: "primary.main",
+                                        filter: "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
+                                      },
+                                    }}
+                                  >
+                                    <PlayArrow sx={{ fontSize: 18 }} />
+                                  </Box>
+                                </Tooltip>
+                                <Menu
+                                  anchorEl={menuAnchor?.gameId === match.gameId ? menuAnchor.element : null}
+                                  open={menuAnchor?.gameId === match.gameId}
+                                  onClose={handleMenuClose}
+                                  anchorOrigin={{
+                                    vertical: "bottom",
+                                    horizontal: "left",
+                                  }}
+                                  transformOrigin={{
+                                    vertical: "top",
+                                    horizontal: "left",
+                                  }}
+                                  PaperProps={{
                                     sx: {
                                       backgroundColor: "background.paper",
-                                      color: "text.primary",
                                       border: "1px solid",
                                       borderColor: "primary.main",
                                       borderRadius: 0,
-                                      fontSize: 13,
-                                    },
-                                  },
-                                }}
-                              >
-                                <Box
-                                  component="button"
-                                  onClick={() => handleReplayClick(match.replayUrl!)}
-                                  sx={{
-                                    background: "none",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    padding: 0,
-                                    borderRadius: 0,
-                                    color: "primary.main",
-                                    "&:hover": {
-                                      color: "primary.main",
-                                      filter: "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
                                     },
                                   }}
-                                  aria-label="Open replay in game"
                                 >
-                                  <PlayArrow sx={{ fontSize: 18 }} />
-                                </Box>
-                              </Tooltip>
+                                  <MenuItem
+                                    onClick={() => handleReplayClick(match.replayUrl!)}
+                                    sx={{
+                                      "&:hover": {
+                                        backgroundColor: "action.hover",
+                                      },
+                                    }}
+                                  >
+                                    <OpenInNew color="primary" sx={{ fontSize: 18, mr: 1 }} />
+                                    Open replay in game
+                                  </MenuItem>
+                                  <MenuItem
+                                    onClick={() => handleCopyReplayUrl(match.replayUrl!)}
+                                    sx={{
+                                      "&:hover": {
+                                        backgroundColor: "action.hover",
+                                      },
+                                    }}
+                                  >
+                                    <ContentCopy color="primary" sx={{ fontSize: 18, mr: 1 }} />
+                                    Copy Replay URL
+                                  </MenuItem>
+                                </Menu>
+                              </>
                             )}
                           </Box>
                         ) : null}
