@@ -304,7 +304,7 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
                         {match.replayUrl ? (
                           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                             <Tooltip
-                              title={`Download as: ${generateReplayFilename(match, decodedPlayerName)}`}
+                              title="Replay options"
                               placement="top"
                               componentsProps={{
                                 tooltip: {
@@ -321,122 +321,88 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
                             >
                               <Box
                                 component="button"
-                                onClick={() => handleDownload(match)}
-                                disabled={downloadingReplays.has(match.gameId)}
+                                onClick={(e) => handleMenuOpen(e, match.gameId)}
                                 sx={{
                                   background: "none",
                                   border: "none",
-                                  cursor: downloadingReplays.has(match.gameId) ? "default" : "pointer",
+                                  cursor: "pointer",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
-                                  padding: "4px",
-                                  color: "primary.main",
+                                  padding: 0,
                                   borderRadius: 0,
-                                  opacity: downloadingReplays.has(match.gameId) ? 0.5 : 1,
+                                  color: "primary.main",
                                   "&:hover": {
-                                    color: downloadingReplays.has(match.gameId) ? "inherit" : "primary.main",
-                                    filter: downloadingReplays.has(match.gameId)
-                                      ? "none"
-                                      : "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
+                                    color: "primary.main",
+                                    filter: "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
                                   },
                                 }}
-                                aria-label="Download replay"
                               >
-                                {downloadingReplays.has(match.gameId) ? (
-                                  <CircularProgress size={16} />
-                                ) : (
-                                  <Download fontSize="small" />
-                                )}
+                                <PlayArrow sx={{ fontSize: 18 }} />
                               </Box>
                             </Tooltip>
-
-                            {match.replayUrl && isReplayAvailable(match) && (
-                              <>
-                                <Tooltip
-                                  title="Replay options"
-                                  placement="top"
-                                  componentsProps={{
-                                    tooltip: {
-                                      sx: {
-                                        backgroundColor: "background.paper",
-                                        color: "text.primary",
-                                        border: "1px solid",
-                                        borderColor: "primary.main",
-                                        borderRadius: 0,
-                                        fontSize: 13,
-                                      },
+                            <Menu
+                              anchorEl={menuAnchor?.gameId === match.gameId ? menuAnchor.element : null}
+                              open={menuAnchor?.gameId === match.gameId}
+                              onClose={handleMenuClose}
+                              anchorOrigin={{
+                                vertical: "bottom",
+                                horizontal: "left",
+                              }}
+                              transformOrigin={{
+                                vertical: "top",
+                                horizontal: "left",
+                              }}
+                              PaperProps={{
+                                sx: {
+                                  backgroundColor: "background.paper",
+                                  border: "1px solid",
+                                  borderColor: "primary.main",
+                                  borderRadius: 0,
+                                },
+                              }}
+                            >
+                              {isReplayAvailable(match) && (
+                                <MenuItem
+                                  onClick={() => handleReplayClick(match.replayUrl!)}
+                                  sx={{
+                                    "&:hover": {
+                                      backgroundColor: "action.hover",
                                     },
                                   }}
                                 >
-                                  <Box
-                                    component="button"
-                                    onClick={(e) => handleMenuOpen(e, match.gameId)}
-                                    sx={{
-                                      background: "none",
-                                      border: "none",
-                                      cursor: "pointer",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
-                                      padding: 0,
-                                      borderRadius: 0,
-                                      color: "primary.main",
-                                      "&:hover": {
-                                        color: "primary.main",
-                                        filter: "drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor)",
-                                      },
-                                    }}
-                                  >
-                                    <PlayArrow sx={{ fontSize: 18 }} />
-                                  </Box>
-                                </Tooltip>
-                                <Menu
-                                  anchorEl={menuAnchor?.gameId === match.gameId ? menuAnchor.element : null}
-                                  open={menuAnchor?.gameId === match.gameId}
-                                  onClose={handleMenuClose}
-                                  anchorOrigin={{
-                                    vertical: "bottom",
-                                    horizontal: "left",
-                                  }}
-                                  transformOrigin={{
-                                    vertical: "top",
-                                    horizontal: "left",
-                                  }}
-                                  PaperProps={{
-                                    sx: {
-                                      backgroundColor: "background.paper",
-                                      border: "1px solid",
-                                      borderColor: "primary.main",
-                                      borderRadius: 0,
-                                    },
-                                  }}
-                                >
-                                  <MenuItem
-                                    onClick={() => handleReplayClick(match.replayUrl!)}
-                                    sx={{
-                                      "&:hover": {
-                                        backgroundColor: "action.hover",
-                                      },
-                                    }}
-                                  >
-                                    <OpenInNew color="primary" sx={{ fontSize: 18, mr: 1 }} />
-                                    Open replay in game
-                                  </MenuItem>
-                                  <MenuItem
-                                    onClick={() => handleCopyReplayUrl(match.replayUrl!)}
-                                    sx={{
-                                      "&:hover": {
-                                        backgroundColor: "action.hover",
-                                      },
-                                    }}
-                                  >
-                                    <ContentCopy color="primary" sx={{ fontSize: 18, mr: 1 }} />
-                                    Copy Replay URL
-                                  </MenuItem>
-                                </Menu>
-                              </>
-                            )}
+                                  <OpenInNew color="primary" sx={{ fontSize: 18, mr: 1 }} />
+                                  Open replay in game
+                                </MenuItem>
+                              )}
+                              <MenuItem
+                                onClick={() => handleDownload(match)}
+                                disabled={downloadingReplays.has(match.gameId)}
+                                sx={{
+                                  "&:hover": {
+                                    backgroundColor: "action.hover",
+                                  },
+                                }}
+                              >
+                                {downloadingReplays.has(match.gameId) ? (
+                                  <CircularProgress size={16} sx={{ mr: 1 }} />
+                                ) : (
+                                  <Download color="primary" sx={{ fontSize: 18, mr: 1 }} />
+                                )}
+                                Download replay
+                              </MenuItem>
+                              <MenuItem
+                                onClick={() => handleCopyReplayUrl(match.replayUrl!)}
+                                sx={{
+                                  "&:hover": {
+                                    backgroundColor: "action.hover",
+                                  },
+                                }}
+                              >
+                                <ContentCopy color="primary" sx={{ fontSize: 18, mr: 1 }} />
+                                Copy Replay URL
+                              </MenuItem>
+                            </Menu>
                           </Box>
                         ) : null}
                       </TableCell>
