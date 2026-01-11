@@ -26,7 +26,6 @@ export async function generateMetadata({ params }: { params: Promise<{ region: s
   }
 
   try {
-    // Fetch stats for the specific region
     const statsUrl =
       region === "am-eu" ? "https://wol-eu1.chronodivide.com/stats" : "https://wol-sea1.chronodivide.com/stats";
 

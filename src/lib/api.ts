@@ -15,6 +15,10 @@ export const globalSWRConfig: SWRConfiguration = {
   errorRetryCount: 0,
 };
 
+const urlHasStaging = () => {
+  return window.location.hostname.includes("staging");
+};
+
 export const defaultRegions: Region[] = [
   {
     id: "am-eu",
@@ -31,6 +35,9 @@ export const defaultRegions: Region[] = [
 ];
 
 export function getApiBaseUrl(regionId: string) {
+  if (urlHasStaging()) {
+    return "https://wol-us1.chronodivide.com";
+  }
   return defaultRegions.find((r) => r.id === regionId)?.baseUrl;
 }
 
