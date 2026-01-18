@@ -36,7 +36,7 @@ export const defaultRegions: Region[] = [
 
 export function getApiBaseUrl(regionId: string) {
   if (urlHasStaging()) {
-    return "https://wol-us1.chronodivide.com";
+    return "https://wol-sg1.chronodivide.com";
   }
   return defaultRegions.find((r) => r.id === regionId)?.baseUrl;
 }
