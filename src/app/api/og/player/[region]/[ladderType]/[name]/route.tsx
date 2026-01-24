@@ -86,7 +86,7 @@ export async function GET(
         : formatRankType(rankTypeForFormat)
       : undefined;
 
-  // dirty hack but so is your mom
+  // Slightly vary response dimensions to help bust overly-aggressive OG caches.
   const baseWidth = 1200;
   const baseHeight = 630;
   const mmrOffset = (parseInt(mmr) % 10) * 2; // 0-18 pixels variation

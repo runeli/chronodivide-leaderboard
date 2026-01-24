@@ -8,6 +8,7 @@ import PinPlayer from "@/components/PinPlayer";
 import NextLink from "next/link";
 import { FC } from "react";
 import { useTheme } from "@mui/material/styles";
+import { useRegion } from "@/contexts/RegionContext";
 
 type PlayerProfile = PlayerRankedProfile | PlayerUnrankedProfile;
 
@@ -72,6 +73,9 @@ const Activity: FC<{ matchHistory?: PlayerMatchHistoryEntry[]; player: PlayerPro
 export default function PlayerProfileCard({ player, matchHistory, playerPreferredSide }: PlayerProfileCardProps) {
   const backgroundImage = getPreferredSideBackground(playerPreferredSide);
   const theme = useTheme();
+  const { selectedRegion } = useRegion();
+  const totalGames = player.wins + player.losses + player.draws;
+  const winRate = totalGames > 0 ? ((player.wins / totalGames) * 100).toFixed(1) : "0.0";
   return (
     <Box sx={{ mb: 3 }}>
       <Card
@@ -147,7 +151,7 @@ export default function PlayerProfileCard({ player, matchHistory, playerPreferre
                     <Box sx={{ display: "flex" }}>
                       <Link
                         component={NextLink}
-                        href={`/?gameMode=${player.ladder.type}&division=${player.ladder.id}`}
+                        href={`/${selectedRegion.id}?gameMode=${player.ladder.type}&division=${player.ladder.id}`}
                         underline="hover"
                         sx={{
                           cursor: "pointer",
@@ -204,7 +208,7 @@ export default function PlayerProfileCard({ player, matchHistory, playerPreferre
               </Box>
 
               <Typography variant="body2" color="text.secondary">
-                Win Rate: {((player.wins / (player.wins + player.losses)) * 100).toFixed(1)}%
+                Win Rate: {winRate}%
               </Typography>
               <Activity player={player} matchHistory={matchHistory} />
             </>

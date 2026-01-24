@@ -1,4 +1,4 @@
-import { Region } from "@/contexts/RegionContext";
+import type { Region } from "@/contexts/RegionContext";
 import type { SWRConfiguration, SWRHook } from "swr";
 
 // Use require() to access SWR's default export to work around Next.js/webpack

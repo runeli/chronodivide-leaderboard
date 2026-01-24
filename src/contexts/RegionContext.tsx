@@ -74,6 +74,7 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
   const updateURLWithRegion = useCallback(
     (regionId: string) => {
       if (typeof window !== "undefined") {
+        const search = window.location.search || "";
         const pathSegments = pathname.split("/");
 
         // Check if we're on a player page
@@ -82,15 +83,15 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
           // Replace the region in the player path
           pathSegments[playerIndex + 1] = regionId;
           const newPath = pathSegments.join("/");
-          router.replace(newPath, { scroll: false });
+          router.replace(`${newPath}${search}`, { scroll: false });
         } else if (pathSegments.length > 1 && defaultRegions.find((r) => r.id === pathSegments[1])) {
           // Replace the region in the main region path
           pathSegments[1] = regionId;
           const newPath = pathSegments.join("/");
-          router.replace(newPath, { scroll: false });
+          router.replace(`${newPath}${search}`, { scroll: false });
         } else {
           // Navigate to the new region page
-          router.replace(`/${regionId}`, { scroll: false });
+          router.replace(`/${regionId}${search}`, { scroll: false });
         }
       }
     },
@@ -103,19 +104,9 @@ export function RegionProvider({ children }: { children: React.ReactNode }) {
     const pathRegion = defaultRegions.find((r) => r.id === regionFromPath);
     if (pathRegion && pathRegion.id !== selectedRegion.id) {
       setSelectedRegionState(pathRegion);
+      saveRegion(pathRegion.id);
     }
   }, [pathname, getRegionFromPath, selectedRegion.id]);
-
-  //init load if user has no region in path
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const regionFromPath = getRegionFromPath();
-      if (regionFromPath === "am-eu" && pathname === "/") {
-        // If we're on the root path, redirect to am-eu
-        router.replace("/am-eu", { scroll: false });
-      }
-    }
-  }, [pathname, getRegionFromPath, router]);
 
   const setSelectedRegion = (region: Region, updateURL: boolean = true) => {
     setSelectedRegionState(region);

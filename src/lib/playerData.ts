@@ -1,4 +1,5 @@
-import { defaultRegions, LadderType } from "@/lib/api";
+import { defaultRegions } from "@/lib/api";
+import type { LadderType } from "@/lib/api";
 
 // Server-side fetcher function similar to the one in api.ts
 const serverFetcher = async (regionId: string, path: string, options?: RequestInit) => {
@@ -21,8 +22,6 @@ const serverFetcher = async (regionId: string, path: string, options?: RequestIn
 
 export async function getPlayerData(playerName: string, regionId: string, ladderType: LadderType) {
   try {
-    console.log("Getting player data for", playerName, "in region", regionId, "for ladder", ladderType);
-
     // Fetch player data using the server fetcher function
     const players = await serverFetcher(regionId, `/ladder/16640/${ladderType}/current/listsearch`, {
       method: "POST",

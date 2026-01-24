@@ -25,7 +25,7 @@ import {
   ContentCopy,
   OpenInNew,
 } from "@mui/icons-material";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   usePlayerMatchHistory,
@@ -76,9 +76,14 @@ const createSafePlayerName = (rawPlayerName: string): string => {
 export default function PlayerPageClient({ playerName, ladderType }: PlayerPageClientProps) {
   const router = useRouter();
   const { selectedRegion } = useRegion();
-  const searchParams = useSearchParams();
-  const regionParam = searchParams.get("region") ?? selectedRegion.id;
-  const decodedPlayerName = decodeURIComponent(playerName);
+  const regionId = selectedRegion.id;
+  const decodedPlayerName = (() => {
+    try {
+      return decodeURIComponent(playerName);
+    } catch {
+      return playerName;
+    }
+  })();
   const safePlayerName = createSafePlayerName(playerName);
   const [downloadingReplays, setDownloadingReplays] = useState<Set<string>>(new Set());
   const [menuAnchor, setMenuAnchor] = useState<{ element: HTMLElement; gameId: string } | null>(null);
@@ -87,13 +92,13 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
     data: players,
     error: playerError,
     isLoading: playerLoading,
-  } = usePlayerSearch(regionParam, ladderType, "current", [decodedPlayerName]);
+  } = usePlayerSearch(regionId, ladderType, "current", [decodedPlayerName]);
 
   const {
     data: matchHistory,
     error: matchHistoryError,
     isLoading: matchHistoryLoading,
-  } = usePlayerMatchHistory(regionParam, ladderType, decodedPlayerName);
+  } = usePlayerMatchHistory(regionId, ladderType, decodedPlayerName);
 
   const formatDuration = (mins: number | null | undefined) => {
     if (mins === null || mins === undefined) {
@@ -284,19 +289,23 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
                       <TableCell>
                         {match.teamMates && match.teamMates.length > 0 ? (
                           <LadderEntryMultiplayer
-                            playerName={safePlayerName}
+                            playerName={player.name}
                             playerCountryId={match.countryId}
                             teamMates={match.teamMates}
                             opponents={match.opponents}
                             ladderType={ladderType}
                           />
-                        ) : (
+                        ) : match.opponents?.[0] ? (
                           <LadderEntry1v1
-                            playerName={safePlayerName}
+                            playerName={player.name}
                             playerCountryId={match.countryId}
                             opponent={match.opponents[0]}
                             ladderType={ladderType}
                           />
+                        ) : (
+                          <Typography variant="body2" color="text.secondary">
+                            Unknown opponent
+                          </Typography>
                         )}
                       </TableCell>
                       <TableCell>{formatDuration(match.duration)}</TableCell>
