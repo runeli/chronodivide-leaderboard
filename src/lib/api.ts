@@ -214,6 +214,7 @@ export function useSeason(regionId: string, seasonId: SeasonId) {
     () => fetcher(regionId, path),
     {
       ...globalSWRConfig,
+      keepPreviousData: true,
     }
   );
 
@@ -245,6 +246,7 @@ export function useLadder(
       }),
     {
       ...globalSWRConfig,
+      keepPreviousData: true,
     }
   );
 

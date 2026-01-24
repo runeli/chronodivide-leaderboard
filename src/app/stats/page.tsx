@@ -1,7 +1,7 @@
 "use client";
 
-import StatsChart from "@/components/StatsChart";
+import StatsChartLazy from "@/components/StatsChartLazy";
 
 export default function StatsPage() {
-  return <StatsChart />;
+  return <StatsChartLazy />;
 }

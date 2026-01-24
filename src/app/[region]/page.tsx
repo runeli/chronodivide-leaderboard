@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { CircularProgress, Box } from "@mui/material";
 import Leaderboard from "../leaderboard";
-import StatsChart from "@/components/StatsChart";
+import StatsChartLazy from "@/components/StatsChartLazy";
 import type { Metadata } from "next";
 import type { StatsResponse } from "@/lib/api";
 import { config } from "@/lib/config";
@@ -81,7 +81,7 @@ export default async function RegionPage({}: { params: Promise<{ region: string 
       }
     >
       <Leaderboard />
-      <StatsChart />
+      <StatsChartLazy />
     </Suspense>
   );
 }

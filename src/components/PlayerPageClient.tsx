@@ -34,7 +34,7 @@ import {
   PlayerMatchHistoryEntry,
   getPreferredSide,
 } from "@/lib/api";
-import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraph";
+import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraphLazy";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
 import { useRegion } from "@/contexts/RegionContext";
 import RA2Button from "./RA2Button";

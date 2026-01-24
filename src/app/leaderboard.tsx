@@ -17,7 +17,6 @@ import {
   SelectChangeEvent,
   Chip,
 } from "@mui/material";
-import { ThemeProvider, CssBaseline } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import PlayerNameLink from "@/components/PlayerNameLink";
@@ -26,7 +25,6 @@ import PinnedPlayers from "@/components/PinnedPlayers";
 import PlayerSearch from "@/components/PlayerSearch";
 import LeaderboardSkeleton from "@/components/LeaderboardSkeleton";
 import { useRegion } from "@/contexts/RegionContext";
-import { sovietTheme } from "@/theme/themes";
 import {
   useLadder,
   useSeasons,
@@ -195,8 +193,6 @@ export default function Leaderboard() {
   };
 
   return (
-    <ThemeProvider theme={sovietTheme}>
-      <CssBaseline />
       <Paper sx={{ p: 2, m: 1 }}>
         <Typography variant="h4" gutterBottom>
           Chrono Divide Leaderboard
@@ -351,6 +347,5 @@ export default function Leaderboard() {
           </>
         )}
       </Paper>
-    </ThemeProvider>
   );
 }
