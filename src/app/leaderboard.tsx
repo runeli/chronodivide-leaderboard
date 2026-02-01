@@ -148,6 +148,20 @@ export default function Leaderboard() {
     }
   }, [season, ladderType, selectedLadderId, updateURL]);
 
+  // If the current ladder has no players on page 1, try the next ladder in the list
+  useEffect(() => {
+    if (season && data && data.totalCount === 0 && page === 1) {
+      const availableLadders = getTopLadders(season, ladderType);
+      const currentIndex = availableLadders.findIndex((l) => l.id === selectedLadderId);
+
+      if (currentIndex >= 0 && currentIndex < availableLadders.length - 1) {
+        const nextLadderId = availableLadders[currentIndex + 1].id;
+        setSelectedLadderId(nextLadderId);
+        updateURL({ division: nextLadderId, page: 1 });
+      }
+    }
+  }, [season, data, page, ladderType, selectedLadderId, updateURL]);
+
   const handleSeasonChange = (event: SelectChangeEvent<string>) => {
     const newSeason = event.target.value as SeasonId;
     setSelectedSeason(newSeason);
