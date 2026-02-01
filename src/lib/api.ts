@@ -229,7 +229,7 @@ export function useLadder(
   regionId: string,
   ladderType: LadderType,
   seasonId: SeasonId,
-  ladderId: number,
+  ladderId: number | undefined,
   start: number,
   count: number
 ) {

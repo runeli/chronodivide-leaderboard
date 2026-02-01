@@ -46,7 +46,7 @@ export default function Leaderboard() {
   const { selectedRegion } = useRegion();
   const [selectedSeason, setSelectedSeason] = useState<SeasonId>("current");
   const [ladderType, setLadderType] = useState<LadderType>("1v1");
-  const [selectedLadderId, setSelectedLadderId] = useState<number>(0); // Default to Generals
+  const [selectedLadderId, setSelectedLadderId] = useState<number | undefined>(undefined);
   const [page, setPage] = useState(1);
 
   // Helper function to update URL with current selections
@@ -138,9 +138,7 @@ export default function Leaderboard() {
         const currentLadderStillExists = availableLadders.find((l) => l.id === selectedLadderId);
 
         if (!currentLadderStillExists) {
-          const regularLadder = availableLadders.find((l) => l.id >= 2);
-          const fallbackLadder = availableLadders.find((l) => l.id === 1) || availableLadders[0];
-          const targetLadderId = (regularLadder || fallbackLadder).id;
+          const targetLadderId = availableLadders[0].id;
 
           setSelectedLadderId(targetLadderId);
           setPage(1);
@@ -251,9 +249,9 @@ export default function Leaderboard() {
                 </Typography>
                 <Select
                   id="ladder-select"
-                  value={selectedLadderId}
+                  value={selectedLadderId ?? ""}
                   onChange={handleLadderChange}
-                  disabled={seasonLoading || !availableLadders.length}
+                  disabled={seasonLoading || !availableLadders.length || selectedLadderId === undefined}
                   variant="outlined"
                   size="small"
                   sx={{ minWidth: 200 }}
