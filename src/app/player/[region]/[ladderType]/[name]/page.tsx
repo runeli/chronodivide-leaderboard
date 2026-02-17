@@ -1,6 +1,6 @@
 import PlayerPageClient from "@/components/PlayerPageClient";
 import { Metadata } from "next";
-import { LadderType, PlayerMatchHistoryEntry } from "@/lib/api";
+import { LadderType } from "@/lib/api";
 import { config } from "@/lib/config";
 import { getPlayerData } from "@/lib/playerData";
 
@@ -28,7 +28,7 @@ export async function generateMetadata({
     ? `${decodedName} - MMR: ${playerData.player.mmr} - View match history and performance stats`
     : `View ${decodedName}'s profile on Chrono Divide Replays`;
 
-  // Build OG image URL
+  // Build OG image URL - keep params minimal for cacheability
   let ogImageUrl = `${config.siteUrl}/api/og/player/${region}/${validLadderType}/${encodeURIComponent(decodedName)}`;
 
   if (playerData) {
@@ -37,15 +37,6 @@ export async function generateMetadata({
     // Add rank if available
     if (playerData.player.rank && playerData.player.rank > 0) {
       ogImageUrl += `&rank=${playerData.player.rank}`;
-    }
-
-    // Add match history data for the performance graph
-    if (playerData.matchHistory.length > 0) {
-      const historyData = playerData.matchHistory.slice(0, 20).map((match: PlayerMatchHistoryEntry) => ({
-        timestamp: match.timestamp,
-        mmrGain: match.mmrGain,
-      }));
-      ogImageUrl += `&history=${encodeURIComponent(JSON.stringify(historyData))}`;
     }
   }
 

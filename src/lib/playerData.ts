@@ -1,4 +1,5 @@
 import { defaultRegions, LadderType } from "@/lib/api";
+import { unstable_cache } from "next/cache";
 
 // Server-side fetcher function similar to the one in api.ts
 const serverFetcher = async (regionId: string, path: string, options?: RequestInit) => {
@@ -19,7 +20,7 @@ const serverFetcher = async (regionId: string, path: string, options?: RequestIn
   }
 };
 
-export async function getPlayerData(playerName: string, regionId: string, ladderType: LadderType) {
+async function fetchPlayerData(playerName: string, regionId: string, ladderType: LadderType) {
   try {
     console.log("Getting player data for", playerName, "in region", regionId, "for ladder", ladderType);
 
@@ -47,3 +48,7 @@ export async function getPlayerData(playerName: string, regionId: string, ladder
     return null;
   }
 }
+
+export const getPlayerData = unstable_cache(fetchPlayerData, ["player-data"], {
+  revalidate: 300, // Cache for 5 minutes
+});

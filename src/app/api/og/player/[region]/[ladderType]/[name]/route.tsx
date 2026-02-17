@@ -1,30 +1,33 @@
 import { ImageResponse } from "next/og";
+import { LadderType } from "@/lib/api";
+import { getPlayerData } from "@/lib/playerData";
+
+export const revalidate = 300; // Cache for 5 minutes
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ name: string; region: string; ladderType: string }> }
 ) {
-  const { name } = await params;
+  const { name, region, ladderType } = await params;
   const { searchParams } = new URL(req.url);
 
   const playerName = decodeURIComponent(name);
-  const mmr = searchParams.get("mmr") ?? "0";
-  const rank = searchParams.get("rank") ?? "";
-  const rankTypeParam = searchParams.get("rankType");
+  const validLadderType: LadderType = ladderType === "2v2-random" ? "2v2-random" : "1v1";
+
+  // Fetch player data (cached via unstable_cache, shared with page render)
+  const playerData = await getPlayerData(playerName, region, validLadderType);
+
+  const mmr = searchParams.get("mmr") ?? playerData?.player?.mmr?.toString() ?? "0";
+  const rank = searchParams.get("rank") ?? playerData?.player?.rank?.toString() ?? "";
+  const rankTypeParam = searchParams.get("rankType") ?? playerData?.player?.rankType?.toString() ?? null;
   let rankTypeForFormat: string | number | null = rankTypeParam;
   if (rankTypeParam != null && /^\d+$/.test(rankTypeParam)) {
     rankTypeForFormat = parseInt(rankTypeParam, 10);
   }
   const preferredSideParam = searchParams.get("preferredSide") as "soviet" | "allies" | null;
-  const matchHistoryParam = searchParams.get("history");
-  let matchHistory: Array<{ timestamp: number; mmrGain: number }> = [];
-  if (matchHistoryParam) {
-    try {
-      matchHistory = JSON.parse(decodeURIComponent(matchHistoryParam));
-    } catch (e) {
-      console.error("Failed to parse match history:", e);
-    }
-  }
+  const matchHistory: Array<{ timestamp: number; mmrGain: number }> = (playerData?.matchHistory ?? [])
+    .slice(0, 20)
+    .map((m: { timestamp: number; mmrGain: number }) => ({ timestamp: m.timestamp, mmrGain: m.mmrGain }));
 
   const processMatchData = () => {
     if (!matchHistory || matchHistory.length === 0) return [];

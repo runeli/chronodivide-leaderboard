@@ -26,7 +26,7 @@ import {
   OpenInNew,
 } from "@mui/icons-material";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   usePlayerMatchHistory,
   usePlayerSearch,
@@ -34,6 +34,7 @@ import {
   PlayerMatchHistoryEntry,
   getPreferredSide,
 } from "@/lib/api";
+import { usePreferredSide } from "@/contexts/PreferredSideContext";
 import PlayerPerformanceGraph from "@/components/PlayerPerformanceGraph";
 import PlayerProfileCard from "@/components/PlayerProfileCard";
 import { useRegion } from "@/contexts/RegionContext";
@@ -94,6 +95,13 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
     error: matchHistoryError,
     isLoading: matchHistoryLoading,
   } = usePlayerMatchHistory(regionParam, ladderType, decodedPlayerName);
+
+  const preferredSide = getPreferredSide(matchHistory);
+  const { setPreferredSide } = usePreferredSide();
+  useEffect(() => {
+    setPreferredSide(preferredSide);
+    return () => setPreferredSide(undefined);
+  }, [preferredSide, setPreferredSide]);
 
   const formatDuration = (mins: number | null | undefined) => {
     if (mins === null || mins === undefined) {
@@ -208,8 +216,6 @@ export default function PlayerPageClient({ playerName, ladderType }: PlayerPageC
   }
 
   const player = players[0];
-
-  const preferredSide = getPreferredSide(matchHistory);
 
   const content = (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: 2 }}>
