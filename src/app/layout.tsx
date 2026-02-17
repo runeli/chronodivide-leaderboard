@@ -4,6 +4,7 @@ import { Fira_Sans_Condensed } from "next/font/google";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import { Container, Box, CircularProgress } from "@mui/material";
 import { RegionProvider } from "@/contexts/RegionContext";
+import { PreferredSideProvider } from "@/contexts/PreferredSideContext";
 import RegionPickerWithTheme from "@/components/RegionPickerWithTheme";
 
 const firaSansCondensed = Fira_Sans_Condensed({
@@ -35,12 +36,14 @@ export default function RootLayout({
             }
           >
             <RegionProvider>
-              <Container component="main" sx={{ mt: 2 }}>
-                <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end", mr: 1 }}>
-                  <RegionPickerWithTheme />
-                </Box>
-                {children}
-              </Container>
+              <PreferredSideProvider>
+                <Container component="main" sx={{ mt: 2 }}>
+                  <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-end", mr: 1 }}>
+                    <RegionPickerWithTheme />
+                  </Box>
+                  {children}
+                </Container>
+              </PreferredSideProvider>
             </RegionProvider>
           </Suspense>
         </ThemeRegistry>
