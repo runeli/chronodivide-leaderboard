@@ -5,14 +5,17 @@ import { Box, Paper, Typography } from "@mui/material";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useRegion } from "@/contexts/RegionContext";
-import { useStats } from "@/lib/api";
+import { useStats, StatsResponse, StatsTimeSeries, XwolUsersLabels, XwolGamesLabels } from "@/lib/api";
 import { alliedTheme } from "@/theme/themes";
 
-interface ChartPoint {
-  tsMs: number;
-  players?: number;
-  games?: number;
+interface SeriesConfig {
+  key: string;
+  label: string;
+  color: string;
+  extract: (data: StatsResponse) => StatsTimeSeries<XwolUsersLabels | XwolGamesLabels> | undefined;
 }
+
+type ChartPoint = { tsMs: number } & Record<string, number | undefined>;
 
 export default function StatsChart() {
   const theme = useTheme();
@@ -23,6 +26,36 @@ export default function StatsChart() {
   const textPrimary = theme.palette.text.primary;
   const gridColor = alpha(primaryColor, 0.2);
 
+  const seriesConfigs: SeriesConfig[] = useMemo(
+    () => [
+      {
+        key: "players",
+        label: "Playing users",
+        color: theme.palette.primary.main,
+        extract: (d) => d.xwol_users?.series.find((s) => s.labels.type === "playing"),
+      },
+      {
+        key: "games1v1",
+        label: "1v1 games",
+        color: alliedTheme.palette.primary.main,
+        extract: (d) =>
+          d.xwol_games?.series.find(
+            (s) => s.labels.type === "ladder" && s.labels.ladderType === "1v1"
+          ),
+      },
+      {
+        key: "games2v2",
+        label: "2v2 games",
+        color: "#ff9800",
+        extract: (d) =>
+          d.xwol_games?.series.find(
+            (s) => s.labels.type === "ladder" && s.labels.ladderType === "2v2"
+          ),
+      },
+    ],
+    [theme.palette.primary.main]
+  );
+
   const formatHHMM = (tsMs: number) =>
     new Date(tsMs).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
 
@@ -31,30 +64,19 @@ export default function StatsChart() {
 
     const byTs = new Map<number, ChartPoint>();
 
-    const usersSeries = data.xwol_users?.series.find((s) => s.labels.type === "playing");
-    if (usersSeries) {
-      for (const [ts, value] of usersSeries.values) {
+    for (const { key, extract } of seriesConfigs) {
+      const series = extract(data);
+      if (!series) continue;
+      for (const [ts, value] of series.values) {
         const tsMs = ts * 1000;
         const entry = byTs.get(tsMs) || { tsMs };
-        entry.players = Math.round(value);
-        byTs.set(tsMs, entry);
-      }
-    }
-
-    const gamesSeries = data.xwol_games?.series.find(
-      (s) => s.labels.type === "ladder" && s.labels.ladderType === "1v1"
-    );
-    if (gamesSeries) {
-      for (const [ts, value] of gamesSeries.values) {
-        const tsMs = ts * 1000;
-        const entry = byTs.get(tsMs) || { tsMs };
-        entry.games = Math.round(value);
+        entry[key] = Math.round(value);
         byTs.set(tsMs, entry);
       }
     }
 
     return Array.from(byTs.values()).sort((a, b) => a.tsMs - b.tsMs);
-  }, [data]);
+  }, [data, seriesConfigs]);
 
   const ticks = useMemo(() => {
     if (!chartData.length) return [] as number[];
@@ -107,7 +129,9 @@ export default function StatsChart() {
     );
   }
 
-  const values = chartData.flatMap((d) => [d.players, d.games].filter((v): v is number => typeof v === "number"));
+  const values = chartData.flatMap((d) =>
+    seriesConfigs.map(({ key }) => d[key]).filter((v): v is number => typeof v === "number")
+  );
   const minVal = Math.min(...values);
   const maxVal = Math.max(...values);
   const padding = Math.max(1, Math.round((maxVal - minVal) * 0.1));
@@ -131,15 +155,13 @@ export default function StatsChart() {
       return (
         <Box sx={{ backgroundColor: "background.paper", border: "1px solid", borderColor: "divider", p: 1 }}>
           <Typography variant="body2">{formatHHMM(d.tsMs)}</Typography>
-          {typeof d.players === "number" && (
-            <Typography variant="body2" sx={{ color: theme.palette.primary.main }}>
-              Players: {d.players}
-            </Typography>
-          )}
-          {typeof d.games === "number" && (
-            <Typography variant="body2" sx={{ color: alliedTheme.palette.primary.main }}>
-              1v1 Games: {d.games}
-            </Typography>
+          {seriesConfigs.map(
+            ({ key, label, color }) =>
+              typeof d[key] === "number" && (
+                <Typography key={key} variant="body2" sx={{ color }}>
+                  {label}: {d[key]}
+                </Typography>
+              )
           )}
         </Box>
       );
@@ -173,37 +195,31 @@ export default function StatsChart() {
               tick={{ fill: textPrimary, fontSize: 12 }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Line
-              type="linear"
-              dataKey="players"
-              stroke={primaryColor}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-              strokeLinejoin="miter"
-              strokeLinecap="square"
-            />
-            <Line
-              type="linear"
-              dataKey="games"
-              stroke={alliedTheme.palette.primary.main}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-              strokeLinejoin="miter"
-              strokeLinecap="square"
-            />
+            {seriesConfigs.map(({ key, color }) => (
+              <Line
+                key={key}
+                type="linear"
+                dataKey={key}
+                stroke={color}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4 }}
+                strokeLinejoin="miter"
+                strokeLinecap="square"
+              />
+            ))}
           </LineChart>
         </ResponsiveContainer>
       </Box>
       <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-        <Box component="span" sx={{ color: theme.palette.primary.main }}>
-          Playing users
-        </Box>{" "}
-        and{" "}
-        <Box component="span" sx={{ color: alliedTheme.palette.primary.main }}>
-          1v1 games
-        </Box>
+        {seriesConfigs.map(({ key, label, color }, i) => (
+          <React.Fragment key={key}>
+            {i > 0 && (i === seriesConfigs.length - 1 ? " and " : ", ")}
+            <Box component="span" sx={{ color }}>
+              {label}
+            </Box>
+          </React.Fragment>
+        ))}
       </Typography>
     </Paper>
   );
