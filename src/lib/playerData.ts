@@ -1,4 +1,4 @@
-import { defaultRegions, LadderType } from "@/lib/api";
+import { defaultRegions, GAME_SKU, LadderType } from "@/lib/api";
 import { unstable_cache } from "next/cache";
 
 // Server-side fetcher function similar to the one in api.ts
@@ -25,7 +25,7 @@ async function fetchPlayerData(playerName: string, regionId: string, ladderType:
     console.log("Getting player data for", playerName, "in region", regionId, "for ladder", ladderType);
 
     // Fetch player data using the server fetcher function
-    const players = await serverFetcher(regionId, `/ladder/16640/${ladderType}/current/listsearch`, {
+    const players = await serverFetcher(regionId, `/ladder/${GAME_SKU}/${ladderType}/current/listsearch`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ players: [playerName] }),
@@ -35,7 +35,7 @@ async function fetchPlayerData(playerName: string, regionId: string, ladderType:
     const player = players[0];
 
     // Fetch match history using the server fetcher function
-    const matchHistory = await serverFetcher(regionId, `/ladder/16640/${ladderType}/match-history/v2`, {
+    const matchHistory = await serverFetcher(regionId, `/ladder/${GAME_SKU}/${ladderType}/match-history/v2`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ player: playerName }),

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { CircularProgress, Box } from "@mui/material";
-import { LadderSeason, StatsResponse } from "@/lib/api";
+import { GAME_SKU, LadderSeason, StatsResponse } from "@/lib/api";
 
 interface ServerSideDataProviderProps {
   children: React.ReactNode;
@@ -44,7 +44,7 @@ export async function fetchSeasonData(regionId: string, seasonId: string): Promi
   try {
     const baseUrl = regionId === "am-eu" ? "https://wol-eu1.chronodivide.com" : "https://wol-sea1.chronodivide.com";
 
-    const res = await fetch(`${baseUrl}/ladder/16640/${seasonId}`, {
+    const res = await fetch(`${baseUrl}/ladder/${GAME_SKU}/${seasonId}`, {
       next: { revalidate: 600 }, // Cache for 10 minutes
       headers: {
         "Cache-Control": "public, max-age=600, stale-while-revalidate=1200",

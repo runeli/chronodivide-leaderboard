@@ -57,7 +57,8 @@ const playerSWRConfig = {
   shouldRetryOnError: false,
 };
 
-export type GameSku = 16640;
+/** Ladder API game SKU (used in `/ladder/{GAME_SKU}/...` paths). */
+export const GAME_SKU = 18688 as const;
 export type LadderType = "1v1" | "2v2-random";
 export type SeasonId = string; // e.g., "current", "2023.1"
 
@@ -193,7 +194,7 @@ export function useStats(regionId: string) {
 }
 
 export function useSeasons(regionId: string, ladderType?: LadderType) {
-  const path = ladderType ? `/ladder/16640/${ladderType}` : `/ladder/16640/1v1`;
+  const path = ladderType ? `/ladder/${GAME_SKU}/${ladderType}` : `/ladder/${GAME_SKU}/1v1`;
 
   const { data, error, isLoading } = useSWR<string[]>([path, regionId], () => fetcher(regionId, path), {
     ...globalSWRConfig,
@@ -207,7 +208,7 @@ export function useSeasons(regionId: string, ladderType?: LadderType) {
 }
 
 export function useSeason(regionId: string, seasonId: SeasonId) {
-  const path = `/ladder/16640/${seasonId}`;
+  const path = `/ladder/${GAME_SKU}/${seasonId}`;
 
   const { data, error, isLoading } = useSWR<LadderSeason>(
     seasonId ? [path, regionId] : null,
@@ -233,7 +234,7 @@ export function useLadder(
   start: number,
   count: number
 ) {
-  const path = `/ladder/16640/${ladderType}/${seasonId}/rungsearch`;
+  const path = `/ladder/${GAME_SKU}/${ladderType}/${seasonId}/rungsearch`;
 
   const { data, error, isLoading } = useSWR<PagedResponse<PlayerLadderRung>>(
     seasonId && ladderId !== undefined ? [path, ladderType, seasonId, ladderId, start, count, regionId] : null,
@@ -257,7 +258,7 @@ export function useLadder(
 
 // Hook: Search for specific players
 export function usePlayerSearch(regionId: string, ladderType: LadderType, seasonId: SeasonId, playerNames: string[]) {
-  const path = `/ladder/16640/${ladderType}/${seasonId}/listsearch`;
+  const path = `/ladder/${GAME_SKU}/${ladderType}/${seasonId}/listsearch`;
 
   const { data, error, isLoading } = useSWR<(PlayerRankedProfile | PlayerUnrankedProfile)[]>(
     seasonId && playerNames.length > 0 ? [path, ladderType, seasonId, playerNames, regionId] : null,
@@ -278,7 +279,7 @@ export function usePlayerSearch(regionId: string, ladderType: LadderType, season
 }
 
 export function usePlayerMatchHistory(regionId: string, ladderType: LadderType, playerName: string) {
-  const path = `/ladder/16640/${ladderType}/match-history/v2`;
+  const path = `/ladder/${GAME_SKU}/${ladderType}/match-history/v2`;
 
   const { data, error, isLoading } = useSWR<PlayerMatchHistoryEntry[]>(
     playerName ? [`match-history`, regionId, ladderType, playerName] : null,
