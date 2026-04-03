@@ -58,7 +58,7 @@ const playerSWRConfig = {
 };
 
 /** Ladder API game SKU (used in `/ladder/{GAME_SKU}/...` paths). */
-export const GAME_SKU = 18688 as const;
+export const GAME_SKU = 16640 as const;
 export type LadderType = "1v1" | "2v2-random";
 export type SeasonId = string; // e.g., "current", "2023.1"
 
