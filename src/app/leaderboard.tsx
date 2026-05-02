@@ -40,14 +40,41 @@ import {
 
 const LADDER_PAGE_SIZE = 25;
 
+function parseSeasonParam(seasonParam: string | null): SeasonId | undefined {
+  if (seasonParam && (seasonParam === "current" || !isNaN(Number(seasonParam)))) {
+    return seasonParam;
+  }
+  return undefined;
+}
+
+function parseLadderTypeParam(gameModeParam: string | null): LadderType | undefined {
+  if (gameModeParam === "1v1" || gameModeParam === "2v2-random") {
+    return gameModeParam;
+  }
+  return undefined;
+}
+
+function parseNumberParam(numberParam: string | null): number | undefined {
+  if (numberParam && !isNaN(Number(numberParam))) {
+    return Number(numberParam);
+  }
+  return undefined;
+}
+
 export default function Leaderboard() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { selectedRegion } = useRegion();
-  const [selectedSeason, setSelectedSeason] = useState<SeasonId>("current");
-  const [ladderType, setLadderType] = useState<LadderType>("1v1");
-  const [selectedLadderId, setSelectedLadderId] = useState<number | undefined>(undefined);
-  const [page, setPage] = useState(1);
+  const [selectedSeason, setSelectedSeason] = useState<SeasonId>(
+    () => parseSeasonParam(searchParams.get("season")) ?? "current"
+  );
+  const [ladderType, setLadderType] = useState<LadderType>(
+    () => parseLadderTypeParam(searchParams.get("gameMode")) ?? "1v1"
+  );
+  const [selectedLadderId, setSelectedLadderId] = useState<number | undefined>(() =>
+    parseNumberParam(searchParams.get("division"))
+  );
+  const [page, setPage] = useState(() => parseNumberParam(searchParams.get("page")) ?? 1);
 
   // Helper function to update URL with current selections
   const updateURL = useCallback(
@@ -90,26 +117,26 @@ export default function Leaderboard() {
 
   // Initialize state from URL parameters
   useEffect(() => {
-    const seasonParam = searchParams.get("season") as SeasonId;
-    const gameModeParam = searchParams.get("gameMode") as LadderType;
-    const divisionParam = searchParams.get("division");
-    const pageParam = searchParams.get("page");
+    const seasonParam = parseSeasonParam(searchParams.get("season"));
+    const gameModeParam = parseLadderTypeParam(searchParams.get("gameMode"));
+    const divisionParam = parseNumberParam(searchParams.get("division"));
+    const pageParam = parseNumberParam(searchParams.get("page"));
     // Note: region parameter is handled by RegionContext
 
-    if (seasonParam && (seasonParam === "current" || !isNaN(Number(seasonParam)))) {
+    if (seasonParam) {
       setSelectedSeason(seasonParam);
     }
 
-    if (gameModeParam && (gameModeParam === "1v1" || gameModeParam === "2v2-random")) {
+    if (gameModeParam) {
       setLadderType(gameModeParam);
     }
 
-    if (divisionParam && !isNaN(Number(divisionParam))) {
-      setSelectedLadderId(Number(divisionParam));
+    if (divisionParam !== undefined) {
+      setSelectedLadderId(divisionParam);
     }
 
-    if (pageParam && !isNaN(Number(pageParam))) {
-      setPage(Number(pageParam));
+    if (pageParam !== undefined) {
+      setPage(pageParam);
     }
   }, [searchParams]); // Include searchParams dependency
 
