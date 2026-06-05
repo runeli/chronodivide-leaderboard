@@ -1,5 +1,6 @@
 import { Region } from "@/contexts/RegionContext";
 import type { SWRConfiguration, SWRHook } from "swr";
+import { WOL_EU_URL, WOL_SEA_URL } from "@/lib/constants";
 
 // Use require() to access SWR's default export to work around Next.js/webpack
 // module resolution issues with ESM default exports
@@ -18,13 +19,13 @@ export const globalSWRConfig: SWRConfiguration = {
 export const defaultRegions: Region[] = [
   {
     id: "am-eu",
-    baseUrl: "https://wol-eu1.chronodivide.com",
+    baseUrl: WOL_EU_URL,
     label: "Americas & Europe",
     available: true,
   },
   {
     id: "sea",
-    baseUrl: "https://wol-sea1.chronodivide.com",
+    baseUrl: WOL_SEA_URL,
     label: "South-East Asia",
     available: true,
   },

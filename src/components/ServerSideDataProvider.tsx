@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { CircularProgress, Box } from "@mui/material";
 import { GAME_SKU, LadderSeason, StatsResponse } from "@/lib/api";
+import { WOL_EU_URL, WOL_SEA_URL } from "@/lib/constants";
 
 interface ServerSideDataProviderProps {
   children: React.ReactNode;
@@ -24,7 +25,7 @@ export default function ServerSideDataProvider({ children }: ServerSideDataProvi
 // Server-side data fetching functions
 export async function fetchStatsData(regionId: string): Promise<StatsResponse | null> {
   try {
-    const baseUrl = regionId === "am-eu" ? "https://wol-eu1.chronodivide.com" : "https://wol-sea1.chronodivide.com";
+    const baseUrl = regionId === "am-eu" ? WOL_EU_URL : WOL_SEA_URL;
 
     const res = await fetch(`${baseUrl}/stats`, {
       next: { revalidate: 300 }, // Cache for 5 minutes
@@ -42,7 +43,7 @@ export async function fetchStatsData(regionId: string): Promise<StatsResponse | 
 
 export async function fetchSeasonData(regionId: string, seasonId: string): Promise<LadderSeason | null> {
   try {
-    const baseUrl = regionId === "am-eu" ? "https://wol-eu1.chronodivide.com" : "https://wol-sea1.chronodivide.com";
+    const baseUrl = regionId === "am-eu" ? WOL_EU_URL : WOL_SEA_URL;
 
     const res = await fetch(`${baseUrl}/ladder/${GAME_SKU}/${seasonId}`, {
       next: { revalidate: 600 }, // Cache for 10 minutes

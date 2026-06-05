@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import type { StatsResponse } from "@/lib/api";
 import { config } from "@/lib/config";
 import { defaultRegions } from "@/lib/api";
+import { WOL_EU_URL, WOL_SEA_URL } from "@/lib/constants";
 
 export const revalidate = 300;
 
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ region: s
   try {
     // Fetch stats for the specific region
     const statsUrl =
-      region === "am-eu" ? "https://wol-eu1.chronodivide.com/stats" : "https://wol-sea1.chronodivide.com/stats";
+      region === "am-eu" ? `${WOL_EU_URL}/stats` : `${WOL_SEA_URL}/stats`;
 
     const response = await fetch(statsUrl, {
       next: { revalidate: 600 },
