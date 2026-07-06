@@ -12,6 +12,7 @@ export interface Region {
 }
 
 import { defaultRegions } from "@/lib/api";
+import { fetchRegions } from "@/lib/servers";
 
 interface RegionContextType {
   selectedRegion: Region;
@@ -24,7 +25,15 @@ const RegionContext = createContext<RegionContextType | undefined>(undefined);
 export function RegionProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [regions] = useState<Region[]>(defaultRegions);
+  const [regions, setRegions] = useState<Region[]>(defaultRegions);
+
+  useEffect(() => {
+    fetchRegions().then((fetched) => {
+      setRegions(fetched);
+      // Refresh the selected region in case its data (baseUrl, label) changed
+      setSelectedRegionState((prev) => fetched.find((r) => r.id === prev.id) ?? prev);
+    });
+  }, []);
 
   // Extract region from pathname
   const getRegionFromPath = useCallback(() => {

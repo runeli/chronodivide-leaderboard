@@ -1,6 +1,7 @@
 import { Region } from "@/contexts/RegionContext";
 import type { SWRConfiguration, SWRHook } from "swr";
 import { WOL_EU_URL, WOL_SEA_URL } from "@/lib/constants";
+import { getRegions } from "@/lib/servers";
 
 // Use require() to access SWR's default export to work around Next.js/webpack
 // module resolution issues with ESM default exports
@@ -32,7 +33,7 @@ export const defaultRegions: Region[] = [
 ];
 
 export function getApiBaseUrl(regionId: string) {
-  return defaultRegions.find((r) => r.id === regionId)?.baseUrl;
+  return getRegions().find((r) => r.id === regionId)?.baseUrl;
 }
 
 const fetcher = async (regionId: string, path: string, options?: RequestInit) => {
